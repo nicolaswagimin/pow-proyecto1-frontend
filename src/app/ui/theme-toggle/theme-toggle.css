@@ -1,0 +1,120 @@
+:host {
+  display: inline-block;
+}
+
+.tema {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-vidrio);
+  box-shadow:
+    inset 0 0 0 1px var(--color-vidrio-borde),
+    var(--shadow-elevacion-1);
+  color: var(--color-texto);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform var(--duracion-media) var(--easing-resorte);
+}
+
+@media (hover: hover) {
+  .tema:hover {
+    transform: scale(1.08);
+  }
+}
+
+.tema:active {
+  transform: scale(0.94);
+}
+
+svg {
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.sol,
+.luna {
+  transition:
+    transform var(--duracion-escena) var(--easing-resorte),
+    opacity var(--duracion-lenta);
+}
+
+.sol {
+  color: var(--color-aviso);
+  transform-origin: 16px 15px;
+}
+
+.sol circle {
+  fill: currentColor;
+}
+
+.luna path {
+  fill: var(--color-brillo);
+  stroke: var(--color-brillo);
+}
+
+/* Claro: el sol está arriba y la luna, bajo el agua. */
+.luna {
+  transform: translateY(16px);
+  opacity: 0;
+}
+
+.tema--oscuro .sol {
+  transform: translateY(16px) rotate(90deg);
+  opacity: 0;
+}
+
+.tema--oscuro .luna {
+  transform: none;
+  opacity: 1;
+}
+
+.agua {
+  stroke: var(--color-enlace);
+}
+
+.onda {
+  stroke: var(--color-enlace);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* La onda se reproduce en cada cambio porque la clase alterna la animación. */
+.tema .onda {
+  animation: onda-claro var(--duracion-escena) var(--easing-salida);
+}
+
+.tema--oscuro .onda {
+  animation: onda-oscuro var(--duracion-escena) var(--easing-salida);
+}
+
+@keyframes onda-claro {
+  from {
+    opacity: 0.9;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+
+@keyframes onda-oscuro {
+  from {
+    opacity: 0.9;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}

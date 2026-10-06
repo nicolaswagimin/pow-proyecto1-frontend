@@ -1,0 +1,40 @@
+<fx-plancton />
+
+<div class="olas" aria-hidden="true">
+  <svg class="ola ola--1" viewBox="0 0 2880 140" preserveAspectRatio="none">
+    <path
+      d="M0 70 C240 20 480 120 720 70 S1200 20 1440 70 S1920 120 2160 70 S2640 20 2880 70 V140 H0Z"
+    />
+  </svg>
+  <svg class="ola ola--2" viewBox="0 0 2880 140" preserveAspectRatio="none">
+    <path
+      d="M0 80 C320 120 400 40 720 80 S1120 120 1440 80 S1760 40 2160 80 S2560 120 2880 80 V140 H0Z"
+    />
+  </svg>
+</div>
+
+<header class="cabecera">
+  <a class="marca" routerLink="/">
+    <span class="marca__orbe" aria-hidden="true"></span>
+    {{ nombreApp }}
+  </a>
+  <ui-theme-toggle />
+</header>
+
+<main class="escena">
+  <section class="tarjeta" #tarjeta (pointermove)="moverLuz($event)">
+    <div class="tarjeta__forma" #forma aria-hidden="true">
+      <span class="tarjeta__luz" #luz></span>
+      <span class="tarjeta__destello" #destello></span>
+      <span class="tarjeta__borde"><span class="tarjeta__borde-luz" #bordeLuz></span></span>
+    </div>
+
+    <div class="tarjeta__contenido" #contenido [class.cascada-inicial]="cascada()">
+      <ng-content select="[auth-encabezado]" />
+      <ng-content />
+      <ng-content select="[auth-pie]" />
+    </div>
+  </section>
+</main>
+
+<fx-celebracion />

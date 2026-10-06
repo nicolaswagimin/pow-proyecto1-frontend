@@ -1,0 +1,140 @@
+/*
+ * Tokens de diseño · Dirección "Bioluminiscencia".
+ * Es el único archivo que hay que cambiar para re-tematizar el proyecto (ver docs/brief-diseno.md).
+ * Los componentes nunca usan colores, tamaños ni duraciones fuera de estas variables.
+ * Contraste verificado (WCAG AA) en ambos modos; los valores están anotados junto a cada par.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ---------- Color · modo claro (aguas someras) ---------- */
+  --color-fondo: #e3f6f8;
+  --color-fondo-profundo: #b9e6ec;
+  --color-superficie: #ffffff;
+  --color-vidrio: rgb(255 255 255 / 0.7);
+  --color-vidrio-borde: rgb(6 40 58 / 0.12);
+  --color-campo: rgb(255 255 255 / 0.85);
+  --color-texto: #06283a; /* 13.7:1 sobre fondo */
+  --color-texto-suave: #3d6475; /* 5.7:1 sobre fondo, 6.4:1 sobre blanco */
+  --color-borde: #5f8f9e; /* 3.2:1 sobre fondo (límite de controles) */
+  --color-primario: #007c8a;
+  --color-primario-contraste: #ffffff; /* 4.9:1 sobre primario */
+  --color-enlace: #006a76; /* 5.7:1 sobre fondo */
+  --color-acento: #b0189a; /* 6.1:1 sobre blanco */
+  --color-brillo: #00a8b5; /* luz decorativa (partículas, halos) */
+  --color-brillo-2: #d63cc0;
+  --color-error: #c0263d; /* 5.9:1 sobre blanco */
+  --color-exito: #0f7a4a;
+  --color-aviso: #8a5a00; /* 5.9:1 sobre blanco */
+  --color-foco: #b0189a; /* 5.5:1 sobre fondo */
+  --mezcla-luz: source-over; /* modo de fusión del canvas */
+
+  /* ---------- Tipografía ---------- */
+  --font-display: 'Syne', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+  --font-texto: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: clamp(1.6rem, 1.2rem + 1.5vw, 2.1rem);
+  --text-3xl: clamp(2rem, 1.4rem + 2.6vw, 3rem);
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-fuerte: 700;
+  --peso-display: 800;
+  --leading-ajustado: 1.1;
+  --leading-normal: 1.55;
+
+  /* ---------- Espaciado (escala de 4 px) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---------- Radios por jerarquía ---------- */
+  --radius-control: 14px;
+  --radius-panel: 28px;
+  --radius-pill: 999px;
+
+  /* ---------- Sombras (tintadas con el fondo) ---------- */
+  --shadow-elevacion-1: 0 4px 14px -6px rgb(6 40 58 / 0.25);
+  --shadow-elevacion-2: 0 24px 60px -20px rgb(6 40 58 / 0.35);
+  --shadow-brillo: 0 0 28px rgb(0 168 181 / 0.35);
+
+  /* ---------- Movimiento ---------- */
+  --duracion-rapida: 120ms;
+  --duracion-media: 220ms;
+  --duracion-lenta: 420ms;
+  --duracion-escena: 700ms;
+  --escalonado: 70ms;
+  --easing-salida: cubic-bezier(0.16, 1, 0.3, 1);
+  --easing-entrada: cubic-bezier(0.7, 0, 0.84, 0);
+  --easing-resorte: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --easing-suave: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* ---------- Color · modo oscuro (abismo) ---------- */
+/* Se repite en dos bloques: uno sigue al sistema y otro lo fija el botón de tema. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --color-fondo: #04121f;
+    --color-fondo-profundo: #010810;
+    --color-superficie: #0a2233;
+    --color-vidrio: rgb(10 34 51 / 0.6);
+    --color-vidrio-borde: rgb(46 242 224 / 0.18);
+    --color-campo: rgb(4 18 31 / 0.55);
+    --color-texto: #e6fbff; /* 17.6:1 */
+    --color-texto-suave: #8fb8c9; /* 8.9:1 */
+    --color-borde: #3f7488; /* 3.2:1 sobre superficie */
+    --color-primario: #2ef2e0;
+    --color-primario-contraste: #04121f; /* 13.4:1 */
+    --color-enlace: #2ef2e0; /* 11.5:1 sobre superficie */
+    --color-acento: #ff4fd8; /* 6.6:1 */
+    --color-brillo: #2ef2e0;
+    --color-brillo-2: #ff4fd8;
+    --color-error: #ff6b7a; /* 6.9:1 */
+    --color-exito: #5cffa8;
+    --color-aviso: #ffd166;
+    --color-foco: #ffd166; /* 11.3:1 */
+    --mezcla-luz: lighter;
+    --shadow-elevacion-1: 0 4px 14px -6px rgb(0 0 0 / 0.6);
+    --shadow-elevacion-2: 0 30px 70px -24px rgb(0 0 0 / 0.75);
+    --shadow-brillo: 0 0 32px rgb(46 242 224 / 0.35);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-fondo: #04121f;
+  --color-fondo-profundo: #010810;
+  --color-superficie: #0a2233;
+  --color-vidrio: rgb(10 34 51 / 0.6);
+  --color-vidrio-borde: rgb(46 242 224 / 0.18);
+  --color-campo: rgb(4 18 31 / 0.55);
+  --color-texto: #e6fbff;
+  --color-texto-suave: #8fb8c9;
+  --color-borde: #3f7488;
+  --color-primario: #2ef2e0;
+  --color-primario-contraste: #04121f;
+  --color-enlace: #2ef2e0;
+  --color-acento: #ff4fd8;
+  --color-brillo: #2ef2e0;
+  --color-brillo-2: #ff4fd8;
+  --color-error: #ff6b7a;
+  --color-exito: #5cffa8;
+  --color-aviso: #ffd166;
+  --color-foco: #ffd166;
+  --mezcla-luz: lighter;
+  --shadow-elevacion-1: 0 4px 14px -6px rgb(0 0 0 / 0.6);
+  --shadow-elevacion-2: 0 30px 70px -24px rgb(0 0 0 / 0.75);
+  --shadow-brillo: 0 0 32px rgb(46 242 224 / 0.35);
+}

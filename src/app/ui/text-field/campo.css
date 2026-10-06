@@ -1,0 +1,238 @@
+/* Estilos compartidos por ui-text-field y ui-password-field. */
+
+:host {
+  display: block;
+  --campo-pad: var(--space-4);
+  --campo-alto: 58px;
+}
+
+.campo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--campo-alto);
+  border-radius: var(--radius-control);
+  background: var(--color-campo);
+  box-shadow: inset 0 0 0 1.5px var(--color-borde);
+  transition:
+    box-shadow var(--duracion-media) var(--easing-salida),
+    background-color var(--duracion-media);
+}
+
+.campo--con-icono {
+  --campo-pad: 2.9rem;
+}
+
+.campo__control {
+  flex: 1;
+  min-width: 0;
+  height: var(--campo-alto);
+  padding: 1.35rem var(--space-4) 0.4rem var(--campo-pad);
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  outline: none;
+  font-size: var(--text-base);
+  color: var(--color-texto);
+}
+
+textarea.campo__control {
+  height: auto;
+  min-height: 104px;
+  padding-top: 1.75rem;
+  resize: vertical;
+  line-height: var(--leading-normal);
+}
+
+/* Label flotante: se centra en reposo y sube con rebote al enfocar o tener valor. */
+.campo__label {
+  position: absolute;
+  top: calc(var(--campo-alto) / 2);
+  left: var(--campo-pad);
+  max-width: calc(100% - var(--campo-pad) - var(--space-4));
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-texto-suave);
+  font-weight: var(--peso-medio);
+  transform-origin: left center;
+  transform: translateY(-50%);
+  transition:
+    transform var(--duracion-lenta) var(--easing-resorte),
+    color var(--duracion-media);
+  pointer-events: none;
+}
+
+/* Reglas separadas: si un navegador no entiende :autofill, no invalida las demás. */
+.campo--flotante .campo__label {
+  transform: translateY(calc(-50% - 0.82rem)) scale(0.78);
+}
+
+.campo:has(.campo__control:autofill) .campo__label {
+  transform: translateY(calc(-50% - 0.82rem)) scale(0.78);
+}
+
+.campo:has(.campo__control:-webkit-autofill) .campo__label {
+  transform: translateY(calc(-50% - 0.82rem)) scale(0.78);
+}
+
+.campo__opcional {
+  font-weight: var(--peso-normal);
+}
+
+.campo__icono {
+  position: absolute;
+  top: calc(var(--campo-alto) / 2);
+  left: var(--space-4);
+  translate: 0 -50%;
+  display: grid;
+  color: var(--color-texto-suave);
+  transition: color var(--duracion-media);
+  pointer-events: none;
+}
+
+/* Trazo de luz que recorre el borde una vez al enfocar. */
+.campo__trazo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.campo__trazo rect {
+  x: 1px;
+  y: 1px;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  rx: 13px;
+  fill: none;
+  stroke: var(--color-brillo);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 22 78;
+  opacity: 0;
+  filter: drop-shadow(0 0 6px var(--color-brillo));
+}
+
+/* ---------- Estados ---------- */
+@media (hover: hover) {
+  .campo:not(.campo--enfocado):not(.campo--deshabilitado):hover {
+    box-shadow: inset 0 0 0 1.5px var(--color-texto-suave);
+  }
+}
+
+.campo--enfocado {
+  box-shadow:
+    inset 0 0 0 2px var(--color-primario),
+    0 0 0 4px color-mix(in srgb, var(--color-primario) 22%, transparent),
+    0 0 22px -4px color-mix(in srgb, var(--color-brillo) 55%, transparent);
+}
+
+.campo--enfocado .campo__label {
+  color: var(--color-enlace);
+}
+
+.campo--enfocado .campo__icono {
+  color: var(--color-enlace);
+  animation: pulso-icono var(--duracion-lenta) var(--easing-resorte);
+}
+
+.campo--enfocado .campo__trazo rect {
+  animation: recorrer 1s var(--easing-salida);
+}
+
+.campo--error {
+  box-shadow: inset 0 0 0 2px var(--color-error);
+  animation: destello-error 600ms var(--easing-salida);
+}
+
+.campo--error.campo--enfocado {
+  box-shadow:
+    inset 0 0 0 2px var(--color-error),
+    0 0 0 4px color-mix(in srgb, var(--color-error) 22%, transparent);
+}
+
+.campo--error .campo__icono,
+.campo--error .campo__label {
+  color: var(--color-error);
+}
+
+.campo--deshabilitado {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.campo--deshabilitado .campo__control {
+  cursor: not-allowed;
+}
+
+/* ---------- Mensajes bajo el campo ---------- */
+.campo__mensaje {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-inline: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-texto-suave);
+  --icono-tamano: 1.1rem;
+}
+
+.campo__mensaje ui-icon {
+  margin-top: 0.1rem;
+}
+
+.campo__mensaje--error {
+  color: var(--color-error);
+  font-weight: var(--peso-medio);
+  animation: emerger var(--duracion-lenta) var(--easing-resorte);
+}
+
+.campo__mensaje--aviso {
+  color: var(--color-aviso);
+  font-weight: var(--peso-medio);
+  animation: emerger var(--duracion-lenta) var(--easing-resorte);
+}
+
+@keyframes recorrer {
+  0% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: -100;
+  }
+}
+
+@keyframes pulso-icono {
+  40% {
+    transform: scale(1.3) rotate(-8deg);
+  }
+}
+
+@keyframes emerger {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(3px);
+  }
+}
+
+@keyframes destello-error {
+  0% {
+    box-shadow:
+      inset 0 0 0 2px var(--color-error),
+      0 0 0 0 color-mix(in srgb, var(--color-error) 60%, transparent);
+  }
+  100% {
+    box-shadow:
+      inset 0 0 0 2px var(--color-error),
+      0 0 0 14px transparent;
+  }
+}

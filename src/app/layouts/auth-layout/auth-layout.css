@@ -1,0 +1,257 @@
+:host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow: hidden;
+  /* Profundidad del océano: luz que baja desde arriba hacia el abismo. */
+  background:
+    radial-gradient(
+      120% 70% at 50% -10%,
+      color-mix(in srgb, var(--color-brillo) 22%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      80% 60% at 85% 110%,
+      color-mix(in srgb, var(--color-brillo-2) 16%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, var(--color-fondo), var(--color-fondo-profundo));
+}
+
+/* ---------- Olas de luz en la base ---------- */
+.olas {
+  position: absolute;
+  inset: auto 0 0;
+  height: 22vh;
+  min-height: 120px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ola {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  /* base.css limita los svg al 100 %: la ola necesita el doble de ancho para el bucle. */
+  max-width: none;
+  height: 100%;
+  animation: deriva 18s linear infinite;
+}
+
+.ola path {
+  fill: color-mix(in srgb, var(--color-brillo) 10%, transparent);
+  stroke: color-mix(in srgb, var(--color-brillo) 45%, transparent);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.ola--2 {
+  height: 80%;
+  animation-duration: 26s;
+  animation-direction: reverse;
+}
+
+.ola--2 path {
+  fill: color-mix(in srgb, var(--color-brillo-2) 8%, transparent);
+  stroke: color-mix(in srgb, var(--color-brillo-2) 35%, transparent);
+}
+
+:host(.pausado) .ola,
+:host(.pausado) .marca__orbe,
+:host(.pausado) .tarjeta__luz {
+  animation-play-state: paused;
+}
+
+/* ---------- Cabecera ---------- */
+.cabecera {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) clamp(var(--space-4), 4vw, var(--space-10));
+  animation: bajar var(--duracion-escena) var(--easing-resorte) 150ms both;
+}
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  color: var(--color-texto);
+  font-family: var(--font-display);
+  font-weight: var(--peso-display);
+  font-size: var(--text-lg);
+  text-decoration: none;
+}
+
+.marca__orbe {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 35%,
+    white,
+    var(--color-brillo) 45%,
+    var(--color-brillo-2)
+  );
+  box-shadow: 0 0 18px var(--color-brillo);
+  animation: latido 3s var(--easing-suave) infinite;
+}
+
+/* ---------- Escena y tarjeta de vidrio ---------- */
+.escena {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4) var(--space-4) var(--space-16);
+}
+
+.tarjeta {
+  position: relative;
+  width: min(100%, 440px);
+  animation: burbuja-sube 900ms var(--easing-resorte) 250ms both;
+}
+
+.tarjeta__forma {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: var(--color-vidrio);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  box-shadow:
+    var(--shadow-elevacion-2),
+    inset 0 0 0 1px var(--color-vidrio-borde),
+    inset 0 1px 0 color-mix(in srgb, white 25%, transparent);
+}
+
+/* Luz cáustica: un foco que sigue al mouse (se mueve con transform, sin repintar). */
+.tarjeta__luz {
+  position: absolute;
+  top: -180px;
+  left: -180px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-brillo) 30%, transparent),
+    transparent 65%
+  );
+  transform: translate3d(220px, 80px, 0);
+  transition: transform 500ms var(--easing-salida);
+  will-change: transform;
+}
+
+/* En táctil la luz deriva sola. */
+:host(.tactil) .tarjeta__luz {
+  transition: none;
+  animation: deriva-luz 9s var(--easing-suave) infinite alternate;
+}
+
+.tarjeta__destello {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 90% at 50% 50%,
+    transparent 40%,
+    color-mix(in srgb, var(--color-error) 35%, transparent)
+  );
+  opacity: 0;
+}
+
+/* Borde que brilla más del lado cercano al cursor: una máscara deja ver solo el contorno. */
+.tarjeta__borde {
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  overflow: hidden;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+}
+
+.tarjeta__borde-luz {
+  position: absolute;
+  top: -140px;
+  left: -140px;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-brillo), transparent 70%);
+  transform: translate3d(220px, 80px, 0);
+  transition: transform 500ms var(--easing-salida);
+  will-change: transform;
+}
+
+:host(.tactil) .tarjeta__borde-luz {
+  transition: none;
+  animation: deriva-luz 9s var(--easing-suave) infinite alternate;
+}
+
+.tarjeta__contenido {
+  --retraso-base: 520ms;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: clamp(var(--space-6), 5vw, var(--space-10));
+}
+
+@media (max-width: 480px) {
+  .escena {
+    padding-inline: var(--space-3);
+    place-items: start center;
+  }
+}
+
+@keyframes deriva {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes bajar {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes burbuja-sube {
+  0% {
+    opacity: 0;
+    transform: translateY(90px) scale(0.85);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+@keyframes latido {
+  50% {
+    transform: scale(1.18);
+    box-shadow: 0 0 30px var(--color-brillo);
+  }
+}
+
+@keyframes deriva-luz {
+  from {
+    transform: translate3d(40px, 40px, 0);
+  }
+  to {
+    transform: translate3d(300px, 380px, 0);
+  }
+}

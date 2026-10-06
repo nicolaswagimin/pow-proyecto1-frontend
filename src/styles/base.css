@@ -1,0 +1,118 @@
+/* Reset, tipografía base, foco visible y movimiento reducido. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  font-family: var(--font-texto);
+  font-size: var(--text-base);
+  font-weight: var(--peso-normal);
+  line-height: var(--leading-normal);
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: var(--peso-display);
+  line-height: var(--leading-ajustado);
+  overflow-wrap: break-word;
+}
+
+p {
+  max-width: 70ch;
+}
+
+a {
+  color: var(--color-enlace);
+  font-weight: var(--peso-fuerte);
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 2px;
+}
+
+/* Foco visible solo al navegar con teclado; nunca se oculta sin reemplazo. */
+:focus-visible {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primario) 35%, transparent);
+}
+
+/* Transición de tema: un círculo de luz que se expande desde el botón (View Transitions API). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: revelar-tema var(--duracion-escena) var(--easing-salida);
+}
+
+@keyframes revelar-tema {
+  from {
+    clip-path: circle(0 at var(--tema-x, 50%) var(--tema-y, 0%));
+  }
+  to {
+    clip-path: circle(150vmax at var(--tema-x, 50%) var(--tema-y, 0%));
+  }
+}
+
+/*
+ * Movimiento reducido: todo pasa a cambios casi instantáneos.
+ * Los fondos en canvas y las celebraciones lo detectan además desde TypeScript.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

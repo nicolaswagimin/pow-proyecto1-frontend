@@ -1,0 +1,35 @@
+<button
+  #boton
+  class="boton"
+  [class]="'boton boton--' + variante() + ' boton--' + tamano()"
+  [class.cargando]="cargando()"
+  [type]="tipo()"
+  [disabled]="deshabilitado()"
+  [attr.aria-label]="etiqueta()"
+  [attr.aria-disabled]="cargando() || null"
+  [attr.aria-busy]="cargando() || null"
+  (click)="alHacerClic($event)"
+  (pointerdown)="lanzarOnda($event)"
+  (pointermove)="seguir($event)"
+  (pointerleave)="soltar()"
+>
+  <span class="capa" aria-hidden="true">
+    @for (onda of ondas(); track onda.id) {
+      <span
+        class="onda"
+        [style.left.px]="onda.x"
+        [style.top.px]="onda.y"
+        (animationend)="quitarOnda(onda.id)"
+      ></span>
+    }
+  </span>
+  <span class="contenido" [attr.aria-hidden]="cargando() || null"><ng-content /></span>
+  <span class="orbita" aria-hidden="true">
+    <i style="--n: 0"></i>
+    <i style="--n: 1"></i>
+    <i style="--n: 2"></i>
+  </span>
+  @if (cargando()) {
+    <span class="visually-hidden">{{ textoCargando() }}</span>
+  }
+</button>

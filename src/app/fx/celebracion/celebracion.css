@@ -1,0 +1,92 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.centro {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.anillo {
+  position: absolute;
+  left: -60px;
+  top: -60px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--color-brillo);
+  box-shadow:
+    0 0 24px var(--color-brillo),
+    inset 0 0 24px var(--color-brillo);
+  opacity: 0;
+  animation: anillo-luz 1.1s var(--easing-salida) forwards;
+}
+
+.anillo--2 {
+  border-color: var(--color-brillo-2);
+  box-shadow: 0 0 24px var(--color-brillo-2);
+  animation-delay: 180ms;
+}
+
+.check {
+  position: absolute;
+  left: -44px;
+  top: -44px;
+  width: 88px;
+  height: 88px;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 10px var(--color-brillo));
+  animation: check-entra 500ms var(--easing-resorte) both;
+}
+
+.check__circulo {
+  fill: var(--color-primario);
+  stroke: var(--color-brillo);
+  stroke-width: 3;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: trazar 600ms var(--easing-salida) 100ms forwards;
+}
+
+.check__trazo {
+  stroke: var(--color-primario-contraste);
+  stroke-width: 5;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: trazar 450ms var(--easing-salida) 450ms forwards;
+}
+
+@keyframes anillo-luz {
+  0% {
+    opacity: 1;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(4);
+  }
+}
+
+@keyframes check-entra {
+  from {
+    opacity: 0;
+    transform: scale(0.3) rotate(-30deg);
+  }
+}
+
+@keyframes trazar {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
