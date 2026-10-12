@@ -103,15 +103,29 @@ h1:focus-visible {
   }
 }
 
+.lienzo__leyenda {
+  justify-self: start;
+}
+
 /* Pantallas anchas: código a la izquierda, diagrama a la derecha. */
 @media (min-width: 1280px) {
   .lienzo {
     grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     align-items: start;
+  }
+
+  .lienzo__diagrama {
+    grid-column: 2;
+    grid-row: 2 / span 2;
   }
 
   .lienzo__titulo {
     grid-column: 1 / -1;
+  }
+
+  .lienzo__leyenda {
+    grid-column: 1;
+    grid-row: 3;
   }
 }

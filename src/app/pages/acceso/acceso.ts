@@ -26,6 +26,7 @@ import { APP_NOMBRE } from '../../config';
 import { AuthService } from '../../core/auth.service';
 import { CampoAuth, ErrorInterfaz, mapearError } from '../../core/errores';
 import { Diagrama } from '../../diagrama/diagrama';
+import { Leyenda } from '../../diagrama/leyenda';
 import { AuthLayout } from '../../layouts/auth-layout/auth-layout';
 import { Alert } from '../../ui/alert/alert';
 import { Button } from '../../ui/button/button';
@@ -94,6 +95,7 @@ function noVacio(control: AbstractControl<string>): ValidationErrors | null {
     Button,
     Codigo,
     Diagrama,
+    Leyenda,
     TextField,
     PasswordField,
   ],
