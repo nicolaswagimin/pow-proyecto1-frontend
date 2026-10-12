@@ -20,15 +20,25 @@ import {
 } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, debounceTime, map } from 'rxjs';
 import { APP_NOMBRE } from '../../config';
 import { AuthService } from '../../core/auth.service';
 import { CampoAuth, ErrorInterfaz, mapearError } from '../../core/errores';
+import { Diagrama } from '../../diagrama/diagrama';
 import { AuthLayout } from '../../layouts/auth-layout/auth-layout';
 import { Alert } from '../../ui/alert/alert';
 import { Button } from '../../ui/button/button';
+import { Codigo } from '../../ui/codigo/codigo';
 import { PasswordField } from '../../ui/password-field/password-field';
 import { TextField } from '../../ui/text-field/text-field';
+import {
+  CampoDiagrama,
+  Instantanea,
+  aristasAcceso,
+  codigoAcceso,
+  describirAcceso,
+  nodosAcceso,
+} from './diagrama-acceso';
 
 export type Modo = 'login' | 'registro';
 
@@ -36,18 +46,18 @@ const EMAIL_VALIDO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const TEXTOS = {
   login: {
-    titulo: 'Bienvenido de vuelta',
-    subtitulo: 'Entra a tu cuenta para seguir.',
+    titulo: 'Inicia sesión',
+    subtitulo: 'Mientras llenas el formulario, el diagrama muestra cómo viaja tu sesión.',
     boton: 'Iniciar sesión',
     cargando: 'Iniciando sesión…',
-    pregunta: '¿Sin cuenta?',
+    pregunta: '¿No tienes cuenta?',
     enlace: '/registro',
-    enlaceTexto: 'Crear una',
+    enlaceTexto: 'Crea una',
     exito: 'Sesión iniciada. Entrando…',
   },
   registro: {
     titulo: 'Crea tu cuenta',
-    subtitulo: 'Solo te toma un momento.',
+    subtitulo: 'Mientras lo llenas, el diagrama muestra cómo se guarda tu cuenta.',
     boton: 'Crear cuenta',
     cargando: 'Creando tu cuenta…',
     pregunta: '¿Ya tienes cuenta?',
@@ -71,7 +81,17 @@ function noVacio(control: AbstractControl<string>): ValidationErrors | null {
 @Component({
   selector: 'app-acceso',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, AuthLayout, Alert, Button, TextField, PasswordField],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    AuthLayout,
+    Alert,
+    Button,
+    Codigo,
+    Diagrama,
+    TextField,
+    PasswordField,
+  ],
   templateUrl: './acceso.html',
   styleUrl: './acceso.css',
 })
@@ -103,6 +123,25 @@ export class Acceso {
   );
   // Cualquier cambio del formulario (valor, estado, tocado) vuelve a evaluar los mensajes.
   private readonly eventosForm = toSignal(this.form.events);
+
+  // ---------- Diagrama en vivo ----------
+  // Igual que en el producto, el diagrama se recalcula 300 ms después de la última tecla.
+  private readonly instantanea = toSignal(
+    this.form.events.pipe(
+      debounceTime(300),
+      map(() => this.tomarInstantanea()),
+    ),
+    { initialValue: this.tomarInstantanea() },
+  );
+  protected readonly campoActivo = signal<string | null>(null);
+  protected readonly nodos = computed(() => nodosAcceso(this.modoVisible(), this.instantanea()));
+  protected readonly aristas = computed(() =>
+    aristasAcceso(this.modoVisible(), this.instantanea()),
+  );
+  protected readonly codigo = computed(() => codigoAcceso(this.modoVisible()));
+  protected readonly descripcion = computed(() =>
+    describirAcceso(this.modoVisible(), this.instantanea()),
+  );
 
   private readonly layout = viewChild.required(AuthLayout);
   private readonly encabezado = viewChild.required<ElementRef<HTMLElement>>('encabezado');
@@ -139,6 +178,23 @@ export class Acceso {
         if (errores['maxlength']) return 'La contraseña no puede superar los 72 caracteres.';
         return 'La contraseña necesita al menos 8 caracteres.';
     }
+  }
+
+  protected enfocar(campo: CampoDiagrama, enfocado: boolean): void {
+    if (enfocado) this.campoActivo.set(campo);
+    else if (this.campoActivo() === campo) this.campoActivo.set(null);
+  }
+
+  private tomarInstantanea(): Instantanea {
+    const leer = (campo: CampoDiagrama) => {
+      const control = this.form.controls[campo];
+      return {
+        texto: control.value,
+        valido: control.enabled && control.valid,
+        mostrarError: control.enabled && control.invalid && (control.touched || this.enviado()),
+      };
+    };
+    return { nombre: leer('nombre'), email: leer('email'), password: leer('password') };
   }
 
   protected enviar(): void {

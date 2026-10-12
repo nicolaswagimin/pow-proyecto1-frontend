@@ -5,7 +5,6 @@
 
 h1 {
   font-size: var(--text-2xl);
-  letter-spacing: -0.01em;
 }
 
 h1:focus {
@@ -15,7 +14,7 @@ h1:focus {
 h1:focus-visible {
   outline: 3px solid var(--color-foco);
   outline-offset: 6px;
-  border-radius: 6px;
+  border-radius: 2px;
 }
 
 .subtitulo {
@@ -25,22 +24,60 @@ h1:focus-visible {
 .formulario {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .lento {
   margin-top: var(--space-3);
   font-size: var(--text-sm);
   color: var(--color-texto-suave);
-  text-align: center;
 }
 
 .cambio {
-  text-align: center;
   color: var(--color-texto-suave);
 }
 
 .cambio a {
   display: inline-block;
   padding: var(--space-2) var(--space-1);
+}
+
+/* ---------- Lienzo: código y diagrama sobre el tapete ---------- */
+.lienzo {
+  display: grid;
+  gap: var(--space-5);
+  justify-items: center;
+  width: 100%;
+  margin: 0;
+}
+
+.lienzo__titulo {
+  max-width: 46ch;
+  justify-self: start;
+  font-size: var(--text-sm);
+  color: var(--color-texto-suave);
+}
+
+.lienzo__codigo {
+  width: 100%;
+  max-width: 460px;
+  justify-self: start;
+}
+
+.lienzo__diagrama {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* Pantallas anchas: código a la izquierda, diagrama a la derecha. */
+@media (min-width: 1280px) {
+  .lienzo {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    grid-template-rows: auto 1fr;
+    align-items: start;
+  }
+
+  .lienzo__titulo {
+    grid-column: 1 / -1;
+  }
 }

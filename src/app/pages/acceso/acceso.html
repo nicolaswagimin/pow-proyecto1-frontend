@@ -1,13 +1,11 @@
 <app-auth-layout>
-  <header auth-encabezado class="encabezado" data-ola style="--i: 0">
+  <header auth-encabezado class="encabezado">
     <h1 #encabezado tabindex="-1">{{ textos().titulo }}</h1>
     <p class="subtitulo">{{ textos().subtitulo }}</p>
   </header>
 
   @if (sesionExpirada()) {
-    <ui-alert tipo="info" data-ola style="--i: 1"
-      >Tu sesión expiró. Inicia sesión de nuevo.</ui-alert
-    >
+    <ui-alert tipo="info">Tu sesión expiró. Inicia sesión de nuevo.</ui-alert>
   }
 
   @if (errorGeneral(); as error) {
@@ -25,13 +23,12 @@
         #campoNombre
         formControlName="nombre"
         label="Nombre"
+        clave="nombre"
         icono="usuario"
         autocomplete="name"
         [maxlength]="100"
         [error]="errorDe('nombre')"
-        data-ola
-        data-brota
-        style="--i: 1"
+        (enfoque)="enfocar('nombre', $event)"
       />
     }
 
@@ -39,25 +36,25 @@
       #campoEmail
       formControlName="email"
       label="Correo"
+      clave="email"
       tipo="email"
       icono="correo"
       autocomplete="email"
       [error]="errorDe('email')"
-      data-ola
-      style="--i: 2"
+      (enfoque)="enfocar('email', $event)"
     />
 
     <ui-password-field
       formControlName="password"
+      clave="password"
       [autocomplete]="modoVisible() === 'registro' ? 'new-password' : 'current-password'"
       [conMedidor]="modoVisible() === 'registro'"
       [ayuda]="modoVisible() === 'registro' ? 'Mínimo 8 caracteres.' : null"
       [error]="errorDe('password')"
-      data-ola
-      style="--i: 3"
+      (enfoque)="enfocar('password', $event)"
     />
 
-    <div data-ola style="--i: 4">
+    <div>
       <ui-button
         tipo="submit"
         anchoCompleto
@@ -72,10 +69,30 @@
     </div>
   </form>
 
-  <p auth-pie class="cambio" data-ola style="--i: 5">
+  <p auth-pie class="cambio">
     {{ textos().pregunta }}
     <a [routerLink]="textos().enlace">{{ textos().enlaceTexto }}</a>
   </p>
 
   <div class="visually-hidden" aria-live="polite">{{ anuncio() }}</div>
+
+  <figure auth-lienzo class="lienzo">
+    <figcaption class="lienzo__titulo">
+      El diagrama sale del código de este formulario y cambia mientras escribes.
+    </figcaption>
+    <ui-codigo
+      class="lienzo__codigo"
+      archivo="acceso.ts"
+      [lineas]="codigo()"
+      [activa]="campoActivo()"
+    />
+    <ui-diagrama
+      class="lienzo__diagrama"
+      dibujar
+      [nodos]="nodos()"
+      [aristas]="aristas()"
+      [filaActiva]="campoActivo()"
+      [descripcion]="descripcion()"
+    />
+  </figure>
 </app-auth-layout>
