@@ -1,2 +1,2 @@
-// Cambia este nombre cuando se conozca el tema del proyecto.
-export const APP_NOMBRE = 'Proyecto 1';
+// Nombre del producto: aparece en la cabecera, en la pestaña y en los títulos de cada página.
+export const APP_NOMBRE = 'CodeToDiagram';
