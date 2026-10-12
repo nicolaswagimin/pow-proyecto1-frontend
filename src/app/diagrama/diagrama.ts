@@ -1,9 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  afterNextRender,
   ElementRef,
+  booleanAttribute,
   computed,
+  inject,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 import { prefiereMenosMovimiento } from '../core/movimiento';
@@ -34,6 +39,7 @@ const GLIFOS: Record<EstadoFila, string> = { vacia: '○', llena: '●', ok: '�
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './diagrama.html',
   styleUrl: './diagrama.css',
+  host: { '[class.dibujando]': 'dibujando()' },
 })
 export class Diagrama {
   readonly nodos = input.required<NodoDiagrama[]>();
@@ -42,6 +48,21 @@ export class Diagrama {
   readonly descripcion = input.required<string>();
   // Fila resaltada (por ejemplo, la del campo que tiene el foco).
   readonly filaActiva = input<string | null>(null);
+  // Al aparecer, el diagrama se dibuja nodo por nodo y luego sus aristas.
+  readonly dibujar = input(false, { transform: booleanAttribute });
+
+  protected readonly dibujando = signal(false);
+
+  constructor() {
+    const destroyRef = inject(DestroyRef);
+    afterNextRender(() => {
+      if (!this.dibujar() || prefiereMenosMovimiento()) return;
+      this.dibujando.set(true);
+      const duracion = 700 + this.nodos().length * 110 + 600;
+      const fin = setTimeout(() => this.dibujando.set(false), duracion);
+      destroyRef.onDestroy(() => clearTimeout(fin));
+    });
+  }
 
   protected readonly caja = computed(() => marco(this.nodos()));
   protected readonly viewBox = computed(() => {

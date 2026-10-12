@@ -196,6 +196,43 @@
   opacity: 0;
 }
 
+/* ---------- Dibujo inicial ---------- */
+/* Cada nodo se traza como a mano (el contorno avanza), se rellena y después aparecen las aristas. */
+:host(.dibujando) .nodo__contorno {
+  stroke-dasharray: 100;
+  animation: trazar-contorno 700ms var(--easing-suave) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+
+:host(.dibujando) .nodo__fondo:not(.nodo__trazo),
+:host(.dibujando) .nodo__adorno,
+:host(.dibujando) .nodo--persona circle,
+:host(.dibujando) .nodo__texto {
+  animation: aparecer 300ms var(--easing-salida) both;
+  animation-delay: calc(var(--i, 0) * 110ms + 450ms);
+}
+
+:host(.dibujando) .arista,
+:host(.dibujando) .arista__etiqueta {
+  animation: aparecer 400ms var(--easing-salida) both;
+  animation-delay: 900ms;
+}
+
+@keyframes trazar-contorno {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
 @keyframes avanzar {
   to {
     stroke-dashoffset: -7;
