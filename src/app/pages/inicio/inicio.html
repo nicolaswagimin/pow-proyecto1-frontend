@@ -1,9 +1,11 @@
-<fx-plancton [densidad]="0.6" />
-
 <div class="pagina">
   <header class="barra">
     <a class="marca" routerLink="/app">
-      <span class="marca__orbe" aria-hidden="true"></span>
+      <svg class="marca__logo" viewBox="0 0 28 20" aria-hidden="true" focusable="false">
+        <rect x="1" y="1" width="11" height="8" rx="1" />
+        <rect x="16" y="11" width="11" height="8" rx="1" />
+        <path d="M6.5 9v6H16" />
+      </svg>
       {{ nombreApp }}
     </a>
 
@@ -16,31 +18,31 @@
           <span class="perfil__correo">{{ usuario()?.email }}</span>
         </div>
       </div>
-      <ui-button variante="secundario" tamano="compacto" (click)="salir()">
+      <ui-button
+        variante="secundario"
+        tamano="compacto"
+        etiqueta="Cerrar sesión"
+        (click)="salir()"
+      >
         <ui-icon nombre="salir" />
-        Cerrar sesión
+        <span class="solo-ancho">Cerrar sesión</span>
       </ui-button>
     </div>
   </header>
 
   <main class="contenido">
     <section class="bienvenida">
-      <h1 [attr.aria-label]="'Hola, ' + primerNombre()">
-        <span aria-hidden="true">
-          @for (letra of letrasSaludo(); track $index) {
-            <span class="letra" [style.--i]="$index">{{ letra === ' ' ? ' ' : letra }}</span>
-          }
-        </span>
-      </h1>
-      <p class="bienvenida__texto entra" style="--i: 12">
-        Tus registros y tu asistente de IA, en un solo lugar.
+      <h1>Hola, {{ primerNombre() }}</h1>
+      <p class="bienvenida__texto">
+        Aquí vas a pegar código y ver su arquitectura. Por ahora, este es el diagrama de la
+        propia app, con el estado real de cada conexión.
       </p>
     </section>
 
-    <!-- 1. Estado de conexión -->
-    <section class="panel entra" style="--i: 13" aria-labelledby="titulo-estado">
+    <!-- 1. Arquitectura de esta app (estado de conexión) -->
+    <section class="panel panel--diagrama" aria-labelledby="titulo-estado">
       <div class="panel__cabecera">
-        <h2 id="titulo-estado">Estado</h2>
+        <h2 id="titulo-estado">Arquitectura de esta app</h2>
         <ui-button
           variante="fantasma"
           tamano="compacto"
@@ -53,23 +55,18 @@
         </ui-button>
       </div>
 
-      <ul class="indicadores">
-        <li [class.ok]="estado()?.ok">
-          <span class="punto" aria-hidden="true"></span>
-          Backend
-          <span class="visually-hidden">{{ estado()?.ok ? 'conectado' : 'sin conexión' }}</span>
-        </li>
-        <li [class.ok]="estado()?.db">
-          <span class="punto" aria-hidden="true"></span>
-          Base de datos
-          <span class="visually-hidden">{{ estado()?.db ? 'conectada' : 'sin conexión' }}</span>
-        </li>
-        <li [class.ok]="estado()?.ia">
-          <span class="punto" aria-hidden="true"></span>
-          IA
-          <span class="visually-hidden">{{ estado()?.ia ? 'configurada' : 'sin configurar' }}</span>
-        </li>
-      </ul>
+      <div class="mesa">
+        <ui-diagrama
+          class="mesa__diagrama"
+          dibujar
+          [nodos]="nodos()"
+          [aristas]="aristas()"
+          [descripcion]="descripcion()"
+        />
+        <ui-leyenda />
+      </div>
+
+      <p class="visually-hidden" role="status">{{ cargandoEstado() ? '' : descripcion() }}</p>
 
       @if (!cargandoEstado()) {
         @if (!estado()) {
@@ -97,7 +94,7 @@
     </section>
 
     <!-- 2. Registros -->
-    <section class="panel entra" style="--i: 14" aria-labelledby="titulo-registros">
+    <section class="panel" aria-labelledby="titulo-registros">
       <h2 id="titulo-registros">Tus registros</h2>
 
       <form class="formulario" [formGroup]="formItem" (ngSubmit)="crear()">
@@ -148,7 +145,7 @@
     </section>
 
     <!-- 3. IA -->
-    <section class="panel entra" style="--i: 15" aria-labelledby="titulo-ia">
+    <section class="panel" aria-labelledby="titulo-ia">
       <h2 id="titulo-ia"><ui-icon nombre="chispa" class="titulo-icono" /> Pregúntale a la IA</h2>
 
       <form class="formulario" [formGroup]="formIA" (ngSubmit)="preguntar()">

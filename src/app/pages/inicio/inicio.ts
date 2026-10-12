@@ -1,13 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  afterNextRender,
-  computed,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
@@ -16,7 +7,8 @@ import { environment } from '../../../environments/environment';
 import { APP_NOMBRE } from '../../config';
 import { AuthService } from '../../core/auth.service';
 import { mapearError } from '../../core/errores';
-import { Plancton } from '../../fx/plancton/plancton';
+import { Diagrama } from '../../diagrama/diagrama';
+import { Leyenda } from '../../diagrama/leyenda';
 import { ApiService, Estado, Item } from '../../services/api.service';
 import { Alert } from '../../ui/alert/alert';
 import { Avatar } from '../../ui/avatar/avatar';
@@ -24,6 +16,7 @@ import { Button } from '../../ui/button/button';
 import { Icon } from '../../ui/icon/icon';
 import { TextField } from '../../ui/text-field/text-field';
 import { ThemeToggle } from '../../ui/theme-toggle/theme-toggle';
+import { aristasApp, describirApp, nodosApp } from './arquitectura-app';
 
 @Component({
   selector: 'app-inicio',
@@ -32,7 +25,8 @@ import { ThemeToggle } from '../../ui/theme-toggle/theme-toggle';
     DatePipe,
     ReactiveFormsModule,
     RouterLink,
-    Plancton,
+    Diagrama,
+    Leyenda,
     Alert,
     Avatar,
     Button,
@@ -55,11 +49,18 @@ export class Inicio {
   protected readonly primerNombre = computed(
     () => (this.usuario()?.nombre ?? '').trim().split(/\s+/)[0] || 'de nuevo',
   );
-  protected readonly letrasSaludo = computed(() => [...`Hola, ${this.primerNombre()}`]);
 
   // Estado de conexión
   protected readonly estado = signal<Estado | null>(null);
   protected readonly cargandoEstado = signal(true);
+  private readonly apiHost = new URL(environment.apiUrl).host;
+  protected readonly nodos = computed(() =>
+    nodosApp(this.estado(), this.cargandoEstado(), this.apiHost),
+  );
+  protected readonly aristas = computed(() => aristasApp(this.estado(), this.cargandoEstado()));
+  protected readonly descripcion = computed(() =>
+    describirApp(this.estado(), this.cargandoEstado()),
+  );
 
   // Registros
   protected readonly items = signal<Item[]>([]);
@@ -77,25 +78,10 @@ export class Inicio {
   protected readonly pensando = signal(false);
   protected readonly errorIA = signal('');
 
-  private readonly plancton = viewChild.required(Plancton);
-  private readonly avatar = viewChild.required(Avatar, { read: ElementRef });
-
   constructor() {
     inject(Title).setTitle(`Inicio · ${APP_NOMBRE}`);
     this.auth.refrescarUsuario();
     this.revisarEstado();
-
-    // Bienvenida: el plancton converge alrededor del avatar.
-    afterNextRender(() => {
-      setTimeout(() => {
-        const caja = (this.avatar().nativeElement as HTMLElement).getBoundingClientRect();
-        this.plancton().formarAnillo(
-          caja.left + caja.width / 2,
-          caja.top + caja.height / 2,
-          caja.width * 0.85,
-        );
-      }, 350);
-    });
   }
 
   protected revisarEstado(): void {
