@@ -1,0 +1,94 @@
+<svg
+  class="lienzo"
+  [attr.viewBox]="viewBox()"
+  [attr.width]="caja().ancho"
+  [attr.height]="caja().alto"
+  role="img"
+  [attr.aria-label]="descripcion()"
+>
+  <!-- Aristas: el trazo a lápiz siempre está; la tinta se dibuja encima cuando se confirma. -->
+  @for (arista of aristasVista(); track arista.id) {
+    <g class="arista" [class]="'arista arista--' + arista.estado">
+      <path class="arista__lapiz" [attr.d]="arista.d" />
+      <path class="arista__tinta" [attr.d]="arista.d" pathLength="100" />
+      <path class="arista__punta" [attr.d]="arista.punta" />
+      @if (arista.estado === 'error') {
+        <path
+          class="arista__corte"
+          [attr.d]="
+            'M' + (arista.medio.x - 5) + ' ' + (arista.medio.y - 5) + 'l10 10m0 -10l-10 10'
+          "
+        />
+      }
+    </g>
+  }
+
+  @for (nodo of nodosVista(); track nodo.id; let i = $index) {
+    <g
+      [class]="'nodo nodo--' + nodo.forma + ' nodo--' + (nodo.estado ?? 'normal')"
+      [style.transform]="'translate(' + nodo.x + 'px, ' + nodo.y + 'px)'"
+      [style.--i]="i"
+    >
+      @if (nodo.forma === 'persona') {
+        <circle class="nodo__fondo nodo__trazo" [attr.cx]="nodo.ancho / 2" cy="10" r="10" />
+      }
+      <path class="nodo__fondo" [attr.d]="nodo.contorno" />
+      <path class="nodo__trazo nodo__contorno" [attr.d]="nodo.contorno" pathLength="100" />
+      @if (nodo.adornos; as extra) {
+        <path class="nodo__fondo nodo__trazo nodo__adorno" [attr.d]="extra" />
+      }
+
+      <g class="nodo__texto">
+        <text class="nodo__titulo" x="10" [attr.y]="nodo.arriba + 19">{{ nodo.titulo }}</text>
+        <text class="nodo__tipo" x="10" [attr.y]="nodo.arriba + 34">[{{ nodo.tipo }}]</text>
+        @if (nodo.detalle) {
+          <text class="nodo__detalle" x="10" [attr.y]="nodo.inicioFilas + 12">
+            {{ nodo.detalle }}
+          </text>
+        }
+        @if (nodo.filasVista.length) {
+          <path
+            class="nodo__separador"
+            [attr.d]="'M0 ' + nodo.inicioFilas + 'H' + nodo.ancho"
+          />
+        }
+        @for (fila of nodo.filasVista; track fila.id) {
+          <g
+            [class]="'fila fila--' + (fila.estado ?? 'vacia')"
+            [class.fila--activa]="fila.id === filaActiva()"
+          >
+            <rect
+              class="fila__resalte"
+              x="3"
+              [attr.y]="fila.y"
+              [attr.width]="nodo.ancho - 6"
+              [attr.height]="ALTO_FILA"
+              rx="2"
+            />
+            <text class="fila__texto" x="10" [attr.y]="fila.y + 14">
+              <tspan class="fila__glifo">{{ fila.glifo }}</tspan> {{ fila.texto }}
+            </text>
+          </g>
+        }
+      </g>
+
+      @if (nodo.marca) {
+        <g class="nodo__marca" [style.transform]="'translate(' + nodo.ancho + 'px, ' + nodo.arriba + 'px)'">
+          <text class="marca__texto" x="-8" y="-6" text-anchor="end">{{ nodo.marca }}</text>
+        </g>
+      }
+    </g>
+  }
+
+  @for (arista of aristasVista(); track arista.id) {
+    @if (arista.etiqueta) {
+      <text
+        class="arista__etiqueta"
+        [attr.x]="arista.medio.x + 6"
+        [attr.y]="arista.medio.y - 5"
+      >
+        {{ arista.etiqueta }}
+      </text>
+    }
+  }
+</svg>

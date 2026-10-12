@@ -1,0 +1,195 @@
+:host {
+  display: block;
+  color: var(--color-texto);
+}
+
+.lienzo {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-family: var(--font-codigo);
+}
+
+/* ---------- Nodos ---------- */
+.nodo {
+  transition: transform var(--duracion-escena) var(--easing-salida);
+}
+
+.nodo__fondo {
+  fill: var(--color-superficie);
+}
+
+.nodo--externo .nodo__fondo {
+  fill: color-mix(in srgb, var(--color-texto) 8%, var(--color-superficie));
+}
+
+.nodo__trazo {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.nodo__adorno,
+.nodo--persona circle.nodo__trazo {
+  fill: var(--color-superficie);
+}
+
+.nodo__titulo {
+  font-family: var(--font-texto);
+  font-weight: var(--peso-fuerte);
+  font-size: 13px;
+  fill: currentColor;
+}
+
+.nodo__tipo,
+.nodo__detalle,
+.fila__texto,
+.arista__etiqueta,
+.marca__texto {
+  font-size: 10.5px;
+}
+
+.nodo__tipo {
+  fill: var(--color-texto-suave);
+}
+
+.nodo__detalle {
+  fill: var(--color-primario);
+}
+
+.nodo__separador {
+  stroke: var(--color-borde);
+  stroke-width: 1;
+}
+
+/* Estados del nodo: trabajando (el contorno avanza), ok, error y caído (discontinuo). */
+.nodo--trabajando .nodo__contorno {
+  stroke: var(--color-primario);
+  stroke-dasharray: 2 1.5;
+  animation: avanzar 1.2s linear infinite;
+}
+
+.nodo--ok {
+  color: var(--color-exito);
+}
+
+.nodo--error {
+  color: var(--color-error);
+}
+
+.nodo--caido {
+  color: var(--color-error);
+}
+
+.nodo--caido .nodo__contorno {
+  stroke-dasharray: 3 2;
+}
+
+.nodo--ok .nodo__titulo,
+.nodo--error .nodo__titulo,
+.nodo--caido .nodo__titulo {
+  fill: var(--color-texto);
+}
+
+.marca__texto {
+  font-weight: var(--peso-fuerte);
+  fill: currentColor;
+}
+
+/* ---------- Filas (compartimentos) ---------- */
+.fila__resalte {
+  fill: transparent;
+  transition: fill var(--duracion-media);
+}
+
+.fila--activa .fila__resalte {
+  fill: color-mix(in srgb, var(--color-primario) 16%, transparent);
+}
+
+.fila__texto {
+  fill: var(--color-texto);
+}
+
+.fila__glifo {
+  fill: var(--color-texto-suave);
+}
+
+.fila--ok .fila__glifo {
+  fill: var(--color-exito);
+}
+
+.fila--error .fila__glifo {
+  fill: var(--color-error);
+}
+
+/* ---------- Aristas ---------- */
+.arista path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.arista__lapiz {
+  stroke: var(--color-lapiz);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 4;
+  opacity: 0.8;
+  transition: opacity var(--duracion-media);
+}
+
+/* La tinta se dibuja de origen a destino al confirmarse la dependencia. */
+.arista__tinta {
+  stroke: var(--color-primario);
+  stroke-width: 2;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset var(--duracion-escena) var(--easing-salida);
+}
+
+.arista__punta {
+  stroke: var(--color-lapiz);
+  stroke-width: 1.5;
+  transition: stroke var(--duracion-media);
+}
+
+.arista--tinta .arista__tinta,
+.arista--error .arista__tinta {
+  stroke-dashoffset: 0;
+}
+
+.arista--tinta .arista__lapiz,
+.arista--error .arista__lapiz {
+  opacity: 0;
+}
+
+.arista--tinta .arista__punta {
+  stroke: var(--color-primario);
+}
+
+/* Cortada: la tinta en color de error, con un hueco y una cruz en el medio. */
+.arista--error .arista__tinta {
+  stroke: var(--color-error);
+  stroke-dasharray: 44 12 44 0;
+}
+
+.arista--error .arista__punta,
+.arista__corte {
+  stroke: var(--color-error);
+  stroke-width: 2;
+}
+
+.arista__etiqueta {
+  fill: var(--color-texto-suave);
+  /* Halo del color del tapete para que la etiqueta se lea sobre las líneas. */
+  paint-order: stroke;
+  stroke: var(--color-fondo);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+@keyframes avanzar {
+  to {
+    stroke-dashoffset: -7;
+  }
+}
