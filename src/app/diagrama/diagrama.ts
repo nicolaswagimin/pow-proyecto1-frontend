@@ -39,7 +39,7 @@ const GLIFOS: Record<EstadoFila, string> = { vacia: '○', llena: '●', ok: '�
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './diagrama.html',
   styleUrl: './diagrama.css',
-  host: { '[class.dibujando]': 'dibujando()' },
+  host: { '[class.dibujando]': 'dibujando()', '[class.pausado]': 'pausado()' },
 })
 export class Diagrama {
   readonly nodos = input.required<NodoDiagrama[]>();
@@ -52,9 +52,16 @@ export class Diagrama {
   readonly dibujar = input(false, { transform: booleanAttribute });
 
   protected readonly dibujando = signal(false);
+  // Con la pestaña oculta se congelan las animaciones en bucle (nodo trabajando).
+  protected readonly pausado = signal(false);
 
   constructor() {
     const destroyRef = inject(DestroyRef);
+    const alCambiarVisibilidad = () => this.pausado.set(document.hidden);
+    document.addEventListener('visibilitychange', alCambiarVisibilidad);
+    destroyRef.onDestroy(() =>
+      document.removeEventListener('visibilitychange', alCambiarVisibilidad),
+    );
     afterNextRender(() => {
       if (!this.dibujar() || prefiereMenosMovimiento()) return;
       this.dibujando.set(true);

@@ -188,6 +188,11 @@
   stroke-linejoin: round;
 }
 
+/* Pestaña oculta: nada se anima en segundo plano. */
+:host(.pausado) * {
+  animation-play-state: paused !important;
+}
+
 /* ---------- Paquete de datos ---------- */
 .paquete {
   fill: var(--color-primario);
