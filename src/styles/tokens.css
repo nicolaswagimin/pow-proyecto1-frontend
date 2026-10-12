@@ -27,8 +27,11 @@
   --color-foco: #8a5300;
 
   /* ---------- Tipografía ---------- */
-  --font-display: 'Syne', 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
-  --font-texto: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* B612: diseñada para pantallas de cabina, legible en diagramas técnicos bajo presión.
+     B612 Mono: para el código y las etiquetas de los nodos (aquí sí se muestra código real). */
+  --font-display: 'B612', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-texto: 'B612', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-codigo: 'B612 Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -37,10 +40,10 @@
   --text-2xl: clamp(1.6rem, 1.2rem + 1.5vw, 2.1rem);
   --text-3xl: clamp(2rem, 1.4rem + 2.6vw, 3rem);
   --peso-normal: 400;
-  --peso-medio: 500;
+  --peso-medio: 400;
   --peso-fuerte: 700;
-  --peso-display: 800;
-  --leading-ajustado: 1.1;
+  --peso-display: 700; /* B612 solo tiene 400 y 700 */
+  --leading-ajustado: 1.15;
   --leading-normal: 1.55;
 
   /* ---------- Espaciado (escala de 4 px) ---------- */
