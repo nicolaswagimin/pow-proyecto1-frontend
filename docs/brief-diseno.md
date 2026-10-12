@@ -1,106 +1,99 @@
-# Brief de diseño · Proyecto 1 · Bioluminiscencia
+# Brief de diseño · CodeToDiagram
 
-## Encargo
-- **Pantalla:** acceso (login y registro). Trabajo principal: que alguien entre o cree su cuenta en segundos, y que la primera impresión sea espectacular.
-- **Quién la usa:** un profesor evaluando el proyecto (escritorio) y cualquier persona desde el móvil.
-- **Qué debe sentir:** asombro, calma eléctrica, curiosidad (quiere mover el mouse para ver qué pasa).
-- **Restricciones:** contraste AA, `prefers-reduced-motion`, 60 fps (solo `transform`/`opacity` o canvas), modo claro/oscuro, sin librerías de UI. El tema del proyecto aún no se conoce: el nombre vive en `nombreApp`.
-- **Prioridad del usuario:** muchas animaciones en todos los elementos (sustituye la regla de "un solo momento memorable").
+## El encargo
 
-## Dirección elegida: Bioluminiscencia
-El fondo del océano de noche: la interfaz brilla como plancton y medusas, y la luz responde al cursor como al tocar el agua. En claro, aguas someras iluminadas por el sol.
+- **Producto:** CodeToDiagram, un visualizador reactivo de arquitectura. La persona pega código y la app dibuja un diagrama de módulos, clases, servicios, dependencias y flujo de datos, que se actualiza solo al editar (con debounce). Gemini analiza el código y devuelve nodos y conexiones en JSON; el frontend los dibuja.
+- **Pantallas de este trabajo:** acceso (login y registro), bienvenida de `/app` y guía `/design`.
+- **Trabajo principal del acceso:** que alguien entre o cree su cuenta en segundos y, mientras lo hace, entienda qué hace el producto.
+- **Quién la usa:** estudiantes y desarrolladores que quieren entender o documentar un proyecto; en la sustentación, el profesor.
+- **Qué debe sentir:** claridad técnica, control (ve qué pasa con sus datos), curiosidad por el código.
+- **Restricciones:** WCAG 2.2 AA, `prefers-reduced-motion`, modo claro y oscuro, móvil, sin librerías de UI ni de diagramas, budgets de `angular.json`.
 
-### Paleta (contraste verificado)
-| Token | Oscuro (abismo) | Claro (aguas someras) |
+## El problema que resuelve el rediseño
+
+El diseño anterior ("Bioluminiscencia": plancton en canvas, tarjeta de vidrio con luz que seguía al cursor, botón magnético, burbujas de celebración) no tenía nada que ver con el tema. Varias apps de compañeros usaban casi los mismos recursos. La regla nueva: **el diseño sale del mundo del producto, y ningún elemento debe poder trasladarse a otro producto sin perder sentido.**
+
+## Dirección elegida: Mesa de trazado
+
+La interfaz es la mesa donde un equipo dibuja su arquitectura. Tiene tres materiales:
+
+- **Tapete de corte** verde con retícula: el lienzo donde vive el diagrama.
+- **Papel**: la hoja del formulario y el relleno de los nodos.
+- **Lápiz y tinta**: una dependencia pendiente se dibuja a lápiz (discontinua); cuando se confirma, se entinta.
+
+La notación es **C4 real**: cada caja dice `Nombre [Tipo]` y el tipo de elemento se lee por la forma (persona, componente con las pestañas de UML, contenedor, cilindro de base de datos, sistema externo), no por un color decorativo.
+
+### Paleta
+
+| Token | Claro (tapete pálido) | Oscuro (tapete verde) |
 |---|---|---|
-| fondo | `#04121F` | `#E3F6F8` |
-| superficie (vidrio) | `#0A2233` al 60 % | `#FFFFFF` al 70 % |
-| texto | `#E6FBFF` (17.6:1) | `#06283A` (13.7:1) |
-| texto-2 | `#8FB8C9` (8.9:1) | `#3D6475` (6.4:1) |
-| primario | `#2EF2E0`, texto botón `#04121F` (13.4:1) | `#007C8A`, texto botón `#FFFFFF` (4.9:1) |
-| acento | `#FF4FD8` | `#B0189A` |
-| error | `#FF6B7A` | `#C0263D` |
-| éxito | `#5CFFA8` | `#0F7A4A` |
+| fondo (tapete) | `#E9EEE9` | `#10211B` |
+| superficie (papel) | `#F7F9F6` | `#162B23` |
+| texto | `#14231D`: 13.9:1 | `#E8EFE9`: 14.3:1 |
+| texto suave | `#4A5F55`: 5.8:1 | `#9DB5A8`: 7.7:1 |
+| tinta (primario) | `#8A5300`, texto blanco 6.3:1 | `#F5B33A`, texto `#10211B` 9.1:1 |
+| error / éxito | `#B42318` 5.6:1 · `#17703F` 5.2:1 | `#FF7A6E` 6.6:1 · `#6FD99A` 9.6:1 |
 
-### Tipografía (solo estos pesos)
-- **Syne** 700 y 800: títulos. Ancha, orgánica, futurista.
-- **Manrope** 400, 500 y 700: texto, labels y botones.
+Los valores completos y los demás pares de contraste están en [design-system.md](design-system.md).
+
+### Tipografía
+
+- **B612** (400 y 700) para la interfaz. Airbus la diseñó para las pantallas de cabina: está hecha para leer etiquetas técnicas bajo presión, que es lo que hace quien lee un diagrama.
+- **B612 Mono** (400 y 700) para el código y el texto de los nodos. Aquí el monoespaciado no es decoración: se muestra código real.
 
 ### Composición
-Escritorio
+
 ```
-┌──────────────────────────────────────────────────────────────┐
-│ ◉ nombreApp            ·  ˚  ·    ✦      ·   ˚   [☾/☀]      │
-│      ·    ˚       ╭───────────────────────────╮    ·        │
-│  ˚        ·       │  ≋ luz que sigue al mouse │       ˚     │
-│     ·             │  Bienvenido de vuelta     │  ·          │
-│          ✦        │  Entra a tu cuenta        │       ·     │
-│   ·        ˚      │  ┌ Correo ─────────────┐  │    ˚        │
-│        ·          │  └─────────────────────┘  │        ·    │
-│  ˚          ·     │  ┌ Contraseña ──────👁─┐  │  ·          │
-│      ·            │  └─────────────────────┘  │      ˚      │
-│           ˚       │  [   Iniciar sesión    ]  │   ·         │
-│  ·     ✦          │  ¿Sin cuenta? Crear una   │        ✦    │
-│       ·     ˚     ╰───────────────────────────╯  ˚          │
-│  ∿∿∿∿∿∿∿∿∿ ondas de luz en la base ∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿ │
-└──────────────────────────────────────────────────────────────┘
-```
-Móvil
-```
-┌────────────────────┐
-│ ◉ nombreApp   [☾]  │
-│  ·  ˚    ✦    ·    │
-│╭──────────────────╮│
-││ Bienvenido de    ││
-││ vuelta           ││
-││┌ Correo ───────┐ ││
-││└───────────────┘ ││
-││┌ Contraseña ─👁┐ ││
-││└───────────────┘ ││
-││[ Iniciar sesión ]││
-││ Crear una cuenta ││
-│╰──────────────────╯│
-│ ∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿∿ │
-└────────────────────┘
+Escritorio                                         Móvil
+┌──────────────────────┬─────────────────────────┐ ┌──────────────────┐
+│ CodeToDiagram    [⌂] │ El diagrama sale del…   │ │ CodeToDiagram [⌂]│
+│                      │ ┌ acceso.ts ─┐ ┌──────┐ │ │░░░░░░░░░░░░░░░░░░│
+│ Inicia sesión        │ │ 1 form = … │ │ Tú   │ │ │ ▭→▭→▭→◯  tapete  │
+│ Correo      email    │ │ 2 email: … │ └──┬───┘ │ │ ---- ── ─✕─      │
+│ [_______________]    │ └────────────┘ ┌──▼───┐ │ │░░░░░░░░░░░░░░░░░░│
+│ Contraseña password  │ ---- ── ─✕─    │Form. │ │ │ Inicia sesión    │
+│ [_______________]    │                └──┬───┘ │ │ Correo [_______] │
+│ [ Iniciar sesión ]   │      tapete    ┌──▼───┐ │ │ Contraseña [___] │
+│ ¿No tienes cuenta?   │                │ API  │ │ │ [Iniciar sesión] │
+│                      │                └──┬───┘ │ │ ¿No tienes…?     │
+│                      │               ◯usuarios │
+└──────────────────────┴─────────────────────────┘
 ```
 
-### Animaciones
-- **Fondo:** plancton en canvas. Partículas luminosas que derivan, huyen del cursor y dejan estela; un clic lanza una onda que las empuja. Hay unas 120 en escritorio y unas 45 en móvil (según el área de pantalla).
-- **Entrada:** el abismo se enciende, la tarjeta sube como burbuja y los elementos entran en cascada cada 70 ms.
-- **Tarjeta:** vidrio esmerilado con un foco de luz cáustica que sigue al mouse y un borde más brillante del lado cercano.
-- **Login ↔ registro:** morph líquido. La forma de la gota cambia con escala elástica, el contenido sale en ola y "Nombre" brota desde dentro.
-- **Campos:** label flotante con rebote, luz cian que recorre el borde al enfocar y un ícono que se enciende y pulsa.
-- **Botón:** brillo que respira; onda de agua desde el punto del clic; al enviar se vuelve un círculo con partículas orbitando.
-- **Medidor de contraseña:** tubo de líquido luminoso con oleaje, de magenta a cian.
-- **Mostrar contraseña:** ojo SVG con párpados que se abren y parpadean.
-- **Error:** sacudida tipo corriente y mensaje que emerge con destello rojo.
-- **Éxito:** burbujas luminosas que suben, anillo de luz y check dibujado; después se funde hacia `/app`.
-- **Bienvenida en `/app`:** las partículas convergen en el avatar y el nombre aparece letra por letra.
-- **Tema:** un botón donde la luna se hunde en el agua y sale el sol (y al revés), con una onda.
+Alineación a la izquierda en todo el formulario. El tapete ocupa el resto del ancho en escritorio y se vuelve una franja horizontal en móvil.
 
-### Rendimiento y accesibilidad
-- El canvas se pausa con `visibilitychange` y la cantidad de partículas depende del área de la pantalla.
-- Los efectos que siguen al mouse se actualizan dentro de `requestAnimationFrame`.
-- En dispositivos táctiles (`hover: none` / `pointer: coarse`) se desactivan la inclinación y el magnetismo.
-- Con `prefers-reduced-motion`, el fondo queda estático, las transiciones son fundidos breves y no hay partículas en la celebración.
-- El tema recuerda la elección en `localStorage`; la primera vez usa `prefers-color-scheme`.
+### El login es una demostración del producto
+
+1. Al cargar, el diagrama del propio formulario **se dibuja nodo por nodo**: `Tú [Persona]` → `Formulario de acceso [Componente: Angular]` → `AuthService [Servicio]` → `API de sesión [Contenedor: Express]` → `usuarios [Tabla: PostgreSQL]`. Las aristas empiezan a lápiz.
+2. Junto al diagrama se ve el fragmento de `acceso.ts` del que sale. Cada campo muestra su nombre en el código (`email`, `password`), que es también el nombre de su fila en el diagrama.
+3. Al escribir, la fila del campo muestra su valor (la contraseña enmascarada) 300 ms después de la última tecla, el mismo debounce del producto.
+4. Cuando un campo es válido, su arista pasa de lápiz a tinta. Con todos válidos se entinta la llamada `HTTP + JSON`.
+5. Al enviar, un paquete recorre las aristas y la API queda "trabajando" (su contorno avanza) hasta la respuesta.
+6. Si el login falla, la API muestra `401` y la arista hacia `usuarios` se corta. Si el backend está apagado, la API se dibuja discontinua con "sin respuesta" y se corta la llamada HTTP. El diagrama explica dónde falló.
+7. Al pasar a registro, el componente crece una fila (`nombre`) y el resto se reacomoda: el endpoint cambia a `POST /api/auth/registro` y la consulta a `INSERT`. Es el "reactivo" del producto.
+
+### Extensión a `/app`
+
+El área de trabajo es el tapete y los paneles son hojas de papel encima. El estado del sistema deja de ser tres puntos de color: es el **diagrama C4 de la propia app** (Navegador → API → Neon y Gemini), con cada arista entintada o cortada según `/api/health`.
+
+## Revisión contra lo genérico
+
+| Default genérico | Qué se hizo |
+|---|---|
+| Partículas, auroras, vidrio | Ninguno. El fondo es un tapete de corte con retícula, el material de quien dibuja planos. |
+| Tarjeta 3D o luz que sigue al cursor, botón magnético | No hay ningún efecto de cursor. Todo el movimiento responde al formulario. |
+| Confeti al entrar | El éxito es el diagrama completo en tinta (la consulta SQL confirmada) y la navegación. |
+| Plano azul (cliché de "arquitectura") | Se usa el verde del tapete y el ámbar de la tinta. El plano se reinventa como dibujo a lápiz y tinta. |
+| Monoespaciado de adorno en etiquetas | Solo se usa donde hay código: el fragmento, los nodos y el nombre del control. |
+
+## Direcciones descartadas
+
+- **Pizarra de arquitectura:** marcadores de colores sobre pizarra blanca, como en una sesión de diseño. Se descartó porque el trazo de marcador es impreciso y la notación C4 pide líneas limpias.
+- **Editor de código oscuro con minimapa:** todo el login dentro de un IDE falso. Se descartó porque convierte el formulario en un disfraz y se acerca al cliché de "fondo negro con acento neón".
 
 ## Textos
-- Login: "Bienvenido de vuelta" / "Entra a tu cuenta para seguir". Botón "Iniciar sesión". Enlace "¿Sin cuenta? Crear una".
-- Registro: "Crea tu cuenta" / "Solo te toma un momento". Botón "Crear cuenta". Enlace "¿Ya tienes cuenta? Inicia sesión".
-- Errores:
-  - "El correo o la contraseña no coinciden."
-  - "Ese correo ya tiene una cuenta. Inicia sesión."
-  - "La contraseña necesita al menos 8 caracteres."
-  - "Escribe un correo válido, como nombre@dominio.com."
-  - "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo."
-  - "Demasiados intentos. Espera unos minutos y vuelve a intentarlo."
 
-## Direcciones de los otros proyectos (no reutilizar aquí)
-- **Constructiva (Proyecto 2):** póster Bauhaus con geometría primaria, giro 3D de dos caras y confeti geométrico.
-- **Hora Dorada (Proyecto 3):** atardecer en el desierto con brillo holográfico, panel solar con rebote y estallido solar.
-
-## Cómo re-tematizar
-- Cambia los tokens de color en `src/styles/tokens.css` (fondo, superficie, primario, acento). El canvas lee `--color-primario` y `--color-acento`, así que las partículas cambian solas.
-- Cambia las familias en `--font-display` y `--font-texto` (y el `<link>` de Google Fonts en `index.html`).
-- Cambia `nombreApp` y los textos del saludo.
+- Login: "Inicia sesión" / "Mientras llenas el formulario, el diagrama muestra cómo viaja tu sesión." Botón "Iniciar sesión". Enlace "¿No tienes cuenta? Crea una".
+- Registro: "Crea tu cuenta" / "Mientras lo llenas, el diagrama muestra cómo se guarda tu cuenta." Botón "Crear cuenta". Enlace "¿Ya tienes cuenta? Inicia sesión".
+- Lienzo: "El diagrama sale del código de este formulario y cambia mientras escribes."
+- Errores: "El correo o la contraseña no coinciden.", "Ese correo ya tiene una cuenta.", "La contraseña necesita al menos 8 caracteres.", "Escribe un correo válido, como nombre@dominio.com.", "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo."
