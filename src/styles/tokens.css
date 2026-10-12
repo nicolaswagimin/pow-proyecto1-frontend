@@ -59,13 +59,16 @@
   --space-16: 4rem;
 
   /* ---------- Radios por jerarquía ---------- */
-  --radius-control: 14px;
-  --radius-panel: 28px;
+  /* Dibujo técnico: esquinas casi rectas. Los nodos del diagrama usan el radio más pequeño. */
+  --radius-nodo: 3px;
+  --radius-control: 6px;
+  --radius-panel: 10px;
   --radius-pill: 999px;
 
   /* ---------- Sombras ---------- */
-  --shadow-elevacion-1: 0 4px 14px -6px rgb(20 35 29 / 0.25);
-  --shadow-elevacion-2: 0 24px 60px -20px rgb(20 35 29 / 0.35);
+  /* Papel apoyado en el tapete: sombra corta y dura, tintada con el verde del tapete. */
+  --shadow-elevacion-1: 0 1px 0 rgb(20 35 29 / 0.12), 0 2px 6px -2px rgb(20 35 29 / 0.18);
+  --shadow-elevacion-2: 0 1px 0 rgb(20 35 29 / 0.12), 0 18px 40px -22px rgb(20 35 29 / 0.4);
 
   /* ---------- Movimiento ---------- */
   --duracion-rapida: 120ms;
@@ -110,8 +113,8 @@
     --color-exito: #6fd99a; /* 9.6:1 sobre fondo */
     --color-aviso: #ffd08a; /* 10.4:1 sobre superficie */
     --color-foco: #f5b33a;
-    --shadow-elevacion-1: 0 4px 14px -6px rgb(0 0 0 / 0.6);
-    --shadow-elevacion-2: 0 30px 70px -24px rgb(0 0 0 / 0.75);
+    --shadow-elevacion-1: 0 1px 0 rgb(0 0 0 / 0.35), 0 2px 6px -2px rgb(0 0 0 / 0.5);
+    --shadow-elevacion-2: 0 1px 0 rgb(0 0 0 / 0.35), 0 18px 40px -22px rgb(0 0 0 / 0.7);
   }
 }
 
@@ -132,6 +135,6 @@
   --color-exito: #6fd99a;
   --color-aviso: #ffd08a;
   --color-foco: #f5b33a;
-  --shadow-elevacion-1: 0 4px 14px -6px rgb(0 0 0 / 0.6);
-  --shadow-elevacion-2: 0 30px 70px -24px rgb(0 0 0 / 0.75);
+  --shadow-elevacion-1: 0 1px 0 rgb(0 0 0 / 0.35), 0 2px 6px -2px rgb(0 0 0 / 0.5);
+  --shadow-elevacion-2: 0 1px 0 rgb(0 0 0 / 0.35), 0 18px 40px -22px rgb(0 0 0 / 0.7);
 }
