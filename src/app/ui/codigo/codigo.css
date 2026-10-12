@@ -1,0 +1,62 @@
+:host {
+  display: block;
+  border-radius: var(--radius-panel);
+  background: var(--color-superficie);
+  box-shadow:
+    inset 0 0 0 1px var(--color-reticula-mayor),
+    var(--shadow-elevacion-1);
+  overflow: hidden;
+  font-family: var(--font-codigo);
+  font-size: var(--text-xs);
+}
+
+.pestana {
+  display: inline-block;
+  padding: var(--space-2) var(--space-3);
+  border-right: 1px solid var(--color-reticula-mayor);
+  border-bottom: 2px solid var(--color-primario);
+  color: var(--color-texto);
+}
+
+pre {
+  margin: 0;
+  padding: var(--space-2) 0;
+  overflow-x: auto;
+  border-top: 1px solid var(--color-reticula-mayor);
+  margin-top: -1px;
+  line-height: 1.7;
+}
+
+.linea {
+  display: block;
+  padding-right: var(--space-3);
+  white-space: pre;
+  transition: background-color var(--duracion-media);
+}
+
+.linea--activa {
+  background: color-mix(in srgb, var(--color-primario) 16%, transparent);
+  box-shadow: inset 3px 0 0 var(--color-primario);
+}
+
+.numero {
+  display: inline-block;
+  width: 2.6em;
+  padding-right: 0.9em;
+  text-align: right;
+  color: var(--color-texto-suave);
+  user-select: none;
+}
+
+.t-clave {
+  color: var(--color-primario);
+  font-weight: var(--peso-fuerte);
+}
+
+.t-cadena {
+  color: var(--color-exito);
+}
+
+.t-comentario {
+  color: var(--color-texto-suave);
+}
