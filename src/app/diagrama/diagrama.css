@@ -15,6 +15,11 @@
   transition: transform var(--duracion-escena) var(--easing-salida);
 }
 
+.nodo__fondo,
+.nodo__contorno {
+  transition: d var(--duracion-escena) var(--easing-salida);
+}
+
 .nodo__fondo {
   fill: var(--color-superficie);
 }
@@ -98,6 +103,11 @@
 }
 
 /* ---------- Filas (compartimentos) ---------- */
+/* Una fila nueva (por ejemplo, nombre al pasar a registro) aparece cuando el nodo ya creció. */
+.fila {
+  animation: aparecer var(--duracion-lenta) var(--easing-salida) 200ms both;
+}
+
 .fila__resalte {
   fill: transparent;
   transition: fill var(--duracion-media);

@@ -60,7 +60,7 @@ export function nodosAcceso(modo: Modo, estado: Instantanea): NodoDiagrama[] {
       forma: 'contenedor',
       x: 130,
       y: 262 + extra,
-      ancho: 250,
+      ancho: 270,
       detalle: registro ? 'registrar(nombre, email, password)' : 'login(email, password)',
     },
     {
@@ -70,7 +70,7 @@ export function nodosAcceso(modo: Modo, estado: Instantanea): NodoDiagrama[] {
       forma: 'contenedor',
       x: 130,
       y: 388 + extra,
-      ancho: 250,
+      ancho: 270,
       detalle: registro ? 'POST /api/auth/registro' : 'POST /api/auth/login',
     },
     {
@@ -126,7 +126,8 @@ export function codigoAcceso(modo: Modo): LineaCodigo[] {
       { texto: '});' },
       { texto: 'enviar() {', id: 'enviar' },
       { texto: '  // POST /api/auth/registro', id: 'enviar' },
-      { texto: '  return auth.registrar(nombre, email, password);', id: 'enviar' },
+      { texto: '  return auth.registrar(', id: 'enviar' },
+      { texto: '    nombre, email, password);', id: 'enviar' },
       { texto: '}' },
     ];
   }

@@ -85,6 +85,7 @@ export class Diagrama {
         ...nodo,
         alto: altoNodo(nodo),
         contorno: contorno(nodo),
+        contornoCss: `path('${contorno(nodo)}')`,
         adornos: adornos(nodo),
         arriba,
         // El detalle va bajo el título y el tipo, antes de las filas.

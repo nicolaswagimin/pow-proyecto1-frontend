@@ -27,6 +27,18 @@ h1:focus-visible {
   gap: var(--space-5);
 }
 
+/* Al pasar a registro, el campo nombre entra igual que su fila en el diagrama. */
+.brota {
+  animation: brotar var(--duracion-lenta) var(--easing-salida);
+}
+
+@keyframes brotar {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
 .lento {
   margin-top: var(--space-3);
   font-size: var(--text-sm);

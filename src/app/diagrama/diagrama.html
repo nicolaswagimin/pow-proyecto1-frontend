@@ -32,8 +32,15 @@
       @if (nodo.forma === 'persona') {
         <circle class="nodo__fondo nodo__trazo" [attr.cx]="nodo.ancho / 2" cy="10" r="10" />
       }
-      <path class="nodo__fondo" [attr.d]="nodo.contorno" />
-      <path class="nodo__trazo nodo__contorno" [attr.d]="nodo.contorno" pathLength="100" />
+      <!-- d también va como estilo: así el contorno crece con transición cuando el nodo suma filas
+           (en navegadores sin la propiedad CSS d, el atributo cambia sin animación). -->
+      <path class="nodo__fondo" [attr.d]="nodo.contorno" [style.d]="nodo.contornoCss" />
+      <path
+        class="nodo__trazo nodo__contorno"
+        [attr.d]="nodo.contorno"
+        [style.d]="nodo.contornoCss"
+        pathLength="100"
+      />
       @if (nodo.adornos; as extra) {
         <path class="nodo__fondo nodo__trazo nodo__adorno" [attr.d]="extra" />
       }
