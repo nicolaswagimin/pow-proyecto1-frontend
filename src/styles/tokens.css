@@ -80,17 +80,6 @@
   --easing-entrada: cubic-bezier(0.7, 0, 0.84, 0);
   --easing-resorte: cubic-bezier(0.34, 1.56, 0.64, 1);
   --easing-suave: cubic-bezier(0.45, 0, 0.55, 1);
-
-  /* ---------- Alias del diseño anterior (se retiran al migrar los componentes) ---------- */
-  --color-vidrio: var(--color-superficie);
-  --color-vidrio-borde: var(--color-reticula-mayor);
-  --color-campo: var(--color-superficie);
-  --color-fondo-profundo: var(--color-fondo);
-  --color-acento: var(--color-primario);
-  --color-brillo: var(--color-primario);
-  --color-brillo-2: var(--color-primario);
-  --shadow-brillo: none;
-  --mezcla-luz: source-over;
 }
 
 /* ---------- Color · modo oscuro (tapete verde) ---------- */
