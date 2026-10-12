@@ -6,6 +6,7 @@ import {
   computed,
   forwardRef,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -31,6 +32,8 @@ export class PasswordField implements ControlValueAccessor {
   readonly ayuda = input<string | null>(null);
   readonly error = input<string | null>(null);
   readonly conMedidor = input(false, { transform: booleanAttribute });
+  readonly clave = input<string | null>(null);
+  readonly enfoque = output<boolean>();
 
   protected readonly id = `clave-${++contador}`;
   protected readonly valor = signal('');
@@ -38,7 +41,6 @@ export class PasswordField implements ControlValueAccessor {
   protected readonly deshabilitado = signal(false);
   protected readonly visible = signal(false);
   protected readonly mayusculas = signal(false);
-  protected readonly flotante = computed(() => this.enfocado() || this.valor() !== '');
   protected readonly describedBy = computed(() => {
     const ids = [this.error() ? `${this.id}-error` : this.ayuda() ? `${this.id}-ayuda` : null];
     if (this.mayusculas()) ids.push(`${this.id}-mayus`);
@@ -72,8 +74,14 @@ export class PasswordField implements ControlValueAccessor {
     this.alCambiar(valor);
   }
 
+  protected alEnfocar(): void {
+    this.enfocado.set(true);
+    this.enfoque.emit(true);
+  }
+
   protected salir(): void {
     this.enfocado.set(false);
+    this.enfoque.emit(false);
     this.mayusculas.set(false);
     this.alTocar();
   }

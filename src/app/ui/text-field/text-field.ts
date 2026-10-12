@@ -6,6 +6,7 @@ import {
   computed,
   forwardRef,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -35,12 +36,16 @@ export class TextField implements ControlValueAccessor {
   readonly multilinea = input(false, { transform: booleanAttribute });
   readonly opcional = input(false, { transform: booleanAttribute });
   readonly maxlength = input<number | null>(null);
+  // Nombre del control en el código (por ejemplo "email"): se muestra junto al label y enlaza el
+  // campo con su fila en el diagrama.
+  readonly clave = input<string | null>(null);
+  // Avisa cuando el campo gana o pierde el foco (el diagrama resalta su fila).
+  readonly enfoque = output<boolean>();
 
   protected readonly id = `campo-${++contador}`;
   protected readonly valor = signal('');
   protected readonly enfocado = signal(false);
   protected readonly deshabilitado = signal(false);
-  protected readonly flotante = computed(() => this.enfocado() || this.valor() !== '');
   protected readonly describedBy = computed(() => {
     if (this.error()) return `${this.id}-error`;
     return this.ayuda() ? `${this.id}-ayuda` : null;
@@ -57,8 +62,14 @@ export class TextField implements ControlValueAccessor {
     this.alCambiar(valor);
   }
 
+  protected alEnfocar(): void {
+    this.enfocado.set(true);
+    this.enfoque.emit(true);
+  }
+
   protected salir(): void {
     this.enfocado.set(false);
+    this.enfoque.emit(false);
     this.alTocar();
   }
 
