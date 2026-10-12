@@ -105,14 +105,12 @@ export class Acceso {
   private readonly eventosForm = toSignal(this.form.events);
 
   private readonly layout = viewChild.required(AuthLayout);
-  private readonly boton = viewChild.required(Button);
   private readonly encabezado = viewChild.required<ElementRef<HTMLElement>>('encabezado');
   private readonly campoNombre = viewChild<TextField>('campoNombre');
   private readonly campoEmail = viewChild.required<TextField>('campoEmail');
   private readonly campoPassword = viewChild.required(PasswordField);
 
   private primeraVez = true;
-  private cola: Promise<void> = Promise.resolve();
 
   constructor() {
     effect(() => {
@@ -177,7 +175,6 @@ export class Acceso {
         clearTimeout(avisoLento);
         this.servidorLento.set(false);
         this.anunciar(TEXTOS[modo].exito);
-        await this.layout().celebrar(this.boton().centro());
         await this.router.navigateByUrl('/app');
       },
       error: (err: unknown) => {
@@ -204,15 +201,12 @@ export class Acceso {
       return;
     }
     if (modo === this.modoVisible()) return;
-    // Si se cambia varias veces seguidas, las transiciones se encadenan en orden.
-    this.cola = this.cola.then(async () => {
-      await this.layout().transformar(() => this.aplicarModo(modo));
-      // El foco va al título, salvo que la persona ya haya empezado a escribir en un campo.
-      const activo = document.activeElement;
-      if (!(activo instanceof HTMLInputElement || activo instanceof HTMLTextAreaElement)) {
-        this.encabezado().nativeElement.focus();
-      }
-    });
+    this.aplicarModo(modo);
+    // El foco va al título, salvo que la persona ya haya empezado a escribir en un campo.
+    const activo = document.activeElement;
+    if (!(activo instanceof HTMLInputElement || activo instanceof HTMLTextAreaElement)) {
+      queueMicrotask(() => this.encabezado().nativeElement.focus());
+    }
   }
 
   private aplicarModo(modo: Modo): void {
