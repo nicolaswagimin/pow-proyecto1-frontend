@@ -38,9 +38,11 @@ import {
   Instantanea,
   aplicarFase,
   aristasAcceso,
+  aristasCompactas,
   codigoAcceso,
   describirAcceso,
   nodosAcceso,
+  nodosCompactos,
 } from './diagrama-acceso';
 
 export type Modo = 'login' | 'registro';
@@ -147,6 +149,15 @@ export class Acceso {
   );
   protected readonly nodos = computed(() => this.dibujo().nodos);
   protected readonly aristas = computed(() => this.dibujo().aristas);
+  private readonly dibujoCompacto = computed(() =>
+    aplicarFase(
+      nodosCompactos(),
+      aristasCompactas(this.modoVisible(), this.instantanea()),
+      this.fase(),
+    ),
+  );
+  protected readonly nodosMovil = computed(() => this.dibujoCompacto().nodos);
+  protected readonly aristasMovil = computed(() => this.dibujoCompacto().aristas);
   // Mientras se envía, la línea resaltada en el código es la del método enviar().
   protected readonly lineaActiva = computed(() =>
     this.fase().tipo === 'enviando' ? 'enviar' : this.campoActivo(),
@@ -157,7 +168,8 @@ export class Acceso {
   );
 
   private readonly layout = viewChild.required(AuthLayout);
-  private readonly diagrama = viewChild.required(Diagrama);
+  private readonly diagramaCompleto = viewChild.required<Diagrama>('completo');
+  private readonly diagramaMovil = viewChild.required<Diagrama>('movil');
   private readonly encabezado = viewChild.required<ElementRef<HTMLElement>>('encabezado');
   private readonly campoNombre = viewChild<TextField>('campoNombre');
   private readonly campoEmail = viewChild.required<TextField>('campoEmail');
@@ -203,6 +215,15 @@ export class Acceso {
     else if (this.campoActivo() === campo) this.campoActivo.set(null);
   }
 
+  // Solo se anima el diagrama que se ve: el completo en escritorio, la franja en móvil.
+  private esMovil(): boolean {
+    return !matchMedia('(min-width: 960px)').matches;
+  }
+
+  private diagramaVisible(): Diagrama {
+    return this.esMovil() ? this.diagramaMovil() : this.diagramaCompleto();
+  }
+
   private tomarInstantanea(): Instantanea {
     const leer = (campo: CampoDiagrama) => {
       const control = this.form.controls[campo];
@@ -244,7 +265,8 @@ export class Acceso {
     this.fase.set({ tipo: 'enviando' });
     // El paquete recorre el formulario → AuthService → API mientras la petición viaja.
     const primerCampo = modo === 'registro' ? 'campo-nombre' : 'campo-email';
-    const viaje = this.diagrama().recorrer([primerCampo, 'http']);
+    const diagrama = this.diagramaVisible();
+    const viaje = diagrama.recorrer([this.esMovil() ? 'campos' : primerCampo, 'http']);
     // El backend gratuito de Render se duerme: si tarda, se avisa en lugar de dejar a la persona esperando a ciegas.
     const avisoLento = setTimeout(() => this.servidorLento.set(true), 4000);
 
@@ -254,7 +276,7 @@ export class Acceso {
         this.servidorLento.set(false);
         this.anunciar(TEXTOS[modo].exito);
         await viaje;
-        await this.diagrama().recorrer(['sql']);
+        await diagrama.recorrer(['sql']);
         this.fase.set({ tipo: 'ok', codigo: modo === 'registro' ? 201 : 200 });
         // Un instante para ver el diagrama completo en tinta antes de entrar.
         await new Promise((resolver) => setTimeout(resolver, 450));

@@ -81,6 +81,28 @@ h1:focus-visible {
   max-width: 440px;
 }
 
+/* Móvil: solo la franja horizontal; el código y el diagrama completo no caben. */
+.lienzo__codigo,
+.lienzo__diagrama {
+  display: none;
+}
+
+.lienzo__movil {
+  width: 100%;
+  max-width: 520px;
+}
+
+@media (min-width: 960px) {
+  .lienzo__codigo,
+  .lienzo__diagrama {
+    display: block;
+  }
+
+  .lienzo__movil {
+    display: none;
+  }
+}
+
 /* Pantallas anchas: código a la izquierda, diagrama a la derecha. */
 @media (min-width: 1280px) {
   .lienzo {

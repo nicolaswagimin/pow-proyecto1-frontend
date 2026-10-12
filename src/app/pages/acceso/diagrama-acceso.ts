@@ -116,6 +116,28 @@ export function aristasAcceso(modo: Modo, estado: Instantanea): AristaDiagrama[]
   ];
 }
 
+// Versión compacta para móvil: la misma cadena en horizontal, sin filas ni detalles.
+export function nodosCompactos(): NodoDiagrama[] {
+  const nodo = (id: string, titulo: string, tipo: string, x: number, ancho: number) =>
+    ({ id, titulo, tipo, forma: 'contenedor', x, y: 0, ancho }) as NodoDiagrama;
+  return [
+    { ...nodo('formulario', 'Formulario', 'Componente', 0, 100), forma: 'componente' },
+    nodo('auth', 'AuthService', 'Servicio', 132, 104),
+    nodo('api', 'API', 'Express', 268, 78),
+    { ...nodo('db', 'usuarios', 'PostgreSQL', 378, 100), forma: 'base-datos' },
+  ];
+}
+
+export function aristasCompactas(modo: Modo, estado: Instantanea): AristaDiagrama[] {
+  const todoValido = camposDe(modo).every((campo) => estado[campo].valido);
+  const estadoCampos = todoValido ? 'tinta' : 'lapiz';
+  return [
+    { id: 'campos', de: 'formulario', a: 'auth', estado: estadoCampos },
+    { id: 'http', de: 'auth', a: 'api', estado: estadoCampos },
+    { id: 'sql', de: 'api', a: 'db', estado: 'lapiz' },
+  ];
+}
+
 export function codigoAcceso(modo: Modo): LineaCodigo[] {
   if (modo === 'registro') {
     return [

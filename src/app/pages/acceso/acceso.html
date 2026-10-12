@@ -88,11 +88,20 @@
       [activa]="lineaActiva()"
     />
     <ui-diagrama
+      #completo
       class="lienzo__diagrama"
       dibujar
       [nodos]="nodos()"
       [aristas]="aristas()"
       [filaActiva]="campoActivo()"
+      [descripcion]="descripcion()"
+    />
+    <ui-diagrama
+      #movil
+      class="lienzo__movil"
+      dibujar
+      [nodos]="nodosMovil()"
+      [aristas]="aristasMovil()"
       [descripcion]="descripcion()"
     />
   </figure>
