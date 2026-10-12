@@ -188,6 +188,14 @@
   stroke-linejoin: round;
 }
 
+/* ---------- Paquete de datos ---------- */
+.paquete {
+  fill: var(--color-primario);
+  stroke: var(--color-superficie);
+  stroke-width: 2;
+  opacity: 0;
+}
+
 @keyframes avanzar {
   to {
     stroke-dashoffset: -7;

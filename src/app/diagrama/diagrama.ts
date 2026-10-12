@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  input,
+  viewChild,
+} from '@angular/core';
+import { prefiereMenosMovimiento } from '../core/movimiento';
 import {
   ALTO_FILA,
   AristaDiagrama,
@@ -8,6 +16,7 @@ import {
   altoNodo,
   contorno,
   inicioFilas,
+  longitud,
   marco,
   margenSuperior,
   pathDe,
@@ -77,4 +86,31 @@ export class Diagrama {
   });
 
   protected readonly ALTO_FILA = ALTO_FILA;
+
+  private readonly paquete = viewChild.required<ElementRef<SVGCircleElement>>('paquete');
+
+  // Un paquete de datos recorre las aristas indicadas, en orden: es el flujo real de una petición.
+  // Sin movimiento (preferencia del sistema o pestaña oculta) termina de inmediato.
+  async recorrer(ids: string[], msPorArista = 360): Promise<void> {
+    if (prefiereMenosMovimiento() || document.hidden) return;
+    const circulo = this.paquete().nativeElement;
+    for (const id of ids) {
+      const arista = this.aristasVista().find((a) => a.id === id);
+      if (!arista || arista.puntos.length < 2) continue;
+      const total = longitud(arista.puntos) || 1;
+      let recorrido = 0;
+      const cuadros = arista.puntos.map((punto, i) => {
+        if (i) {
+          const antes = arista.puntos[i - 1];
+          recorrido += Math.abs(punto.x - antes.x) + Math.abs(punto.y - antes.y);
+        }
+        return {
+          transform: `translate(${punto.x}px, ${punto.y}px)`,
+          offset: recorrido / total,
+          opacity: 1,
+        };
+      });
+      await circulo.animate(cuadros, { duration: msPorArista, easing: 'linear' }).finished;
+    }
+  }
 }
