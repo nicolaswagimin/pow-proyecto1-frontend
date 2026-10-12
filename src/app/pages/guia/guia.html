@@ -1,10 +1,7 @@
-<fx-plancton [densidad]="0.5" />
-<fx-celebracion />
-
 <div class="pagina">
   <header class="cabecera">
     <div>
-      <p class="sobre">{{ nombreApp }} · Bioluminiscencia</p>
+      <p class="sobre">{{ nombreApp }}, dirección «Mesa de trazado»</p>
       <h1>Guía de diseño</h1>
     </div>
     <div class="cabecera__acciones">
@@ -32,12 +29,35 @@
 
   <section class="seccion" aria-labelledby="g-tipo">
     <h2 id="g-tipo">Tipografía</h2>
-    <p class="nota">Syne 700/800 para títulos · Manrope 400/500/700 para texto.</p>
+    <p class="nota">B612 400/700 para la interfaz; B612 Mono 400/700 para código y nodos.</p>
     @for (paso of escala; track paso) {
-      <p class="paso" [style.font-size]="'var(' + paso + ')'" [class.display]="$index < 3">
-        <code>{{ paso }}</code> Plancton que brilla en la oscuridad
+      <p class="paso" [style.font-size]="'var(' + paso + ')'" [class.fuerte]="$index < 3">
+        <code>{{ paso }}</code> Formulario de acceso
       </p>
     }
+    <p class="paso paso--codigo"><code>auth.login(email, password)</code></p>
+  </section>
+
+  <section class="seccion" aria-labelledby="g-notacion">
+    <h2 id="g-notacion">Notación del diagrama</h2>
+    <p class="nota">
+      El tipo de elemento se lee por la forma (C4); el estado, por el trazo y una insignia de
+      texto.
+    </p>
+    <div class="tapete">
+      <ui-diagrama
+        #muestra
+        class="tapete__diagrama"
+        [nodos]="formas"
+        [aristas]="aristas"
+        filaActiva="c"
+        descripcion="Muestra de las formas y estados de la notación: persona, componente con filas, contenedor trabajando, base de datos lista, sistema externo sin respuesta y contenedor con error 401."
+      />
+      <ui-leyenda />
+    </div>
+    <div class="fila">
+      <ui-button variante="secundario" (click)="demoRecorrido()">Probar recorrido</ui-button>
+    </div>
   </section>
 
   <section class="seccion" aria-labelledby="g-botones">
@@ -50,7 +70,7 @@
     </div>
     <div class="fila">
       <ui-button deshabilitado>Deshabilitado</ui-button>
-      <ui-button [cargando]="true" textoCargando="Cargando…">Cargando</ui-button>
+      <ui-button [cargando]="true" textoCargando="Enviando…">Cargando</ui-button>
       <ui-button tamano="compacto"><ui-icon nombre="mas" /> Compacto</ui-button>
       <ui-button variante="peligro" tamano="compacto" etiqueta="Eliminar"
         ><ui-icon nombre="papelera"
@@ -70,23 +90,30 @@
     <div class="rejilla">
       <ui-text-field
         label="Correo"
+        clave="email"
         tipo="email"
         icono="correo"
         [formControl]="vacio"
         ayuda="Texto de ayuda bajo el campo."
       />
-      <ui-text-field label="Correo" tipo="email" icono="correo" [formControl]="conValor" />
+      <ui-text-field label="Correo" clave="email" tipo="email" icono="correo" [formControl]="conValor" />
       <ui-text-field
         label="Correo"
+        clave="email"
         tipo="email"
         icono="correo"
         [formControl]="conError"
         error="Escribe un correo válido, como nombre@dominio.com."
       />
       <ui-text-field label="Deshabilitado" icono="usuario" [formControl]="deshabilitado" />
-      <ui-password-field [formControl]="clave" autocomplete="new-password" conMedidor />
+      <ui-password-field [formControl]="clave" clave="password" autocomplete="new-password" conMedidor />
       <ui-text-field label="Descripción" multilinea opcional [formControl]="vacio" />
     </div>
+  </section>
+
+  <section class="seccion" aria-labelledby="g-codigo">
+    <h2 id="g-codigo">Código</h2>
+    <ui-codigo archivo="acceso.ts" [lineas]="codigo" activa="email" />
   </section>
 
   <section class="seccion" aria-labelledby="g-alertas">
@@ -102,7 +129,7 @@
   </section>
 
   <section class="seccion" aria-labelledby="g-otros">
-    <h2 id="g-otros">Íconos, avatar y efectos</h2>
+    <h2 id="g-otros">Íconos y avatar</h2>
     <div class="fila iconos">
       @for (icono of iconos; track icono) {
         <span class="icono" [attr.title]="icono"><ui-icon [nombre]="icono" /></span>
@@ -110,14 +137,7 @@
     </div>
     <div class="fila">
       <ui-avatar iniciales="AP" />
-      <ui-avatar iniciales="NB" style="--avatar-tamano: 72px" />
-    </div>
-    <div class="demo" #muestra>
-      <p>Tarjeta de prueba para los efectos de error y éxito.</p>
-      <div class="fila">
-        <ui-button variante="peligro" (click)="demoSacudida()">Probar error</ui-button>
-        <ui-button (click)="demoCelebracion($event)">Probar éxito</ui-button>
-      </div>
+      <ui-avatar iniciales="NB" style="--avatar-tamano: 64px" />
     </div>
   </section>
 </div>

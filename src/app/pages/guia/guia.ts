@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   afterNextRender,
   inject,
   signal,
@@ -12,11 +11,13 @@ import { Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { APP_NOMBRE } from '../../config';
 import { leerToken } from '../../core/movimiento';
-import { Celebracion } from '../../fx/celebracion/celebracion';
-import { Plancton } from '../../fx/plancton/plancton';
+import { Diagrama } from '../../diagrama/diagrama';
+import { Leyenda } from '../../diagrama/leyenda';
+import { AristaDiagrama, NodoDiagrama } from '../../diagrama/modelo';
 import { Alert } from '../../ui/alert/alert';
 import { Avatar } from '../../ui/avatar/avatar';
 import { Button } from '../../ui/button/button';
+import { Codigo, LineaCodigo } from '../../ui/codigo/codigo';
 import { Icon, NombreIcono } from '../../ui/icon/icon';
 import { PasswordField } from '../../ui/password-field/password-field';
 import { TextField } from '../../ui/text-field/text-field';
@@ -25,33 +26,110 @@ import { ThemeToggle } from '../../ui/theme-toggle/theme-toggle';
 const COLORES = [
   '--color-fondo',
   '--color-superficie',
+  '--color-reticula',
+  '--color-reticula-mayor',
   '--color-texto',
   '--color-texto-suave',
   '--color-borde',
+  '--color-lapiz',
   '--color-primario',
   '--color-primario-contraste',
-  '--color-enlace',
-  '--color-acento',
-  '--color-brillo',
-  '--color-brillo-2',
   '--color-error',
   '--color-exito',
   '--color-aviso',
   '--color-foco',
 ];
 
-// Guía de estilo viva: tokens y cada componente en todos sus estados. No se enlaza desde la app.
+// Una muestra de cada forma de la notación y de cada estado.
+const FORMAS: NodoDiagrama[] = [
+  { id: 'p', titulo: 'Persona', tipo: 'Persona', forma: 'persona', x: 0, y: 0, ancho: 120 },
+  {
+    id: 'c',
+    titulo: 'Componente',
+    tipo: 'Componente: Angular',
+    forma: 'componente',
+    x: 220,
+    y: 0,
+    ancho: 190,
+    filas: [
+      { id: 'a', texto: 'vacia = ""', estado: 'vacia' },
+      { id: 'b', texto: 'llena = "ana@"', estado: 'llena' },
+      { id: 'c', texto: 'ok = "ana@correo.com"', estado: 'ok' },
+      { id: 'd', texto: 'error = "ana@"', estado: 'error' },
+    ],
+  },
+  {
+    id: 's',
+    titulo: 'Contenedor',
+    tipo: 'Contenedor: Express',
+    forma: 'contenedor',
+    x: 0,
+    y: 190,
+    ancho: 170,
+    detalle: 'POST /api/auth/login',
+    estado: 'trabajando',
+  },
+  {
+    id: 'd',
+    titulo: 'Base de datos',
+    tipo: 'Tabla: PostgreSQL',
+    forma: 'base-datos',
+    x: 240,
+    y: 190,
+    ancho: 170,
+    detalle: 'SELECT … WHERE email',
+    estado: 'ok',
+    marca: '✓',
+  },
+  {
+    id: 'e',
+    titulo: 'Sistema externo',
+    tipo: 'Sistema externo',
+    forma: 'externo',
+    x: 0,
+    y: 320,
+    ancho: 170,
+    estado: 'caido',
+    marca: 'sin respuesta',
+  },
+  {
+    id: 'x',
+    titulo: 'Con error',
+    tipo: 'Contenedor',
+    forma: 'contenedor',
+    x: 240,
+    y: 320,
+    ancho: 170,
+    estado: 'error',
+    marca: '401',
+  },
+];
+
+const ARISTAS: AristaDiagrama[] = [
+  { id: 'l', de: 'p', a: 'c', estado: 'lapiz', etiqueta: 'pendiente' },
+  { id: 't', de: 'c', a: 'd', estado: 'tinta', etiqueta: 'confirmada' },
+  { id: 'r', de: 's', a: 'e', estado: 'error', etiqueta: 'falló' },
+];
+
+const CODIGO: LineaCodigo[] = [
+  { texto: '// La línea activa es la del campo enfocado' },
+  { texto: "email: ['', [required, email]],", id: 'email' },
+  { texto: "password: ['', required],", id: 'password' },
+];
+
+// Guía de estilo viva: tokens, notación y cada componente en todos sus estados. No se enlaza desde la app.
 @Component({
   selector: 'app-guia',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
     RouterLink,
-    Plancton,
-    Celebracion,
+    Diagrama,
+    Leyenda,
     Alert,
     Avatar,
     Button,
+    Codigo,
     Icon,
     PasswordField,
     TextField,
@@ -86,6 +164,9 @@ export class Guia {
     'mas',
     'mayus',
   ];
+  protected readonly formas = FORMAS;
+  protected readonly aristas = ARISTAS;
+  protected readonly codigo = CODIGO;
 
   protected readonly vacio = new FormControl('', { nonNullable: true });
   protected readonly conValor = new FormControl('ana@ejemplo.com', { nonNullable: true });
@@ -94,11 +175,10 @@ export class Guia {
     { value: 'No editable', disabled: true },
     { nonNullable: true },
   );
-  protected readonly clave = new FormControl('Oceano2026!', { nonNullable: true });
+  protected readonly clave = new FormControl('Trazado2026!', { nonNullable: true });
   protected readonly cargando = signal(false);
 
-  private readonly muestra = viewChild.required<ElementRef<HTMLElement>>('muestra');
-  private readonly celebracion = viewChild.required(Celebracion);
+  private readonly muestra = viewChild.required<Diagrama>('muestra');
 
   constructor() {
     inject(Title).setTitle(`Guía de diseño · ${APP_NOMBRE}`);
@@ -107,7 +187,7 @@ export class Guia {
 
   // El tema cambia dentro de una View Transition: se espera un momento antes de releer los tokens.
   protected releerColores(): void {
-    setTimeout(() => this.leerColores(), 150);
+    setTimeout(() => this.leerColores(), 300);
   }
 
   private leerColores(): void {
@@ -119,24 +199,7 @@ export class Guia {
     setTimeout(() => this.cargando.set(false), 2200);
   }
 
-  protected demoSacudida(): void {
-    this.muestra().nativeElement.animate(
-      [
-        { transform: 'none' },
-        { transform: 'translateX(-14px) rotate(-1deg)' },
-        { transform: 'translateX(11px) rotate(0.8deg)' },
-        { transform: 'translateX(-7px)' },
-        { transform: 'none' },
-      ],
-      { duration: 420, easing: 'ease-out' },
-    );
-  }
-
-  protected demoCelebracion(evento: MouseEvent): void {
-    const caja = this.muestra().nativeElement.getBoundingClientRect();
-    this.celebracion().lanzar(
-      { x: evento.clientX, y: evento.clientY },
-      { x: caja.left + caja.width / 2, y: caja.top + caja.height / 2 },
-    );
+  protected demoRecorrido(): void {
+    this.muestra().recorrer(['l', 't']);
   }
 }
