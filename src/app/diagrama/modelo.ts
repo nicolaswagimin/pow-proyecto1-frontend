@@ -131,7 +131,11 @@ export function rutaArista(
     const y1 = origen.y + altoOrigen;
     const x2 = destino.x + destino.ancho / 2;
     const y2 = destino.y;
-    if (Math.abs(x1 - x2) < 1) return [{ x: x1, y: y1 }, { x: x1, y: y2 }];
+    if (Math.abs(x1 - x2) < 1)
+      return [
+        { x: x1, y: y1 },
+        { x: x1, y: y2 },
+      ];
     const medio = (y1 + y2) / 2;
     return [
       { x: x1, y: y1 },
@@ -146,7 +150,11 @@ export function rutaArista(
   const x2 = haciaDerecha ? destino.x : destino.x + destino.ancho;
   const y1 = origen.y + altoOrigen / 2;
   const y2 = destino.y + altoDestino / 2;
-  if (Math.abs(y1 - y2) < 1) return [{ x: x1, y: y1 }, { x: x2, y: y1 }];
+  if (Math.abs(y1 - y2) < 1)
+    return [
+      { x: x1, y: y1 },
+      { x: x2, y: y1 },
+    ];
   const medio = (x1 + x2) / 2;
   return [
     { x: x1, y: y1 },
@@ -200,7 +208,12 @@ export function punta(puntos: Punto[]): string {
 }
 
 // Caja que contiene todo el diagrama, con margen para los carriles y las etiquetas.
-export function marco(nodos: NodoDiagrama[]): { x: number; y: number; ancho: number; alto: number } {
+export function marco(nodos: NodoDiagrama[]): {
+  x: number;
+  y: number;
+  ancho: number;
+  alto: number;
+} {
   if (!nodos.length) return { x: 0, y: 0, ancho: 100, alto: 100 };
   const minX = Math.min(...nodos.map((n) => n.x)) - 14;
   const minY = Math.min(...nodos.map((n) => n.y)) - 8;

@@ -18,12 +18,7 @@
           <span class="perfil__correo">{{ usuario()?.email }}</span>
         </div>
       </div>
-      <ui-button
-        variante="secundario"
-        tamano="compacto"
-        etiqueta="Cerrar sesión"
-        (click)="salir()"
-      >
+      <ui-button variante="secundario" tamano="compacto" etiqueta="Cerrar sesión" (click)="salir()">
         <ui-icon nombre="salir" />
         <span class="solo-ancho">Cerrar sesión</span>
       </ui-button>
@@ -34,8 +29,8 @@
     <section class="bienvenida">
       <h1>Hola, {{ primerNombre() }}</h1>
       <p class="bienvenida__texto">
-        Aquí vas a pegar código y ver su arquitectura. Por ahora, este es el diagrama de la
-        propia app, con el estado real de cada conexión.
+        Aquí vas a pegar código y ver su arquitectura. Por ahora, este es el diagrama de la propia
+        app, con el estado real de cada conexión.
       </p>
     </section>
 

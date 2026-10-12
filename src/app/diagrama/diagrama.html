@@ -15,9 +15,7 @@
       @if (arista.estado === 'error') {
         <path
           class="arista__corte"
-          [attr.d]="
-            'M' + (arista.medio.x - 5) + ' ' + (arista.medio.y - 5) + 'l10 10m0 -10l-10 10'
-          "
+          [attr.d]="'M' + (arista.medio.x - 5) + ' ' + (arista.medio.y - 5) + 'l10 10m0 -10l-10 10'"
         />
       }
     </g>
@@ -54,10 +52,7 @@
           </text>
         }
         @if (nodo.filasVista.length) {
-          <path
-            class="nodo__separador"
-            [attr.d]="'M0 ' + nodo.inicioFilas + 'H' + nodo.ancho"
-          />
+          <path class="nodo__separador" [attr.d]="'M0 ' + nodo.inicioFilas + 'H' + nodo.ancho" />
         }
         @for (fila of nodo.filasVista; track fila.id) {
           <g
@@ -73,14 +68,18 @@
               rx="2"
             />
             <text class="fila__texto" x="10" [attr.y]="fila.y + 14">
-              <tspan class="fila__glifo">{{ fila.glifo }}</tspan> {{ fila.texto }}
+              <tspan class="fila__glifo">{{ fila.glifo }}</tspan>
+              {{ fila.texto }}
             </text>
           </g>
         }
       </g>
 
       @if (nodo.marca) {
-        <g class="nodo__marca" [style.transform]="'translate(' + nodo.ancho + 'px, ' + nodo.arriba + 'px)'">
+        <g
+          class="nodo__marca"
+          [style.transform]="'translate(' + nodo.ancho + 'px, ' + nodo.arriba + 'px)'"
+        >
           <text class="marca__texto" x="-8" y="-6" text-anchor="end">{{ nodo.marca }}</text>
         </g>
       }
@@ -89,11 +88,7 @@
 
   @for (arista of aristasVista(); track arista.id) {
     @if (arista.etiqueta) {
-      <text
-        class="arista__etiqueta"
-        [attr.x]="arista.medio.x + 6"
-        [attr.y]="arista.medio.y - 5"
-      >
+      <text class="arista__etiqueta" [attr.x]="arista.medio.x + 6" [attr.y]="arista.medio.y - 5">
         {{ arista.etiqueta }}
       </text>
     }

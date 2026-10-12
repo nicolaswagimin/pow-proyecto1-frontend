@@ -8,7 +8,11 @@ function corto(texto: string): string {
   return texto.length > 26 ? `${texto.slice(0, 25)}…` : texto;
 }
 
-export function nodosApp(estado: Estado | null, cargando: boolean, apiHost: string): NodoDiagrama[] {
+export function nodosApp(
+  estado: Estado | null,
+  cargando: boolean,
+  apiHost: string,
+): NodoDiagrama[] {
   const sinApi = !cargando && !estado;
   return [
     {

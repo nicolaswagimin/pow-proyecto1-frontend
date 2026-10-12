@@ -41,8 +41,7 @@
   <section class="seccion" aria-labelledby="g-notacion">
     <h2 id="g-notacion">Notación del diagrama</h2>
     <p class="nota">
-      El tipo de elemento se lee por la forma (C4); el estado, por el trazo y una insignia de
-      texto.
+      El tipo de elemento se lee por la forma (C4); el estado, por el trazo y una insignia de texto.
     </p>
     <div class="tapete">
       <ui-diagrama
@@ -96,7 +95,13 @@
         [formControl]="vacio"
         ayuda="Texto de ayuda bajo el campo."
       />
-      <ui-text-field label="Correo" clave="email" tipo="email" icono="correo" [formControl]="conValor" />
+      <ui-text-field
+        label="Correo"
+        clave="email"
+        tipo="email"
+        icono="correo"
+        [formControl]="conValor"
+      />
       <ui-text-field
         label="Correo"
         clave="email"
@@ -106,7 +111,12 @@
         error="Escribe un correo válido, como nombre@dominio.com."
       />
       <ui-text-field label="Deshabilitado" icono="usuario" [formControl]="deshabilitado" />
-      <ui-password-field [formControl]="clave" clave="password" autocomplete="new-password" conMedidor />
+      <ui-password-field
+        [formControl]="clave"
+        clave="password"
+        autocomplete="new-password"
+        conMedidor
+      />
       <ui-text-field label="Descripción" multilinea opcional [formControl]="vacio" />
     </div>
   </section>
