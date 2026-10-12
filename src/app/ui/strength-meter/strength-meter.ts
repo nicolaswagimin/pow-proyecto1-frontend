@@ -1,20 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { ETIQUETAS_FUERZA, calcularFuerza, pistaFuerza } from '../../core/fuerza';
 
-// Medidor de fortaleza: un tubo que se llena de líquido luminoso, de magenta (débil) a cian (fuerte).
+// Medidor de fortaleza: una regla de dibujo con cuatro tramos que se entintan según el nivel.
 @Component({
   selector: 'ui-strength-meter',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="tubo" aria-hidden="true">
-      <div class="liquido" [style.--llenado]="nivel() / 4">
-        <span class="liquido__frio" [style.opacity]="(nivel() - 1) / 3"></span>
-        <svg class="ola" viewBox="0 0 80 10" preserveAspectRatio="none">
-          <path d="M0 4 Q10 0 20 4 T40 4 T60 4 T80 4 V10 H0Z" />
-        </svg>
-        <i class="burbuja"></i>
-        <i class="burbuja"></i>
-      </div>
+    <div class="regla" aria-hidden="true">
+      @for (tramo of tramos; track tramo) {
+        <span class="tramo" [class.tramo--lleno]="nivel() >= tramo"></span>
+      }
     </div>
     <p class="texto" aria-live="polite">
       @if (nivel() > 0) {
@@ -28,6 +23,7 @@ import { ETIQUETAS_FUERZA, calcularFuerza, pistaFuerza } from '../../core/fuerza
 export class StrengthMeter {
   readonly password = input('');
 
+  protected readonly tramos = [1, 2, 3, 4];
   protected readonly nivel = computed(() => calcularFuerza(this.password()));
   protected readonly etiqueta = computed(() => ETIQUETAS_FUERZA[this.nivel()]);
   protected readonly pista = computed(() => pistaFuerza(this.password(), this.nivel()));
