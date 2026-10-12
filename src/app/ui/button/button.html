@@ -1,6 +1,5 @@
 <button
   #boton
-  class="boton"
   [class]="'boton boton--' + variante() + ' boton--' + tamano()"
   [class.cargando]="cargando()"
   [type]="tipo()"
@@ -9,27 +8,16 @@
   [attr.aria-disabled]="cargando() || null"
   [attr.aria-busy]="cargando() || null"
   (click)="alHacerClic($event)"
-  (pointerdown)="lanzarOnda($event)"
-  (pointermove)="seguir($event)"
-  (pointerleave)="soltar()"
 >
-  <span class="capa" aria-hidden="true">
-    @for (onda of ondas(); track onda.id) {
-      <span
-        class="onda"
-        [style.left.px]="onda.x"
-        [style.top.px]="onda.y"
-        (animationend)="quitarOnda(onda.id)"
-      ></span>
-    }
-  </span>
-  <span class="contenido" [attr.aria-hidden]="cargando() || null"><ng-content /></span>
-  <span class="orbita" aria-hidden="true">
-    <i style="--n: 0"></i>
-    <i style="--n: 1"></i>
-    <i style="--n: 2"></i>
-  </span>
   @if (cargando()) {
-    <span class="visually-hidden">{{ textoCargando() }}</span>
+    <span class="contenido" role="status">
+      <svg class="trazo" viewBox="0 0 28 8" aria-hidden="true" focusable="false">
+        <path d="M1 4h22" />
+        <path class="trazo__punta" d="m21 1 4 3-4 3" />
+      </svg>
+      {{ textoCargando() }}
+    </span>
+  } @else {
+    <span class="contenido"><ng-content /></span>
   }
 </button>
