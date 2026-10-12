@@ -1,17 +1,16 @@
+/* Nota sobre el plano: borde lateral del color del tipo, ícono y texto (nunca solo color). */
 :host {
   --alerta-color: var(--color-primario);
-  position: relative;
   display: flex;
   gap: var(--space-3);
   align-items: flex-start;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-control);
-  background: color-mix(in srgb, var(--alerta-color) 12%, var(--color-superficie));
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--alerta-color) 55%, transparent);
+  border-left: 4px solid var(--alerta-color);
+  background: color-mix(in srgb, var(--alerta-color) 10%, var(--color-superficie));
   color: var(--color-texto);
   font-size: var(--text-sm);
-  overflow: hidden;
-  animation: emerger-alerta var(--duracion-lenta) var(--easing-resorte);
+  animation: aparecer-alerta var(--duracion-media) var(--easing-salida);
 }
 
 :host([data-tipo='error']) {
@@ -26,26 +25,10 @@
   --alerta-color: var(--color-aviso);
 }
 
-/* Destello: una franja de luz del color de la alerta cruza al aparecer. */
-:host::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    100deg,
-    transparent 30%,
-    color-mix(in srgb, var(--alerta-color) 35%, transparent) 50%,
-    transparent 70%
-  );
-  transform: translateX(-100%);
-  animation: destello 900ms var(--easing-salida) 120ms;
-  pointer-events: none;
-}
-
 .icono {
   display: grid;
   color: var(--alerta-color);
-  --icono-tamano: 1.35rem;
+  --icono-tamano: 1.25rem;
 }
 
 .cuerpo {
@@ -57,18 +40,9 @@
   font-weight: var(--peso-fuerte);
 }
 
-@keyframes emerger-alerta {
+@keyframes aparecer-alerta {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.97);
-  }
-}
-
-@keyframes destello {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
+    transform: translateY(-4px);
   }
 }
