@@ -98,15 +98,13 @@ export function aristasAcceso(modo: Modo, estado: Instantanea): AristaDiagrama[]
       estado: algoEscrito ? 'tinta' : 'lapiz',
       etiqueta: 'escribe',
     },
-    ...campos.map(
-      (campo): AristaDiagrama => ({
-        id: `campo-${campo}`,
-        de: 'formulario',
-        deFila: campo,
-        a: 'auth',
-        estado: estado[campo].valido ? 'tinta' : 'lapiz',
-      }),
-    ),
+    ...campos.map((campo): AristaDiagrama => ({
+      id: `campo-${campo}`,
+      de: 'formulario',
+      deFila: campo,
+      a: 'auth',
+      estado: estado[campo].valido ? 'tinta' : 'lapiz',
+    })),
     {
       id: 'http',
       de: 'auth',
@@ -122,7 +120,7 @@ export function codigoAcceso(modo: Modo): LineaCodigo[] {
   if (modo === 'registro') {
     return [
       { texto: 'form = fb.group({' },
-      { texto: "  nombre: ['', required]," , id: 'nombre' },
+      { texto: "  nombre: ['', required],", id: 'nombre' },
       { texto: "  email: ['', [required, email]],", id: 'email' },
       { texto: "  password: ['', [required, minLength(8)]],", id: 'password' },
       { texto: '});' },
@@ -161,4 +159,59 @@ export function describirAcceso(modo: Modo, estado: Instantanea): string {
     pendientes.length ? `Pendientes: ${pendientes.join(', ')}.` : 'Todo listo para enviar.',
   ];
   return partes.filter(Boolean).join(' ');
+}
+
+// Qué pasó con la última petición. Cambia el diagrama encima del estado del formulario.
+export type Fase =
+  | { tipo: 'reposo' }
+  | { tipo: 'enviando' }
+  | { tipo: 'ok'; codigo: number }
+  | { tipo: 'error'; codigo: number };
+
+// Errores que se deciden después de consultar la tabla (credenciales o correo repetido).
+const ERRORES_DE_TABLA = [401, 409];
+
+export function aplicarFase(
+  nodos: NodoDiagrama[],
+  aristas: AristaDiagrama[],
+  fase: Fase,
+): { nodos: NodoDiagrama[]; aristas: AristaDiagrama[] } {
+  if (fase.tipo === 'reposo') return { nodos, aristas };
+  const nodo = (id: string, cambios: Partial<NodoDiagrama>) => (n: NodoDiagrama) =>
+    n.id === id ? { ...n, ...cambios } : n;
+  const arista = (id: string, cambios: Partial<AristaDiagrama>) => (a: AristaDiagrama) =>
+    a.id === id ? { ...a, ...cambios } : a;
+
+  switch (fase.tipo) {
+    case 'enviando':
+      return {
+        nodos: nodos.map(nodo('api', { estado: 'trabajando' })),
+        aristas: aristas.map(arista('http', { estado: 'tinta' })),
+      };
+    case 'ok':
+      return {
+        nodos: nodos
+          .map(nodo('api', { estado: 'ok', marca: String(fase.codigo) }))
+          .map(nodo('db', { estado: 'ok', marca: '✓' })),
+        aristas: aristas
+          .map(arista('http', { estado: 'tinta' }))
+          .map(arista('sql', { estado: 'tinta' })),
+      };
+    case 'error':
+      // Sin respuesta: la API se dibuja discontinua y se corta la llamada HTTP.
+      if (fase.codigo === 0) {
+        return {
+          nodos: nodos.map(nodo('api', { estado: 'caido', marca: 'sin respuesta' })),
+          aristas: aristas.map(arista('http', { estado: 'error' })),
+        };
+      }
+      return {
+        nodos: nodos.map(nodo('api', { estado: 'error', marca: String(fase.codigo) })),
+        aristas: aristas
+          .map(arista('http', { estado: 'tinta' }))
+          .map(
+            ERRORES_DE_TABLA.includes(fase.codigo) ? arista('sql', { estado: 'error' }) : (a) => a,
+          ),
+      };
+  }
 }

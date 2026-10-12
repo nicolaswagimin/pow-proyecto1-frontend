@@ -10,7 +10,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   NonNullableFormBuilder,
@@ -20,6 +20,7 @@ import {
 } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable, debounceTime, map } from 'rxjs';
 import { APP_NOMBRE } from '../../config';
 import { AuthService } from '../../core/auth.service';
@@ -33,7 +34,9 @@ import { PasswordField } from '../../ui/password-field/password-field';
 import { TextField } from '../../ui/text-field/text-field';
 import {
   CampoDiagrama,
+  Fase,
   Instantanea,
+  aplicarFase,
   aristasAcceso,
   codigoAcceso,
   describirAcceso,
@@ -134,9 +137,19 @@ export class Acceso {
     { initialValue: this.tomarInstantanea() },
   );
   protected readonly campoActivo = signal<string | null>(null);
-  protected readonly nodos = computed(() => nodosAcceso(this.modoVisible(), this.instantanea()));
-  protected readonly aristas = computed(() =>
-    aristasAcceso(this.modoVisible(), this.instantanea()),
+  protected readonly fase = signal<Fase>({ tipo: 'reposo' });
+  private readonly dibujo = computed(() =>
+    aplicarFase(
+      nodosAcceso(this.modoVisible(), this.instantanea()),
+      aristasAcceso(this.modoVisible(), this.instantanea()),
+      this.fase(),
+    ),
+  );
+  protected readonly nodos = computed(() => this.dibujo().nodos);
+  protected readonly aristas = computed(() => this.dibujo().aristas);
+  // Mientras se envía, la línea resaltada en el código es la del método enviar().
+  protected readonly lineaActiva = computed(() =>
+    this.fase().tipo === 'enviando' ? 'enviar' : this.campoActivo(),
   );
   protected readonly codigo = computed(() => codigoAcceso(this.modoVisible()));
   protected readonly descripcion = computed(() =>
@@ -144,6 +157,7 @@ export class Acceso {
   );
 
   private readonly layout = viewChild.required(AuthLayout);
+  private readonly diagrama = viewChild.required(Diagrama);
   private readonly encabezado = viewChild.required<ElementRef<HTMLElement>>('encabezado');
   private readonly campoNombre = viewChild<TextField>('campoNombre');
   private readonly campoEmail = viewChild.required<TextField>('campoEmail');
@@ -152,6 +166,10 @@ export class Acceso {
   private primeraVez = true;
 
   constructor() {
+    // Tras un error, el diagrama vuelve a su estado normal en cuanto la persona corrige algo.
+    this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      if (this.fase().tipo === 'error') this.fase.set({ tipo: 'reposo' });
+    });
     effect(() => {
       const modo: Modo = this.modo() === 'registro' ? 'registro' : 'login';
       untracked(() => this.cambiarModo(modo));
@@ -223,6 +241,10 @@ export class Acceso {
         : this.auth.registrar(nombre.trim(), email.trim(), password);
 
     this.enviando.set(true);
+    this.fase.set({ tipo: 'enviando' });
+    // El paquete recorre el formulario → AuthService → API mientras la petición viaja.
+    const primerCampo = modo === 'registro' ? 'campo-nombre' : 'campo-email';
+    const viaje = this.diagrama().recorrer([primerCampo, 'http']);
     // El backend gratuito de Render se duerme: si tarda, se avisa en lugar de dejar a la persona esperando a ciegas.
     const avisoLento = setTimeout(() => this.servidorLento.set(true), 4000);
 
@@ -231,11 +253,21 @@ export class Acceso {
         clearTimeout(avisoLento);
         this.servidorLento.set(false);
         this.anunciar(TEXTOS[modo].exito);
+        await viaje;
+        await this.diagrama().recorrer(['sql']);
+        this.fase.set({ tipo: 'ok', codigo: modo === 'registro' ? 201 : 200 });
+        // Un instante para ver el diagrama completo en tinta antes de entrar.
+        await new Promise((resolver) => setTimeout(resolver, 450));
         await this.router.navigateByUrl('/app');
       },
-      error: (err: unknown) => {
+      error: async (err: unknown) => {
         clearTimeout(avisoLento);
         this.servidorLento.set(false);
+        await viaje;
+        this.fase.set({
+          tipo: 'error',
+          codigo: err instanceof HttpErrorResponse ? err.status : 500,
+        });
         this.enviando.set(false);
         const error = mapearError(err, modo);
         if (error.campo && !error.accion) {
@@ -270,6 +302,7 @@ export class Acceso {
     this.enviado.set(false);
     this.errorGeneral.set(null);
     this.anuncio.set('');
+    this.fase.set({ tipo: 'reposo' });
 
     const { nombre, password } = this.form.controls;
     if (modo === 'registro') {
