@@ -46,21 +46,24 @@ export const ALTO_CABECERA = 44;
 export const ALTO_DETALLE = 18;
 export const ALTO_FILA = 20;
 const CABEZA_PERSONA = 16;
+const TAPA_CILINDRO = 8;
+
+// Primera línea de texto: la persona lleva la cabeza encima del cuerpo y el cilindro, su tapa.
+export function margenSuperior(nodo: NodoDiagrama): number {
+  if (nodo.forma === 'persona') return CABEZA_PERSONA;
+  if (nodo.forma === 'base-datos') return TAPA_CILINDRO;
+  return 0;
+}
 
 export function altoNodo(nodo: NodoDiagrama): number {
   if (nodo.forma === 'persona') return CABEZA_PERSONA + 40;
   const filas = nodo.filas?.length ?? 0;
-  return ALTO_CABECERA + (nodo.detalle ? ALTO_DETALLE : 0) + (filas ? filas * ALTO_FILA + 8 : 0) + 4;
+  return inicioFilas(nodo) + (filas ? filas * ALTO_FILA + 8 : 0) + 6;
 }
 
-// Dónde empiezan las filas dentro del nodo.
+// Dónde empiezan las filas dentro del nodo (justo después del título, el tipo y el detalle).
 export function inicioFilas(nodo: NodoDiagrama): number {
-  return ALTO_CABECERA + (nodo.detalle ? ALTO_DETALLE : 0);
-}
-
-// Primera línea de texto: la persona lleva la cabeza encima del cuerpo.
-export function margenSuperior(nodo: NodoDiagrama): number {
-  return nodo.forma === 'persona' ? CABEZA_PERSONA : 0;
+  return margenSuperior(nodo) + ALTO_CABECERA + (nodo.detalle ? ALTO_DETALLE : 0);
 }
 
 // Contorno de cada forma como un solo path, para poder "dibujarlo" con stroke-dashoffset.
@@ -110,10 +113,10 @@ export function rutaArista(
     const indice = origen.filas.findIndex((fila) => fila.id === arista.deFila);
     const y = origen.y + inicioFilas(origen) + 4 + indice * ALTO_FILA + ALTO_FILA / 2;
     const xSalida = origen.x + origen.ancho;
-    const xCarril = xSalida + 18 + carril * 12;
-    const desplazamiento = (carril - (totalCarriles - 1) / 2) * 16;
+    const xCarril = xSalida + 16 + (totalCarriles - 1 - carril) * 14;
+    const desplazamiento = (carril - (totalCarriles - 1) / 2) * 26;
     const xEntrada = destino.x + destino.ancho / 2 + desplazamiento;
-    const yQuiebre = destino.y - 12 - carril * 7;
+    const yQuiebre = destino.y - 14 - carril * 9;
     return [
       { x: xSalida, y },
       { x: xCarril, y },

@@ -87,6 +87,8 @@ export class Diagrama {
         contorno: contorno(nodo),
         adornos: adornos(nodo),
         arriba,
+        // El detalle va bajo el título y el tipo, antes de las filas.
+        yDetalle: arriba + 57,
         inicioFilas: inicio,
         filasVista: (nodo.filas ?? []).map((fila, i) => ({
           ...fila,

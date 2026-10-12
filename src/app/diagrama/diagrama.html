@@ -42,7 +42,7 @@
         <text class="nodo__titulo" x="10" [attr.y]="nodo.arriba + 19">{{ nodo.titulo }}</text>
         <text class="nodo__tipo" x="10" [attr.y]="nodo.arriba + 34">[{{ nodo.tipo }}]</text>
         @if (nodo.detalle) {
-          <text class="nodo__detalle" x="10" [attr.y]="nodo.inicioFilas + 12">
+          <text class="nodo__detalle" x="10" [attr.y]="nodo.yDetalle">
             {{ nodo.detalle }}
           </text>
         }
