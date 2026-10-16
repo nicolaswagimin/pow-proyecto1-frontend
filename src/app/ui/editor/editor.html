@@ -43,5 +43,6 @@
     [value]="activo().contenido"
     (input)="alEscribir(area.value)"
     (scroll)="sincronizarScroll(area)"
+    (keydown)="alPresionarTecla($event, area)"
   ></textarea>
 </div>

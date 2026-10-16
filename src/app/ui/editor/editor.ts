@@ -7,7 +7,13 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { ArchivoEditor, MAX_ARCHIVOS, contarLineas, nombreLibre } from './archivos';
+import {
+  ArchivoEditor,
+  MAX_ARCHIVOS,
+  contarLineas,
+  insertarSangria,
+  nombreLibre,
+} from './archivos';
 import { Icon } from '../icon/icon';
 
 // Editor de código liviano: una pestaña por archivo y un textarea con la tipografía de código.
@@ -39,6 +45,29 @@ export class Editor {
   // Los números de línea acompañan el scroll vertical del textarea.
   protected sincronizarScroll(textarea: HTMLTextAreaElement): void {
     this.margen().nativeElement.scrollTop = textarea.scrollTop;
+  }
+
+  // Tab inserta espacios. Para no atrapar el foco del teclado: Esc y después Tab sale del editor.
+  private tabLibre = false;
+
+  protected alPresionarTecla(evento: KeyboardEvent, textarea: HTMLTextAreaElement): void {
+    if (evento.key === 'Escape') {
+      this.tabLibre = true;
+      return;
+    }
+    if (evento.key !== 'Tab' || evento.shiftKey || this.tabLibre) {
+      this.tabLibre = false;
+      return;
+    }
+    evento.preventDefault();
+    const { texto, cursor } = insertarSangria(
+      textarea.value,
+      textarea.selectionStart,
+      textarea.selectionEnd,
+    );
+    textarea.value = texto;
+    textarea.setSelectionRange(cursor, cursor);
+    this.alEscribir(texto);
   }
 
   protected seleccionar(indice: number): void {
