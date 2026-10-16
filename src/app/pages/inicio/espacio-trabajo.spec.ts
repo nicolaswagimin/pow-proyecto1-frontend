@@ -10,7 +10,12 @@ import {
 } from '../../gen/codetodiagram/v1/diagram_pb';
 import { diagramaDePrueba } from '../../diagrama/fabrica.spec-util';
 import { DiagramasService } from '../../services/diagramas.service';
-import { DEBOUNCE_MS, ESPERA_DESPERTAR_MS, EspacioTrabajo, MIN_INTERVALO_MS } from './espacio-trabajo';
+import {
+  DEBOUNCE_MS,
+  ESPERA_DESPERTAR_MS,
+  EspacioTrabajo,
+  MIN_INTERVALO_MS,
+} from './espacio-trabajo';
 
 type Respuesta = Diagram | Error | (() => Promise<Diagram>);
 
@@ -24,7 +29,10 @@ function servicioFalso(respuestas: Respuesta[]) {
       const respuesta = respuestas.shift() ?? new Error('sin respuesta preparada');
       return (async function* () {
         yield create(StreamDiagramResponseSchema, {
-          event: { case: 'progress', value: { stage: ProgressStage.ANALYZING, message: 'Analizando el código…' } },
+          event: {
+            case: 'progress',
+            value: { stage: ProgressStage.ANALYZING, message: 'Analizando el código…' },
+          },
         });
         const diagrama = typeof respuesta === 'function' ? await respuesta() : respuesta;
         if (diagrama instanceof Error) throw diagrama;
@@ -185,7 +193,10 @@ describe('EspacioTrabajo', () => {
   it('cargarGuardado inválido da error y no dibuja', async () => {
     const { espacio, servicio } = preparar([]);
     servicio.obtener.mockResolvedValue({
-      diagram: create(SavedDiagramSchema, { id: 5, diagram: diagramaDePrueba({ nodos: [], aristas: [] }) }),
+      diagram: create(SavedDiagramSchema, {
+        id: 5,
+        diagram: diagramaDePrueba({ nodos: [], aristas: [] }),
+      }),
     });
     await espacio.cargarGuardado(5);
     expect(espacio.estado()).toBe('error');
@@ -198,7 +209,11 @@ describe('EspacioTrabajo', () => {
     await espacio.generar();
     await espacio.guardar();
     expect(servicio.guardar).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Login', diagram: v1, files: [{ name: 'index.js', content: 'const a = 1;' }] }),
+      expect.objectContaining({
+        title: 'Login',
+        diagram: v1,
+        files: [{ name: 'index.js', content: 'const a = 1;' }],
+      }),
     );
     expect(espacio.guardadoId()).toBe(9);
   });

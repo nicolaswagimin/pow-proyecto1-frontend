@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
@@ -9,7 +8,7 @@ import { AuthService } from '../../core/auth.service';
 import { mapearError } from '../../core/errores';
 import { Diagrama } from '../../diagrama/diagrama';
 import { Leyenda } from '../../diagrama/leyenda';
-import { ApiService, Estado, Item } from '../../services/api.service';
+import { ApiService, Estado } from '../../services/api.service';
 import { Alert } from '../../ui/alert/alert';
 import { Avatar } from '../../ui/avatar/avatar';
 import { Button } from '../../ui/button/button';
@@ -22,7 +21,6 @@ import { aristasApp, describirApp, nodosApp } from './arquitectura-app';
   selector: 'app-inicio',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DatePipe,
     ReactiveFormsModule,
     RouterLink,
     Diagrama,
@@ -62,16 +60,6 @@ export class Inicio {
     describirApp(this.estado(), this.cargandoEstado()),
   );
 
-  // Registros
-  protected readonly items = signal<Item[]>([]);
-  protected readonly cargandoItems = signal(false);
-  protected readonly guardando = signal(false);
-  protected readonly errorItems = signal('');
-  protected readonly formItem = this.fb.group({
-    titulo: ['', [Validators.required, Validators.maxLength(200)]],
-    descripcion: [''],
-  });
-
   // IA
   protected readonly formIA = this.fb.group({ pregunta: ['', Validators.required] });
   protected readonly respuesta = signal('');
@@ -90,53 +78,11 @@ export class Inicio {
       next: (estado) => {
         this.estado.set(estado);
         this.cargandoEstado.set(false);
-        if (estado.db) this.cargarItems();
       },
       error: () => {
         this.estado.set(null);
         this.cargandoEstado.set(false);
       },
-    });
-  }
-
-  private cargarItems(): void {
-    this.cargandoItems.set(true);
-    this.api.listar().subscribe({
-      next: (items) => {
-        this.items.set(items);
-        this.errorItems.set('');
-        this.cargandoItems.set(false);
-      },
-      error: (err) => {
-        this.errorItems.set(mapearError(err).mensaje);
-        this.cargandoItems.set(false);
-      },
-    });
-  }
-
-  protected crear(): void {
-    const { titulo, descripcion } = this.formItem.getRawValue();
-    if (!titulo.trim() || this.guardando()) return;
-
-    this.guardando.set(true);
-    this.api.crear({ titulo: titulo.trim(), descripcion: descripcion.trim() }).subscribe({
-      next: (item) => {
-        this.items.update((lista) => [item, ...lista]);
-        this.formItem.reset();
-        this.errorItems.set('');
-        this.guardando.set(false);
-      },
-      error: (err) => {
-        this.errorItems.set(mapearError(err).mensaje);
-        this.guardando.set(false);
-      },
-    });
-  }
-
-  protected eliminar(item: Item): void {
-    this.api.eliminar(item.id).subscribe({
-      next: () => this.items.update((lista) => lista.filter((i) => i.id !== item.id)),
-      error: (err) => this.errorItems.set(mapearError(err).mensaje),
     });
   }
 
