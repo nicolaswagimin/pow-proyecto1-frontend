@@ -1,0 +1,87 @@
+<app-barra />
+
+<main class="contenido">
+  <section class="encabezado">
+    <h1>Historial</h1>
+    <p class="encabezado__texto">
+      Tus diagramas guardados. Abre uno para seguir editándolo: será el «antes» de tu próximo
+      cambio.
+    </p>
+  </section>
+
+  @if (error(); as error) {
+    <ui-alert tipo="error">
+      {{ error }}
+      <ui-button variante="secundario" tamano="compacto" (click)="cargar()">
+        <ui-icon nombre="recargar" />
+        Reintentar
+      </ui-button>
+    </ui-alert>
+  }
+
+  @if (cargando()) {
+    <p class="estado" role="status">Cargando tus diagramas…</p>
+  } @else {
+    <ul class="lista" aria-label="Diagramas guardados">
+      @for (d of diagramas(); track d.id) {
+        <li class="tarjeta">
+          <div class="tarjeta__texto">
+            <h2 class="tarjeta__titulo">{{ d.title }}</h2>
+            @if (d.question) {
+              <p class="tarjeta__pregunta">{{ d.question }}</p>
+            }
+            <p class="tarjeta__datos">
+              {{ etiquetaTipo(d.type) }} · {{ d.nodeCount }}
+              {{ d.nodeCount === 1 ? 'nodo' : 'nodos' }}
+              @if (fecha(d); as f) {
+                · <time [attr.datetime]="f.toISOString()">{{ f | date: 'short' }}</time>
+              }
+            </p>
+          </div>
+
+          @if (confirmando() === d.id) {
+            <div
+              class="tarjeta__acciones"
+              role="group"
+              [attr.aria-label]="'Confirmar eliminación de ' + d.title"
+            >
+              <span class="tarjeta__pregunta-confirmar">¿Eliminar «{{ d.title }}»?</span>
+              <ui-button
+                variante="peligro"
+                tamano="compacto"
+                [cargando]="eliminando() === d.id"
+                textoCargando="Eliminando…"
+                (click)="eliminar(d.id)"
+              >
+                Sí, eliminar
+              </ui-button>
+              <ui-button variante="fantasma" tamano="compacto" (click)="confirmando.set(null)">
+                Cancelar
+              </ui-button>
+            </div>
+          } @else {
+            <div class="tarjeta__acciones">
+              <ui-button tamano="compacto" (click)="abrir(d.id)">Abrir</ui-button>
+              <ui-button
+                variante="secundario"
+                tamano="compacto"
+                [etiqueta]="'Eliminar ' + d.title"
+                (click)="confirmando.set(d.id)"
+              >
+                <ui-icon nombre="papelera" />
+                Eliminar
+              </ui-button>
+            </div>
+          }
+        </li>
+      } @empty {
+        @if (!error()) {
+          <li class="vacio">
+            Todavía no guardaste diagramas. Genera uno en
+            <a routerLink="/app">tu espacio de trabajo</a> y pulsa <strong>Guardar</strong>.
+          </li>
+        }
+      }
+    </ul>
+  }
+</main>
