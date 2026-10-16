@@ -27,6 +27,10 @@ Determinista: el mismo diagrama se dibuja siempre igual, sin importar el orden e
 3. **Orden dentro de la capa**: por baricentro de sus padres ya ubicados, con empate por id (reduce cruces).
 4. **Posición**: nodos de 200 px separados 48 px, filas centradas y separadas 72 px.
 
+Si un nodo tiene varias salidas, sus etiquetas se recortan a 12 caracteres: todas nacen del mismo tramo y, más largas, se pisarían.
+
+Con muchos nodos en una capa el dibujo es ancho. En `/app` nunca se encoge por debajo de 0,75 de su tamaño (`anchoMinimoDibujo`): la mesa hace scroll horizontal y arranca centrada, en vez de dejar el texto ilegible.
+
 Cada `Node` se convierte en un nodo de `ui-diagrama`: el nombre como título, `[Categoría: tecnología]` como tipo, la forma C4 según la categoría (persona, componente, contenedor, base de datos, externo) y el archivo como detalle. Los textos largos se recortan con `…`.
 
 ## 4. Layout de secuencia (`secuencia/layout-secuencia.ts`)
