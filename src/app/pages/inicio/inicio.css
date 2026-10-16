@@ -233,7 +233,8 @@
 
 .mesa {
   display: grid;
-  justify-items: center;
+  /* safe: si el diagrama es más ancho que la mesa, se desplaza desde el borde izquierdo. */
+  justify-items: safe center;
   padding: var(--space-5) var(--space-4);
   overflow: auto;
   border-radius: var(--radius-control);
@@ -253,6 +254,13 @@
 .mesa__diagrama {
   width: 100%;
   max-width: 760px;
+}
+
+/* En pantallas angostas el diagrama no se encoge hasta ser ilegible: se desplaza dentro de la mesa. */
+@media (max-width: 720px) {
+  .mesa__diagrama {
+    min-width: 520px;
+  }
 }
 
 /* ---------- Diff ---------- */
