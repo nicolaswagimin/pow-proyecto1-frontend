@@ -1,14 +1,38 @@
 <div class="pestanas">
   @for (archivo of archivos(); track $index; let i = $index) {
-    <button
-      type="button"
-      class="pestana"
-      [class.pestana--activa]="archivo === activo()"
-      (click)="seleccionar(i)"
-    >
-      {{ archivo.nombre }}
-    </button>
+    <div class="pestana" [class.pestana--activa]="archivo === activo()">
+      @if (renombrando() === i) {
+        <input
+          #campo
+          class="pestana__nombre-campo"
+          [value]="archivo.nombre"
+          (keydown.enter)="renombrar(i, campo.value)"
+          (keydown.escape)="renombrando.set(null)"
+          (blur)="renombrar(i, campo.value)"
+        />
+      } @else {
+        <button
+          type="button"
+          class="pestana__nombre"
+          (click)="seleccionar(i)"
+          (dblclick)="renombrando.set(i)"
+        >
+          {{ archivo.nombre }}
+        </button>
+      }
+      @if (archivos().length > 1) {
+        <button type="button" class="pestana__quitar" (click)="quitar(i)">×</button>
+      }
+    </div>
   }
+  <button
+    type="button"
+    class="pestanas__agregar"
+    [disabled]="archivos().length >= MAX_ARCHIVOS"
+    (click)="agregar()"
+  >
+    <ui-icon nombre="mas" />
+  </button>
 </div>
 
 <textarea
