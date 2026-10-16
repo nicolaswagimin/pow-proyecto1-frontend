@@ -51,7 +51,7 @@
 </div>
 
 <div class="cuerpo">
-  <pre #margen class="margen" aria-hidden="true">{{ numeros() }}</pre>
+  <pre class="margen" aria-hidden="true">{{ numeros() }}</pre>
   <textarea
     #area
     class="codigo"
@@ -60,9 +60,11 @@
     spellcheck="false"
     autocapitalize="off"
     autocomplete="off"
+    wrap="off"
+    [rows]="lineas()"
+    [style.width.ch]="anchoMaximo() + 2"
     [value]="activo().contenido"
     (input)="alEscribir(area.value)"
-    (scroll)="sincronizarScroll(area)"
     (keydown)="alPresionarTecla($event, area)"
   ></textarea>
 </div>

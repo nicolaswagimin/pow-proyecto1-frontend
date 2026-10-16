@@ -95,40 +95,51 @@
 }
 
 /* ---------- Código ---------- */
+/* Un solo contenedor con scroll para los números y el código: siempre quedan alineados. */
 .cuerpo {
   display: flex;
+  align-items: flex-start;
   flex: 1;
   min-height: 16rem;
+  overflow: auto;
 }
 
 .margen,
 .codigo {
   margin: 0;
   padding: var(--space-2) 0;
-  line-height: 1.7;
+  /* font va antes: el atajo font reinicia line-height. */
   font: inherit;
+  line-height: 1.7;
 }
 
 .margen {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  flex-shrink: 0;
+  min-height: 100%;
   width: 3.2em;
   padding-right: 0.9em;
-  overflow: hidden;
+  background: var(--color-superficie);
   text-align: right;
   color: var(--color-texto-suave);
   user-select: none;
 }
 
+/* Crece con el contenido (rows y ancho en ch); el scroll lo hace .cuerpo. */
 .codigo {
-  flex: 1;
+  flex: 1 0 auto;
   min-width: 0;
+  min-height: 100%;
   padding-right: var(--space-3);
   border: 0;
   outline: none;
   resize: none;
+  overflow: hidden;
   background: transparent;
   color: var(--color-texto);
   white-space: pre;
-  overflow: auto;
   tab-size: 2;
 }
 

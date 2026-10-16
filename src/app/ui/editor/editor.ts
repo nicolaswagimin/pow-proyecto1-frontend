@@ -37,11 +37,20 @@ export class Editor {
     () => this.archivos()[Math.min(this.indiceActivo(), this.archivos().length - 1)],
   );
 
+  // Números de línea y tamaño del área: el textarea crece con su contenido y es el contenedor
+  // (.cuerpo) el que hace scroll, así los números y el código no pueden desalinearse.
+  protected readonly lineas = computed(() => contarLineas(this.activo().contenido));
   protected readonly numeros = computed(() =>
-    Array.from({ length: contarLineas(this.activo().contenido) }, (_, i) => i + 1).join('\n'),
+    Array.from({ length: this.lineas() }, (_, i) => i + 1).join('\n'),
+  );
+  protected readonly anchoMaximo = computed(() =>
+    Math.max(
+      ...this.activo()
+        .contenido.split('\n')
+        .map((linea) => linea.length),
+    ),
   );
 
-  private readonly margen = viewChild.required<ElementRef<HTMLElement>>('margen');
   private readonly campoNombre = viewChild<ElementRef<HTMLInputElement>>('campo');
 
   constructor() {
@@ -54,10 +63,6 @@ export class Editor {
   }
 
   // Los números de línea acompañan el scroll vertical del textarea.
-  protected sincronizarScroll(textarea: HTMLTextAreaElement): void {
-    this.margen().nativeElement.scrollTop = textarea.scrollTop;
-  }
-
   // Tab inserta espacios. Para no atrapar el foco del teclado: Esc y después Tab sale del editor.
   private tabLibre = false;
 
