@@ -215,8 +215,16 @@ describe('EspacioTrabajo', () => {
   it('reintentar tras fallar al abrir un guardado vuelve a abrirlo, sin generar', async () => {
     const { espacio, servicio } = preparar([]);
     servicio.obtener
-      .mockRejectedValueOnce(new ConnectError('Ese diagrama no existe o no es tuyo.', Code.NotFound))
-      .mockResolvedValueOnce({ diagram: create(SavedDiagramSchema, { id: 4, files: [{ name: 'a.js', content: 'x' }], diagram: v1 }) });
+      .mockRejectedValueOnce(
+        new ConnectError('Ese diagrama no existe o no es tuyo.', Code.NotFound),
+      )
+      .mockResolvedValueOnce({
+        diagram: create(SavedDiagramSchema, {
+          id: 4,
+          files: [{ name: 'a.js', content: 'x' }],
+          diagram: v1,
+        }),
+      });
     await espacio.cargarGuardado(4);
     expect(espacio.estado()).toBe('error');
     await espacio.reintentar();
