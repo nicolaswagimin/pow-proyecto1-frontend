@@ -36,7 +36,27 @@ Diagrama de arquitectura en notación C4, dibujado en SVG sin librerías. Es el 
 
 **Estados de la arista** (`EstadoArista`): `lapiz` (discontinua, pendiente), `tinta` (se dibuja de origen a destino), `error` (roja, con un hueco y una ✕ en el medio).
 
+**Cambios del diff** (campo opcional `cambio` en nodos y aristas, más `fantasma`):
+
+| Cambio | Cómo se ve |
+|---|---|
+| `agregado` | Trazo verde (`--color-exito`), más grueso |
+| `modificado` | Trazo ámbar (`--color-aviso`), discontinuo |
+| `eliminado` | Trazo rojo (`--color-error`), punteado |
+| `fantasma` | Opacidad 0,45: eliminado, mostrado en la vista Comparar |
+
+Sin `cambio`, el nodo o la arista se ven exactamente como antes: el login y `/design` no cambian.
+
 La geometría (alto de cada nodo, rutas ortogonales, carriles para las aristas que salen de filas, punto medio y punta de flecha) son funciones puras en `modelo.ts`: no miden el DOM.
+
+### `ui-diagrama-secuencia`
+
+Diagrama de secuencia en SVG: cajas de participantes arriba, líneas de vida discontinuas y mensajes numerados de arriba abajo. Usa las mismas clases de cambio que `ui-diagrama`.
+
+| Input | Tipo | Descripción |
+|---|---|---|
+| `layout` | `LayoutSecuencia` (requerido) | Participantes y mensajes ya ubicados por `layoutSecuencia` o `vistaDiffSecuencia` |
+| `descripcion` | `string` (requerido) | Texto para lectores de pantalla |
 
 ### `ui-leyenda`
 
@@ -116,6 +136,18 @@ Regla de cuatro tramos que se entintan según el nivel (`core/fuerza.ts`). El ni
 
 Resaltado mínimo de palabras clave, cadenas y comentarios. Es una vista de apoyo del diagrama, así que el `<pre>` es `aria-hidden`.
 
+### `ui-editor`
+
+Editor de código liviano: pestañas por archivo y un `textarea` con números de línea, en `--font-codigo`. Sin CodeMirror ni Monaco (ver [decisiones/0005](decisiones/0005-editor-textarea-propio.md)).
+
+| Input / output | Tipo | Descripción |
+|---|---|---|
+| `archivos` | `model<ArchivoEditor[]>` (requerido) | `{ nombre, contenido }` de cada pestaña; emite `archivosChange` en cada cambio |
+
+- `+` agrega un archivo (`archivo.js`, `archivo-2.js`…), hasta 10; doble clic renombra (Enter confirma, Esc cancela); `×` quita, si hay más de uno.
+- Tab inserta dos espacios; Esc y después Tab sale del editor, así el teclado nunca queda atrapado.
+- Pestañas con `role="tab"` y `aria-selected`; el `textarea` se anuncia como "Código de <archivo>" y está descrito por la línea de ayuda.
+
 ### `ui-alert`
 
 | Input | Tipo |
@@ -146,6 +178,10 @@ Las iniciales en un nodo de tinta. Tamaño con `--avatar-tamano` (44 px por defe
 Sin inputs. La lámpara de la mesa: el cono de luz está encendido en modo claro y apagado en oscuro. `aria-label` dice a qué modo cambia.
 
 ## Plantilla
+
+### `app-barra`
+
+Barra superior de `/app` y `/historial` (`layouts/barra-app/`): marca, enlace al historial, tema, perfil y cerrar sesión. Sin inputs. En pantallas de 480 px o menos oculta el avatar para que todo quepa sin desbordar.
 
 ### `app-auth-layout`
 
