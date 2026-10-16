@@ -84,6 +84,15 @@ export function svgAPng(svgTexto: string, ancho: number, alto: number, escala = 
   });
 }
 
+export function descargar(blob: Blob, nombre: string): void {
+  const url = URL.createObjectURL(blob);
+  const enlace = document.createElement('a');
+  enlace.href = url;
+  enlace.download = nombre;
+  enlace.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export function nombreArchivo(titulo: string, extension: 'svg' | 'png'): string {
   const base = titulo
     .normalize('NFD')
