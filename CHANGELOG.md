@@ -2,7 +2,31 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Los commits siguen Conventional Commits.
 
-## [Sin publicar] · 2026-10-12
+## [Sin publicar] · 2026-10-15
+
+La funcionalidad propia de CodeToDiagram: pegar código y obtener un diagrama que cambia, con diff, mientras editas.
+
+### Agregado
+- Espacio de trabajo en `/app`: editor con pestañas por archivo (`ui-editor`), tipo de diagrama (arquitectura o secuencia), pregunta opcional que lo enfoca y botón Generar.
+- Cliente gRPC-Web del servicio de diagramas (`DiagramasService`) con interceptores para el JWT y para cerrar la sesión ante `unauthenticated`; código generado con Buf desde una copia sincronizada del `.proto` (`npm run proto:sync`, `proto:check`, `proto:gen`).
+- Generación por streaming con progreso visible, y regeneración automática al editar: pausa de 2 s, al menos 5 s entre regeneraciones, sin repetir contenido y descartando respuestas viejas.
+- Validación del diagrama en el cliente antes de dibujar (falla cerrado) y reintentos cuando Render está despertando.
+- Layout determinista por capas para arquitectura y diagrama de secuencia nuevo (`ui-diagrama-secuencia`).
+- Diff antes/después: agregados, modificados y eliminados resaltados con color y forma de trazo, resumen, leyenda y vistas Antes / Después / Comparar.
+- Guardar, exportar como SVG o PNG y `/historial` con abrir y eliminar con confirmación.
+- Pruebas unitarias con Vitest (`npm test`): validador, diff, layouts, exportación, errores gRPC, espacio de trabajo e historial.
+
+### Cambiado
+- La barra superior pasa a un componente compartido (`app-barra`) con enlace al historial; en teléfonos oculta el avatar para no desbordar.
+
+### Eliminado
+- De `/app`: el diagrama de la propia app con el estado del backend, el CRUD de ejemplo (`items`) y la caja de preguntas a la IA. Se eliminan `ApiService` y `arquitectura-app.ts`.
+
+### Documentación
+- Nuevos `docs/funcionalidades.md`, `docs/diagramas.md`, `docs/grpc-cliente.md` y decisiones `0005` a `0008`.
+- Actualizados `docs/arquitectura-frontend.md` y `docs/componentes.md`.
+
+## 2026-10-12
 
 Rediseño de identidad: de "Bioluminiscencia" (sin relación con el tema) a **CodeToDiagram**, con la dirección "Mesa de trazado".
 
