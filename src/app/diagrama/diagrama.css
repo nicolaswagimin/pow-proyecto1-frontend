@@ -253,3 +253,50 @@
     stroke-dashoffset: -7;
   }
 }
+
+/* ---------- Diff: qué cambió respecto de la versión anterior ----------
+   Solo se agregan reglas; los colores salen de los tokens existentes. La forma del trazo
+   (continuo, doble, discontinuo) repite la información del color para no depender solo de él. */
+.nodo--agregado .nodo__contorno {
+  stroke: var(--color-exito);
+  stroke-width: 2.5;
+}
+
+.nodo--modificado .nodo__contorno {
+  stroke: var(--color-aviso);
+  stroke-width: 2.5;
+  stroke-dasharray: 6 3;
+}
+
+.nodo--eliminado .nodo__contorno {
+  stroke: var(--color-error);
+  stroke-width: 2.5;
+  stroke-dasharray: 2 4;
+}
+
+.nodo--fantasma {
+  opacity: 0.45;
+}
+
+.arista--agregado .arista__tinta,
+.arista--agregado .arista__punta {
+  stroke: var(--color-exito);
+}
+
+.arista--modificado .arista__tinta,
+.arista--modificado .arista__punta {
+  stroke: var(--color-aviso);
+}
+
+.arista--eliminado .arista__tinta,
+.arista--eliminado .arista__punta {
+  stroke: var(--color-error);
+}
+
+.arista--eliminado .arista__tinta {
+  stroke-dasharray: 2 4;
+}
+
+.arista--fantasma {
+  opacity: 0.45;
+}
