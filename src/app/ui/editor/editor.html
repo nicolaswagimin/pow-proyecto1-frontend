@@ -1,10 +1,12 @@
-<div class="pestanas">
+<div class="pestanas" role="tablist" aria-label="Archivos">
   @for (archivo of archivos(); track $index; let i = $index) {
     <div class="pestana" [class.pestana--activa]="archivo === activo()">
       @if (renombrando() === i) {
         <input
           #campo
           class="pestana__nombre-campo"
+          aria-label="Nuevo nombre del archivo"
+          spellcheck="false"
           [value]="archivo.nombre"
           (keydown.enter)="renombrar(i, campo.value)"
           (keydown.escape)="renombrando.set(null)"
@@ -14,6 +16,9 @@
         <button
           type="button"
           class="pestana__nombre"
+          role="tab"
+          [attr.aria-selected]="archivo === activo()"
+          title="Doble clic para renombrar"
           (click)="seleccionar(i)"
           (dblclick)="renombrando.set(i)"
         >
@@ -21,13 +26,23 @@
         </button>
       }
       @if (archivos().length > 1) {
-        <button type="button" class="pestana__quitar" (click)="quitar(i)">×</button>
+        <button
+          type="button"
+          class="pestana__quitar"
+          [attr.aria-label]="'Quitar ' + archivo.nombre"
+          (click)="quitar(i)"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
       }
     </div>
   }
   <button
     type="button"
     class="pestanas__agregar"
+    [attr.aria-label]="
+      archivos().length >= MAX_ARCHIVOS ? 'Máximo ' + MAX_ARCHIVOS + ' archivos' : 'Agregar archivo'
+    "
     [disabled]="archivos().length >= MAX_ARCHIVOS"
     (click)="agregar()"
   >
@@ -40,9 +55,18 @@
   <textarea
     #area
     class="codigo"
+    [attr.aria-label]="'Código de ' + activo().nombre"
+    aria-describedby="editor-ayuda"
+    spellcheck="false"
+    autocapitalize="off"
+    autocomplete="off"
     [value]="activo().contenido"
     (input)="alEscribir(area.value)"
     (scroll)="sincronizarScroll(area)"
     (keydown)="alPresionarTecla($event, area)"
   ></textarea>
 </div>
+
+<p id="editor-ayuda" class="ayuda">
+  Tab inserta espacios · Esc y Tab para salir · doble clic en una pestaña para renombrarla
+</p>

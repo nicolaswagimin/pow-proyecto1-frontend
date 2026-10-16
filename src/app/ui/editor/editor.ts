@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   computed,
+  effect,
   model,
   signal,
   viewChild,
@@ -41,6 +42,16 @@ export class Editor {
   );
 
   private readonly margen = viewChild.required<ElementRef<HTMLElement>>('margen');
+  private readonly campoNombre = viewChild<ElementRef<HTMLInputElement>>('campo');
+
+  constructor() {
+    // Al pasar a renombrar, el foco va al campo con el nombre seleccionado.
+    effect(() => {
+      const campo = this.campoNombre()?.nativeElement;
+      campo?.focus();
+      campo?.select();
+    });
+  }
 
   // Los números de línea acompañan el scroll vertical del textarea.
   protected sincronizarScroll(textarea: HTMLTextAreaElement): void {
