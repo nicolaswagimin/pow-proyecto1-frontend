@@ -55,6 +55,35 @@ function colorDeFondo(): string {
   );
 }
 
+// Pinta el SVG en un canvas al doble de resolución para que el PNG se vea nítido.
+export function svgAPng(svgTexto: string, ancho: number, alto: number, escala = 2): Promise<Blob> {
+  return new Promise((resolver, rechazar) => {
+    const url = URL.createObjectURL(new Blob([svgTexto], { type: 'image/svg+xml' }));
+    const imagen = new Image();
+    imagen.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.ceil(ancho * escala);
+      canvas.height = Math.ceil(alto * escala);
+      const contexto = canvas.getContext('2d');
+      if (!contexto) {
+        URL.revokeObjectURL(url);
+        return rechazar(new Error('El navegador no permite dibujar en canvas.'));
+      }
+      contexto.drawImage(imagen, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(
+        (blob) => (blob ? resolver(blob) : rechazar(new Error('No se pudo crear el PNG.'))),
+        'image/png',
+      );
+    };
+    imagen.onerror = () => {
+      URL.revokeObjectURL(url);
+      rechazar(new Error('No se pudo convertir el diagrama a imagen.'));
+    };
+    imagen.src = url;
+  });
+}
+
 export function nombreArchivo(titulo: string, extension: 'svg' | 'png'): string {
   const base = titulo
     .normalize('NFD')
