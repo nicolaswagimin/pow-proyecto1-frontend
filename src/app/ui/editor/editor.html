@@ -1,0 +1,18 @@
+<div class="pestanas">
+  @for (archivo of archivos(); track $index; let i = $index) {
+    <button
+      type="button"
+      class="pestana"
+      [class.pestana--activa]="archivo === activo()"
+      (click)="seleccionar(i)"
+    >
+      {{ archivo.nombre }}
+    </button>
+  }
+</div>
+
+<textarea
+  class="codigo"
+  [value]="activo().contenido"
+  (input)="alEscribir($any($event.target).value)"
+></textarea>
