@@ -19,6 +19,12 @@ La funcionalidad propia de CodeToDiagram: pegar código y obtener un diagrama qu
 ### Cambiado
 - La barra superior pasa a un componente compartido (`app-barra`) con enlace al historial; en teléfonos oculta el avatar para no desbordar.
 
+### Corregido
+- Números de línea del editor alineados con el código (el atajo `font` reiniciaba `line-height`).
+- Generar con el editor vacío ya no llama a la IA.
+- Reintentar repite la última acción (generar o volver a abrir un guardado) y los errores de red fuera de la generación no prometen reintentos.
+- Los diagramas anchos no se encogen hasta ser ilegibles: escala mínima 0,75 con scroll centrado; etiquetas más cortas cuando un nodo tiene varias salidas.
+
 ### Eliminado
 - De `/app`: el diagrama de la propia app con el estado del backend, el CRUD de ejemplo (`items`) y la caja de preguntas a la IA. Se eliminan `ApiService` y `arquitectura-app.ts`.
 
