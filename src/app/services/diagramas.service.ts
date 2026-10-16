@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Interceptor, createClient } from '@connectrpc/connect';
+import { Router } from '@angular/router';
+import { Code, ConnectError, Interceptor, createClient } from '@connectrpc/connect';
 import { createGrpcWebTransport } from '@connectrpc/connect-web';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../core/auth.service';
@@ -20,16 +21,48 @@ export function interceptorToken(obtenerToken: () => string | null): Interceptor
   };
 }
 
+// Si el servidor rechaza el token (expiró o el usuario ya no existe), se cierra la sesión, igual
+// que con un 401 en REST. En un stream el error llega mientras se leen los mensajes.
+export function interceptorSesion(alExpirar: () => void): Interceptor {
+  const revisar = (err: unknown) => {
+    if (err instanceof ConnectError && err.code === Code.Unauthenticated) alExpirar();
+  };
+  async function* vigilar<T>(mensajes: AsyncIterable<T>) {
+    try {
+      yield* mensajes;
+    } catch (err) {
+      revisar(err);
+      throw err;
+    }
+  }
+  return (next) => async (req) => {
+    try {
+      const res = await next(req);
+      return res.stream ? { ...res, message: vigilar(res.message) } : res;
+    } catch (err) {
+      revisar(err);
+      throw err;
+    }
+  };
+}
+
 // Cliente del servicio de diagramas por gRPC-Web (el transporte que entienden los navegadores).
 @Injectable({ providedIn: 'root' })
 export class DiagramasService {
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   private readonly cliente = createClient(
     DiagramService,
     createGrpcWebTransport({
       baseUrl: environment.grpcUrl,
-      interceptors: [interceptorToken(() => this.auth.token())],
+      interceptors: [
+        interceptorSesion(() => {
+          this.auth.cerrarSesion();
+          this.router.navigate(['/login'], { queryParams: { sesion: 'expirada' } });
+        }),
+        interceptorToken(() => this.auth.token()),
+      ],
     }),
   );
 
