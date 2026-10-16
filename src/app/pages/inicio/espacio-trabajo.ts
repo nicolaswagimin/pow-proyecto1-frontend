@@ -41,6 +41,7 @@ export class EspacioTrabajo {
   private control: AbortController | null = null;
   private temporizador: ReturnType<typeof setTimeout> | undefined;
   private ultimaClave: string | null = null;
+  private ultimaAutomatica = -Infinity;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -52,6 +53,25 @@ export class EspacioTrabajo {
   // Lo que define un diagrama: si no cambió, no hace falta pedir otro.
   private clave(): string {
     return JSON.stringify([this.archivos(), this.tipo(), this.pregunta().trim()]);
+  }
+
+  // Se llama en cada cambio del código, el tipo o la pregunta. Solo regenera solo cuando ya hay
+  // un diagrama (el primero se pide con el botón Generar).
+  alEditar(): void {
+    clearTimeout(this.temporizador);
+    if (!this.despues()) return;
+    this.temporizador = setTimeout(() => this.intentarAutomatica(), DEBOUNCE_MS);
+  }
+
+  private intentarAutomatica(): void {
+    if (this.clave() === this.ultimaClave) return;
+    const espera = this.ultimaAutomatica + MIN_INTERVALO_MS - Date.now();
+    if (espera > 0) {
+      this.temporizador = setTimeout(() => this.intentarAutomatica(), espera);
+      return;
+    }
+    this.ultimaAutomatica = Date.now();
+    void this.generar();
   }
 
   reintentar(): Promise<void> {
