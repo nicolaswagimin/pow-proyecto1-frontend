@@ -2,17 +2,22 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   computed,
   effect,
   inject,
+  signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { APP_NOMBRE } from '../../config';
 import { AuthService } from '../../core/auth.service';
+import { ErrorInterfaz } from '../../core/errores';
 import { Diagrama } from '../../diagrama/diagrama';
+import { descargar, nombreArchivo, serializarSvg, svgAPng } from '../../diagrama/exportar';
 import { layoutArquitectura, vistaDiff } from '../../diagrama/layout-arquitectura';
 import { DiagramaSecuencia } from '../../diagrama/secuencia/secuencia';
 import { layoutSecuencia, vistaDiffSecuencia } from '../../diagrama/secuencia/layout-secuencia';
@@ -115,6 +120,11 @@ export class Inicio {
       .join(' · ');
   });
 
+  // Resultado de la última acción (guardar o exportar), mostrado bajo la cabecera del panel.
+  protected readonly aviso = signal<{ tipo: 'exito' | 'error'; mensaje: string } | null>(null);
+  protected readonly exportando = signal(false);
+  private readonly mesa = viewChild<ElementRef<HTMLElement>>('mesa');
+
   protected readonly descripcionDibujo = computed(() => {
     const diagrama = this.espacio.despues();
     if (!diagrama) return '';
@@ -130,6 +140,10 @@ export class Inicio {
       this.espacio.pregunta.set(valor);
       this.espacio.alEditar();
     });
+    // /app?diagrama=<id> abre un diagrama del historial.
+    const id = Number(inject(ActivatedRoute).snapshot.queryParamMap.get('diagrama'));
+    if (Number.isInteger(id) && id > 0) void this.espacio.cargarGuardado(id);
+
     // Si la pregunta cambia desde fuera (al abrir un diagrama guardado), el campo la refleja.
     effect(() => {
       const valor = this.espacio.pregunta();
@@ -150,6 +164,38 @@ export class Inicio {
   protected generar(): void {
     if (this.pregunta.invalid) return;
     void this.espacio.generar();
+  }
+
+  protected async guardar(): Promise<void> {
+    this.aviso.set(null);
+    const error: ErrorInterfaz | null = await this.espacio.guardar();
+    this.aviso.set(
+      error
+        ? { tipo: 'error', mensaje: error.mensaje }
+        : { tipo: 'exito', mensaje: 'Guardado en tu historial.' },
+    );
+  }
+
+  protected async exportar(formato: 'svg' | 'png'): Promise<void> {
+    const svg = this.mesa()?.nativeElement.querySelector('svg');
+    const diagrama = this.espacio.despues();
+    if (!svg || !diagrama) return;
+    this.aviso.set(null);
+    this.exportando.set(true);
+    try {
+      const texto = serializarSvg(svg);
+      const nombre = nombreArchivo(diagrama.title, formato);
+      if (formato === 'svg') {
+        descargar(new Blob([texto], { type: 'image/svg+xml' }), nombre);
+      } else {
+        const { width, height } = svg.viewBox.baseVal;
+        descargar(await svgAPng(texto, width, height), nombre);
+      }
+    } catch (err) {
+      this.aviso.set({ tipo: 'error', mensaje: (err as Error).message });
+    } finally {
+      this.exportando.set(false);
+    }
   }
 
   protected salir(): void {

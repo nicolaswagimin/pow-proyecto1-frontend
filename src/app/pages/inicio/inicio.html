@@ -85,7 +85,41 @@
               <p class="panel__descripcion">{{ descripcion }}</p>
             }
           </div>
+          @if (espacio.despues()) {
+            <div class="acciones">
+              <ui-button
+                tamano="compacto"
+                [cargando]="espacio.guardando()"
+                textoCargando="Guardando…"
+                [deshabilitado]="generando() || espacio.guardadoId() !== null"
+                (click)="guardar()"
+              >
+                {{ espacio.guardadoId() !== null ? 'Guardado' : 'Guardar' }}
+              </ui-button>
+              <ui-button
+                variante="secundario"
+                tamano="compacto"
+                [deshabilitado]="exportando()"
+                (click)="exportar('svg')"
+              >
+                Exportar SVG
+              </ui-button>
+              <ui-button
+                variante="secundario"
+                tamano="compacto"
+                [cargando]="exportando()"
+                textoCargando="Exportando…"
+                (click)="exportar('png')"
+              >
+                Exportar PNG
+              </ui-button>
+            </div>
+          }
         </div>
+
+        @if (aviso(); as aviso) {
+          <ui-alert [tipo]="aviso.tipo">{{ aviso.mensaje }}</ui-alert>
+        }
 
         @if (hayDiff()) {
           <div class="diff">
@@ -118,7 +152,7 @@
         }
 
         @if (dibujo(); as d) {
-          <div class="mesa" [class.mesa--actualizando]="generando()">
+          <div #mesa class="mesa" [class.mesa--actualizando]="generando()">
             @if (d.tipo === 'secuencia') {
               <ui-diagrama-secuencia
                 class="mesa__diagrama"
