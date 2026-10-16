@@ -1,5 +1,5 @@
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
-import { ErrorInterfaz, mapearErrorGrpc } from '../../core/errores';
+import { ErrorInterfaz, mapearErrorGrpc, sinReintentos } from '../../core/errores';
 import { DiffVista, calcularDiff } from '../../diagrama/diff';
 import { TipoSoportado } from '../../diagrama/tipos';
 import { validarDiagrama } from '../../diagrama/validar';
@@ -43,6 +43,8 @@ export class EspacioTrabajo {
   private temporizador: ReturnType<typeof setTimeout> | undefined;
   private ultimaClave: string | null = null;
   private ultimaAutomatica = -Infinity;
+  // Qué repite el botón Reintentar: generar o volver a abrir un guardado.
+  private ultimaAccion: { tipo: 'generar' } | { tipo: 'abrir'; id: number } = { tipo: 'generar' };
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -76,12 +78,20 @@ export class EspacioTrabajo {
   }
 
   reintentar(): Promise<void> {
-    return this.generar();
+    const accion = this.ultimaAccion;
+    return accion.tipo === 'abrir' ? this.cargarGuardado(accion.id) : this.generar();
   }
 
   async generar(): Promise<void> {
     clearTimeout(this.temporizador);
     this.control?.abort();
+    this.ultimaAccion = { tipo: 'generar' };
+    // Sin código no hay nada que analizar: no se gasta una llamada a la IA.
+    if (this.archivos().every((a) => !a.contenido.trim())) {
+      this.secuencia++;
+      this.fallar({ mensaje: 'Pega algo de código antes de generar.' });
+      return;
+    }
     const control = new AbortController();
     this.control = control;
     const numero = ++this.secuencia;
@@ -164,6 +174,7 @@ export class EspacioTrabajo {
     clearTimeout(this.temporizador);
     this.control?.abort();
     const numero = ++this.secuencia;
+    this.ultimaAccion = { tipo: 'abrir', id };
     this.estado.set('generando');
     this.error.set(null);
     this.progreso.set('Abriendo el diagrama guardado…');
@@ -173,6 +184,8 @@ export class EspacioTrabajo {
       const validacion = validarDiagrama(guardado?.diagram);
       if (!guardado || !validacion.ok) {
         this.despues.set(null);
+        this.antes.set(null);
+        this.diff.set(null);
         this.fallar({ mensaje: 'Este diagrama guardado no es válido y no se puede dibujar.' });
         return;
       }
@@ -189,7 +202,7 @@ export class EspacioTrabajo {
     } catch (err) {
       if (numero !== this.secuencia) return;
       const problema = mapearErrorGrpc(err);
-      if (problema) this.fallar(problema);
+      if (problema) this.fallar(sinReintentos(problema));
     }
   }
 
@@ -208,7 +221,8 @@ export class EspacioTrabajo {
       this.guardadoId.set(diagram?.id ?? null);
       return null;
     } catch (err) {
-      return mapearErrorGrpc(err);
+      const problema = mapearErrorGrpc(err);
+      return problema && sinReintentos(problema);
     } finally {
       this.guardando.set(false);
     }

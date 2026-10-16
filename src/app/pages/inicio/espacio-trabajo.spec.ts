@@ -203,6 +203,35 @@ describe('EspacioTrabajo', () => {
     expect(espacio.despues()).toBeNull();
   });
 
+  it('con todo el código vacío no llama al servidor y pide pegar código', async () => {
+    const { espacio, servicio } = preparar([v1]);
+    espacio.archivos.set([{ nombre: 'index.js', contenido: '   ' }]);
+    await espacio.generar();
+    expect(servicio.llamadas.length).toBe(0);
+    expect(espacio.estado()).toBe('error');
+    expect(espacio.error()?.mensaje).toBe('Pega algo de código antes de generar.');
+  });
+
+  it('reintentar tras fallar al abrir un guardado vuelve a abrirlo, sin generar', async () => {
+    const { espacio, servicio } = preparar([]);
+    servicio.obtener
+      .mockRejectedValueOnce(new ConnectError('Ese diagrama no existe o no es tuyo.', Code.NotFound))
+      .mockResolvedValueOnce({ diagram: create(SavedDiagramSchema, { id: 4, files: [{ name: 'a.js', content: 'x' }], diagram: v1 }) });
+    await espacio.cargarGuardado(4);
+    expect(espacio.estado()).toBe('error');
+    await espacio.reintentar();
+    expect(servicio.obtener).toHaveBeenCalledTimes(2);
+    expect(servicio.llamadas.length).toBe(0);
+    expect(espacio.estado()).toBe('listo');
+  });
+
+  it('si no hay conexión al abrir un guardado, no promete reintentos que no hace', async () => {
+    const { espacio, servicio } = preparar([]);
+    servicio.obtener.mockRejectedValue(new ConnectError('HTTP 503', Code.Unavailable));
+    await espacio.cargarGuardado(4);
+    expect(espacio.error()?.mensaje).toMatch(/No pudimos conectar/);
+  });
+
   it('guardar envía el diagrama actual y recuerda el id', async () => {
     const { espacio, servicio } = preparar([v1]);
     servicio.guardar.mockResolvedValue({ diagram: { id: 9 } });
