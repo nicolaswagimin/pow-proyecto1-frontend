@@ -1,6 +1,9 @@
 import { Diagram, Edge, Node, NodeCategory } from '../gen/codetodiagram/v1/diagram_pb';
 import { DiffVista } from './diff';
-import { AristaDiagrama, CambioDiagrama, FormaNodo, NodoDiagrama, altoNodo } from './modelo';
+import { AristaDiagrama, FormaNodo, NodoDiagrama, altoNodo } from './modelo';
+import { MarcasCambio, VistaDiff, conFantasmas, diagramaDeVista } from './vistas';
+
+export type { MarcasCambio, VistaDiff } from './vistas';
 
 // Layout determinista por capas: el mismo diagrama siempre se dibuja igual, sin importar el orden
 // en que la IA devolvió nodos y conexiones. Funciones puras, sin DOM.
@@ -29,11 +32,6 @@ const ETIQUETAS: Record<NodeCategory, string> = {
   [NodeCategory.EXTERNAL]: 'Sistema externo',
 };
 
-export interface MarcasCambio {
-  nodos?: ReadonlyMap<string, CambioDiagrama>;
-  aristas?: ReadonlyMap<string, CambioDiagrama>;
-}
-
 export interface LayoutDiagrama {
   nodos: NodoDiagrama[];
   aristas: AristaDiagrama[];
@@ -51,48 +49,16 @@ export function layoutArquitectura(d: Diagram, marcas: MarcasCambio = {}): Layou
   };
 }
 
-export type VistaDiff = 'antes' | 'despues' | 'comparar';
-
-// Prefijo de las aristas eliminadas en Comparar: su id puede repetirse en el diagrama nuevo.
-const PREFIJO_FANTASMA = 'antes~';
-
-// Qué se dibuja en cada vista del diff:
-// - Antes: el diagrama anterior, con lo eliminado marcado.
-// - Después: el nuevo, con lo agregado y modificado marcado.
-// - Comparar: la unión de los dos (layout propio, sin solapes), con lo eliminado como fantasma.
+// Layout de una vista del diff (ver vistas.ts).
 export function vistaDiff(
   vista: VistaDiff,
   antes: Diagram,
   despues: Diagram,
   diff: DiffVista,
 ): LayoutDiagrama {
-  const nodosEliminados = new Map([...diff.nodos].filter(([, cambio]) => cambio === 'eliminado'));
-  const aristasEliminadas = new Map([...diff.aristasEliminadas].map((id) => [id, 'eliminado' as const]));
-
-  if (vista === 'antes') {
-    return layoutArquitectura(antes, { nodos: nodosEliminados, aristas: aristasEliminadas });
-  }
-  if (vista === 'despues') {
-    const vigentes = new Map([...diff.nodos].filter(([, cambio]) => cambio !== 'eliminado'));
-    return layoutArquitectura(despues, { nodos: vigentes, aristas: diff.aristas });
-  }
-
-  const union = {
-    ...despues,
-    nodes: [...despues.nodes, ...antes.nodes.filter((n) => nodosEliminados.has(n.id))],
-    edges: [
-      ...despues.edges,
-      ...antes.edges
-        .filter((a) => diff.aristasEliminadas.has(a.id))
-        .map((a) => ({ ...a, id: PREFIJO_FANTASMA + a.id })),
-    ],
-  };
-  const marcasAristas = new Map(diff.aristas);
-  for (const id of diff.aristasEliminadas) marcasAristas.set(PREFIJO_FANTASMA + id, 'eliminado');
-  const { nodos, aristas } = layoutArquitectura(union, { nodos: diff.nodos, aristas: marcasAristas });
-  const fantasma = <T extends { cambio?: CambioDiagrama }>(x: T) =>
-    x.cambio === 'eliminado' ? { ...x, fantasma: true } : x;
-  return { nodos: nodos.map(fantasma), aristas: aristas.map(fantasma) };
+  const { diagrama, marcas } = diagramaDeVista(vista, antes, despues, diff);
+  const { nodos, aristas } = layoutArquitectura(diagrama, marcas);
+  return { nodos: conFantasmas(vista, nodos), aristas: conFantasmas(vista, aristas) };
 }
 
 function aNodo(nodo: Node): Omit<NodoDiagrama, 'x' | 'y'> {
