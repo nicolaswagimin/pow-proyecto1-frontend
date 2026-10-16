@@ -63,7 +63,8 @@ export function mapearErrorGrpc(err: unknown): (ErrorInterfaz & { despertando?: 
   const sinRespuesta =
     (err.code === Code.Unknown && err.cause instanceof TypeError) ||
     (err.code === Code.Unavailable && /^HTTP 50\d$/.test(err.rawMessage));
-  if (sinRespuesta) return { mensaje: 'El servidor está despertando, reintentando…', despertando: true };
+  if (sinRespuesta)
+    return { mensaje: 'El servidor está despertando, reintentando…', despertando: true };
 
   switch (err.code) {
     case Code.Canceled:
@@ -80,4 +81,14 @@ export function mapearErrorGrpc(err: unknown): (ErrorInterfaz & { despertando?: 
     default:
       return { mensaje: MENSAJE_GENERICO };
   }
+}
+
+// Para llamadas que no se reintentan solas: "reintentando…" sería falso, así que se avisa
+// directamente que no hubo conexión.
+export function sinReintentos<T extends ErrorInterfaz & { despertando?: boolean }>(
+  problema: T,
+): ErrorInterfaz {
+  return problema.despertando
+    ? { mensaje: 'No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.' }
+    : problema;
 }
