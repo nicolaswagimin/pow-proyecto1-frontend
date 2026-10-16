@@ -9,3 +9,42 @@
   overflow: visible;
   font-family: var(--font-codigo);
 }
+
+/* ---------- Participantes ---------- */
+.participante__caja {
+  fill: var(--color-superficie);
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.participante__vida {
+  stroke: var(--color-lapiz);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 4;
+}
+
+.participante__titulo {
+  font-family: var(--font-texto);
+  font-weight: var(--peso-fuerte);
+  font-size: 13px;
+  fill: currentColor;
+}
+
+/* ---------- Mensajes ---------- */
+.mensaje__linea,
+.mensaje__punta {
+  fill: none;
+  stroke: var(--color-primario);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mensaje__etiqueta {
+  font-size: 10.5px;
+  fill: var(--color-texto-suave);
+  paint-order: stroke;
+  stroke: var(--color-fondo);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
