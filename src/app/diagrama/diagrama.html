@@ -8,7 +8,15 @@
 >
   <!-- Aristas: el trazo a lápiz siempre está; la tinta se dibuja encima cuando se confirma. -->
   @for (arista of aristasVista(); track arista.id) {
-    <g class="arista" [class]="'arista arista--' + arista.estado">
+    <g
+      class="arista"
+      [class]="
+        'arista arista--' +
+        arista.estado +
+        (arista.cambio ? ' arista--' + arista.cambio : '') +
+        (arista.fantasma ? ' arista--fantasma' : '')
+      "
+    >
       <path class="arista__lapiz" [attr.d]="arista.d" />
       <path class="arista__tinta" [attr.d]="arista.d" pathLength="100" />
       <path class="arista__punta" [attr.d]="arista.punta" />
@@ -23,7 +31,14 @@
 
   @for (nodo of nodosVista(); track nodo.id; let i = $index) {
     <g
-      [class]="'nodo nodo--' + nodo.forma + ' nodo--' + (nodo.estado ?? 'normal')"
+      [class]="
+        'nodo nodo--' +
+        nodo.forma +
+        ' nodo--' +
+        (nodo.estado ?? 'normal') +
+        (nodo.cambio ? ' nodo--' + nodo.cambio : '') +
+        (nodo.fantasma ? ' nodo--fantasma' : '')
+      "
       [style.transform]="'translate(' + nodo.x + 'px, ' + nodo.y + 'px)'"
       [style.--i]="i"
     >
