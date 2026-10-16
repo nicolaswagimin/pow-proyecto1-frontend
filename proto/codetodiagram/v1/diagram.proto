@@ -1,0 +1,184 @@
+// Contrato del servicio de diagramas de CodeToDiagram.
+// Fuente única: este archivo. El frontend tiene una copia idéntica (npm run proto:sync).
+syntax = "proto3";
+
+package codetodiagram.v1;
+
+import "google/protobuf/timestamp.proto";
+
+// Tipo de diagrama. Para agregar uno nuevo (flujo de trabajo, flujo de datos, ciclo de vida)
+// basta con un valor más aquí, un layout y un componente en el frontend.
+enum DiagramType {
+  DIAGRAM_TYPE_UNSPECIFIED = 0;
+  DIAGRAM_TYPE_ARCHITECTURE = 1;
+  DIAGRAM_TYPE_SEQUENCE = 2;
+}
+
+// Forma C4 con la que se dibuja cada nodo.
+enum NodeCategory {
+  NODE_CATEGORY_UNSPECIFIED = 0;
+  NODE_CATEGORY_PERSON = 1;
+  NODE_CATEGORY_COMPONENT = 2;
+  NODE_CATEGORY_CONTAINER = 3;
+  NODE_CATEGORY_DATABASE = 4;
+  NODE_CATEGORY_EXTERNAL = 5;
+}
+
+// Qué le pasó a un nodo o conexión entre dos versiones del diagrama.
+enum ChangeKind {
+  CHANGE_KIND_UNSPECIFIED = 0;
+  CHANGE_KIND_ADDED = 1;
+  CHANGE_KIND_REMOVED = 2;
+  CHANGE_KIND_MODIFIED = 3;
+}
+
+// Etapas que el servidor reporta mientras genera un diagrama.
+enum ProgressStage {
+  PROGRESS_STAGE_UNSPECIFIED = 0;
+  PROGRESS_STAGE_ANALYZING = 1;
+  PROGRESS_STAGE_VALIDATING = 2;
+  PROGRESS_STAGE_RETRYING = 3;
+  PROGRESS_STAGE_DONE = 4;
+}
+
+// Un archivo de código pegado por el usuario.
+message SourceFile {
+  string name = 1;
+  string content = 2;
+}
+
+message Node {
+  string id = 1;
+  string name = 2;
+  NodeCategory category = 3;
+  string technology = 4;
+  string description = 5;
+  // Archivo de origen del que sale el nodo (si aplica).
+  string file = 6;
+}
+
+message Edge {
+  string id = 1;
+  string from = 2;
+  string to = 3;
+  string label = 4;
+  // Posición del mensaje en un diagrama de secuencia (1, 2, 3…); 0 en arquitectura.
+  int32 order = 5;
+}
+
+// Diagrama ya validado por el servidor.
+message Diagram {
+  DiagramType type = 1;
+  string title = 2;
+  string description = 3;
+  repeated Node nodes = 4;
+  repeated Edge edges = 5;
+}
+
+message Change {
+  string id = 1;
+  ChangeKind kind = 2;
+}
+
+// Diferencias entre el diagrama anterior y el nuevo.
+message DiagramDiff {
+  repeated Change nodes = 1;
+  repeated Change edges = 2;
+}
+
+message Progress {
+  ProgressStage stage = 1;
+  string message = 2;
+}
+
+message GenerateDiagramRequest {
+  repeated SourceFile files = 1;
+  DiagramType type = 2;
+  // Pregunta opcional que enfoca el diagrama.
+  string question = 3;
+  // Diagrama anterior: la IA reutiliza sus ids para que el diff no muestre cambios falsos.
+  optional Diagram previous = 4;
+}
+
+message GenerateDiagramResponse {
+  Diagram diagram = 1;
+}
+
+message StreamDiagramRequest {
+  repeated SourceFile files = 1;
+  DiagramType type = 2;
+  string question = 3;
+  optional Diagram previous = 4;
+}
+
+// Cada evento del stream: progreso, el diagrama final y, si hubo anterior, el diff.
+message StreamDiagramResponse {
+  oneof event {
+    Progress progress = 1;
+    Diagram diagram = 2;
+    DiagramDiff diff = 3;
+  }
+}
+
+// Resumen de un diagrama guardado, para el historial.
+message SavedDiagramSummary {
+  int32 id = 1;
+  string title = 2;
+  DiagramType type = 3;
+  string question = 4;
+  int32 node_count = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+// Diagrama guardado completo: el código y el diagrama, para volver a abrirlo.
+message SavedDiagram {
+  int32 id = 1;
+  string title = 2;
+  string question = 3;
+  repeated SourceFile files = 4;
+  Diagram diagram = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message SaveDiagramRequest {
+  string title = 1;
+  string question = 2;
+  repeated SourceFile files = 3;
+  Diagram diagram = 4;
+}
+
+message SaveDiagramResponse {
+  SavedDiagramSummary diagram = 1;
+}
+
+message ListDiagramsRequest {}
+
+message ListDiagramsResponse {
+  repeated SavedDiagramSummary diagrams = 1;
+}
+
+message GetDiagramRequest {
+  int32 id = 1;
+}
+
+message GetDiagramResponse {
+  SavedDiagram diagram = 1;
+}
+
+message DeleteDiagramRequest {
+  int32 id = 1;
+}
+
+message DeleteDiagramResponse {}
+
+// Servicio de diagramas. Todas las llamadas exigen el JWT en el metadato "authorization".
+service DiagramService {
+  // Genera un diagrama validado a partir del código.
+  rpc GenerateDiagram(GenerateDiagramRequest) returns (GenerateDiagramResponse);
+  // Igual que GenerateDiagram, pero envía el progreso y, si hay diagrama anterior, el diff.
+  rpc StreamDiagram(StreamDiagramRequest) returns (stream StreamDiagramResponse);
+  rpc SaveDiagram(SaveDiagramRequest) returns (SaveDiagramResponse);
+  rpc ListDiagrams(ListDiagramsRequest) returns (ListDiagramsResponse);
+  rpc GetDiagram(GetDiagramRequest) returns (GetDiagramResponse);
+  rpc DeleteDiagram(DeleteDiagramRequest) returns (DeleteDiagramResponse);
+}
