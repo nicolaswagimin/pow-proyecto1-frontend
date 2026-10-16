@@ -249,6 +249,88 @@
   max-width: 760px;
 }
 
+/* ---------- Diff ---------- */
+.diff {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+.vistas {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-control);
+  box-shadow: inset 0 0 0 1.5px var(--color-borde);
+}
+
+.vista {
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: calc(var(--radius-control) - 2px);
+  background: transparent;
+  color: var(--color-texto-suave);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition:
+    background-color var(--duracion-media),
+    color var(--duracion-media);
+}
+
+.vista[aria-pressed='true'] {
+  background: var(--color-primario);
+  color: var(--color-primario-contraste);
+}
+
+.vista:focus-visible {
+  outline: 2px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+.diff__resumen {
+  font-family: var(--font-codigo);
+  font-size: var(--text-xs);
+  color: var(--color-texto-suave);
+}
+
+/* La muestra repite el trazo del diagrama: color y forma de línea. */
+.leyenda-diff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-xs);
+  color: var(--color-texto-suave);
+}
+
+.leyenda-diff__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.leyenda-diff__item::before {
+  content: '';
+  width: 24px;
+  border-top: 2.5px solid;
+}
+
+.leyenda-diff__item--agregado::before {
+  border-top-color: var(--color-exito);
+}
+
+.leyenda-diff__item--modificado::before {
+  border-top: 2.5px dashed var(--color-aviso);
+}
+
+.leyenda-diff__item--eliminado::before {
+  border-top: 2.5px dotted var(--color-error);
+}
+
 .vacio {
   padding: var(--space-6) var(--space-4);
   border: 1px dashed var(--color-borde);

@@ -87,6 +87,24 @@
           </div>
         </div>
 
+        @if (hayDiff()) {
+          <div class="diff">
+            <div class="vistas" role="group" aria-label="Vista del diff">
+              @for (vista of vistas; track vista.valor) {
+                <button
+                  type="button"
+                  class="vista"
+                  [attr.aria-pressed]="espacio.vista() === vista.valor"
+                  (click)="espacio.vista.set(vista.valor)"
+                >
+                  {{ vista.etiqueta }}
+                </button>
+              }
+            </div>
+            <p class="diff__resumen" aria-live="polite">{{ resumenDiff() }}</p>
+          </div>
+        }
+
         <p class="progreso" role="status">{{ generando() ? espacio.progreso() : '' }}</p>
 
         @if (espacio.error(); as error) {
@@ -117,6 +135,13 @@
               />
             }
           </div>
+          @if (hayDiff()) {
+            <ul class="leyenda-diff" aria-label="Leyenda de cambios">
+              <li class="leyenda-diff__item leyenda-diff__item--agregado">Agregado</li>
+              <li class="leyenda-diff__item leyenda-diff__item--modificado">Modificado</li>
+              <li class="leyenda-diff__item leyenda-diff__item--eliminado">Eliminado</li>
+            </ul>
+          }
         } @else if (!generando()) {
           <p class="vacio">
             Todavía no hay diagrama. Pega tu código, elige el tipo y pulsa
