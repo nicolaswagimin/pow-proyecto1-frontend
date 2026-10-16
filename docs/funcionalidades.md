@@ -15,7 +15,7 @@ Dos columnas en escritorio (código | diagrama) y una debajo de la otra en móvi
 - **Editor con pestañas**: un archivo por pestaña, hasta 10. `+` agrega uno, doble clic renombra, `×` lo quita. Tab inserta dos espacios; Esc y luego Tab sale del editor (no atrapa el foco).
 - **Tipo de diagrama**: *Arquitectura* (qué piezas hay y cómo se conectan) o *Secuencia* (qué pasa, paso a paso, en un flujo concreto).
 - **¿Qué quieres entender?** (opcional, hasta 300 caracteres): enfoca el diagrama en una pregunta, por ejemplo "¿cómo se valida el login?". Así el diagrama tiene como mucho 12 nodos y responde algo concreto en lugar de mapearlo todo.
-- **Generar diagrama**: pide el primero.
+- **Generar diagrama**: pide el primero. Con el editor vacío no se llama a la IA: aparece "Pega algo de código antes de generar."
 
 ### El diagrama
 
@@ -29,6 +29,7 @@ Dos columnas en escritorio (código | diagrama) y una debajo de la otra en móvi
 
 - Si la IA devuelve algo inválido o el servidor responde con error, **no se dibuja nada a medias**: queda el diagrama anterior (si había) y una alerta con el motivo y un botón **Reintentar**.
 - Si el servidor no responde (Render dormido), el progreso dice "El servidor está despertando, reintentando (1/3)…" y lo intenta 3 veces, cada 8 segundos. Si sigue sin responder: "No pudimos conectar con el servidor…".
+- **Reintentar** repite la última acción: volver a generar o volver a abrir el diagrama guardado.
 - Si la sesión expiró, vuelve a `/login`.
 
 ## `/historial`
