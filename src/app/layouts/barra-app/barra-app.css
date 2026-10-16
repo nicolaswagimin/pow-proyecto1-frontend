@@ -103,4 +103,8 @@
   .perfil {
     display: none;
   }
+
+  .barra__enlace {
+    padding: 0;
+  }
 }
