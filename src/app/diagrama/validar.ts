@@ -68,7 +68,24 @@ const revisarConexiones: Regla = (d) => {
   ]);
 };
 
-const REGLAS: Regla[] = [revisarTipoYCategorias, revisarCantidad, revisarIds, revisarConexiones];
+// En secuencia, el orden de los mensajes es lo que se dibuja de arriba abajo.
+const revisarOrden: Regla = (d) =>
+  d.type !== DiagramType.SEQUENCE
+    ? []
+    : d.edges
+        .filter((arista) => arista.order < 1)
+        .map(
+          (arista) =>
+            `En un diagrama de secuencia, la conexión "${arista.id}" necesita un orden (1 o más).`,
+        );
+
+const REGLAS: Regla[] = [
+  revisarTipoYCategorias,
+  revisarCantidad,
+  revisarIds,
+  revisarConexiones,
+  revisarOrden,
+];
 
 export function validarDiagrama(d: Diagram | undefined): ResultadoValidacion {
   if (!d) return { ok: false, errores: ['No llegó ningún diagrama.'] };
