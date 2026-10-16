@@ -48,3 +48,42 @@
   stroke-width: 4px;
   stroke-linejoin: round;
 }
+
+/* ---------- Diff (mismos criterios que ui-diagrama) ---------- */
+.participante--agregado .participante__caja {
+  stroke: var(--color-exito);
+  stroke-width: 2.5;
+}
+
+.participante--modificado .participante__caja {
+  stroke: var(--color-aviso);
+  stroke-width: 2.5;
+  stroke-dasharray: 6 3;
+}
+
+.participante--eliminado .participante__caja {
+  stroke: var(--color-error);
+  stroke-width: 2.5;
+  stroke-dasharray: 2 4;
+}
+
+.mensaje--agregado :is(.mensaje__linea, .mensaje__punta) {
+  stroke: var(--color-exito);
+}
+
+.mensaje--modificado :is(.mensaje__linea, .mensaje__punta) {
+  stroke: var(--color-aviso);
+}
+
+.mensaje--eliminado :is(.mensaje__linea, .mensaje__punta) {
+  stroke: var(--color-error);
+}
+
+.mensaje--eliminado .mensaje__linea {
+  stroke-dasharray: 2 4;
+}
+
+.participante--fantasma,
+.mensaje--fantasma {
+  opacity: 0.45;
+}
