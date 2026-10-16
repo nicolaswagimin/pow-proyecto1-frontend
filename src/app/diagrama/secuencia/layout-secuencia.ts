@@ -2,6 +2,7 @@ import { Diagram, Edge } from '../../gen/codetodiagram/v1/diagram_pb';
 import { DiffVista } from '../diff';
 import { CambioDiagrama } from '../modelo';
 import { MarcasCambio, VistaDiff, conFantasmas, diagramaDeVista } from '../vistas';
+import { acortar } from '../texto';
 
 // Layout determinista del diagrama de secuencia: un carril (línea de vida) por participante y un
 // mensaje por fila, de arriba abajo según su orden. Funciones puras, sin DOM.
@@ -43,7 +44,10 @@ export function layoutSecuencia(d: Diagram, marcas: MarcasCambio = {}): LayoutSe
   // Participantes en orden de primera aparición; los que no hablan, al final por id.
   const ids: string[] = [];
   for (const m of ordenados) for (const id of [m.from, m.to]) if (!ids.includes(id)) ids.push(id);
-  const callados = d.nodes.map((n) => n.id).filter((id) => !ids.includes(id)).sort();
+  const callados = d.nodes
+    .map((n) => n.id)
+    .filter((id) => !ids.includes(id))
+    .sort();
   const nombres = new Map(d.nodes.map((n) => [n.id, n.name]));
   const participantes = [...ids, ...callados]
     .filter((id) => nombres.has(id))
@@ -89,8 +93,4 @@ export function vistaDiffSecuencia(
 
 function porOrden(a: Edge, b: Edge): number {
   return a.order - b.order || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-}
-
-function acortar(texto: string, max: number): string {
-  return texto.length > max ? `${texto.slice(0, max - 1)}…` : texto;
 }

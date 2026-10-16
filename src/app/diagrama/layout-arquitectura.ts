@@ -2,6 +2,7 @@ import { Diagram, Edge, Node, NodeCategory } from '../gen/codetodiagram/v1/diagr
 import { DiffVista } from './diff';
 import { AristaDiagrama, FormaNodo, NodoDiagrama, altoNodo } from './modelo';
 import { MarcasCambio, VistaDiff, conFantasmas, diagramaDeVista } from './vistas';
+import { acortar } from './texto';
 
 export type { MarcasCambio, VistaDiff } from './vistas';
 
@@ -44,8 +45,15 @@ export function layoutArquitectura(d: Diagram, marcas: MarcasCambio = {}): Layou
   const posicion = ubicar(nodos, aristas, capas);
 
   return {
-    nodos: nodos.map((nodo) => ({ ...aNodo(nodo), ...posicion.get(nodo.id)!, cambio: marcas.nodos?.get(nodo.id) })),
-    aristas: aristas.map((arista) => ({ ...aArista(arista), cambio: marcas.aristas?.get(arista.id) })),
+    nodos: nodos.map((nodo) => ({
+      ...aNodo(nodo),
+      ...posicion.get(nodo.id)!,
+      cambio: marcas.nodos?.get(nodo.id),
+    })),
+    aristas: aristas.map((arista) => ({
+      ...aArista(arista),
+      cambio: marcas.aristas?.get(arista.id),
+    })),
   };
 }
 
@@ -142,10 +150,6 @@ function ubicar(nodos: Node[], aristas: Edge[], capas: Map<string, number>) {
     y += Math.max(0, ...fila.map((n) => altos.get(n.id)!)) + SEPARACION_Y;
   }
   return posicion;
-}
-
-function acortar(texto: string, max: number): string {
-  return texto.length > max ? `${texto.slice(0, max - 1)}…` : texto;
 }
 
 function porId(a: { id: string }, b: { id: string }): number {
