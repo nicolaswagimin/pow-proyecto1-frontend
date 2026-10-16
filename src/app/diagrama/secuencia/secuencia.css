@@ -1,0 +1,11 @@
+:host {
+  display: block;
+  color: var(--color-texto);
+}
+
+.lienzo {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-family: var(--font-codigo);
+}

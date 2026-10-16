@@ -1,0 +1,64 @@
+<svg
+  class="lienzo"
+  [attr.viewBox]="viewBox()"
+  [attr.width]="layout().ancho"
+  [attr.height]="layout().alto + 8"
+  role="img"
+  [attr.aria-label]="descripcion()"
+>
+  @for (p of layout().participantes; track p.id) {
+    <g
+      [class]="
+        'participante' +
+        (p.cambio ? ' participante--' + p.cambio : '') +
+        (p.fantasma ? ' participante--fantasma' : '')
+      "
+    >
+      <line
+        class="participante__vida"
+        [attr.x1]="p.x"
+        [attr.x2]="p.x"
+        [attr.y1]="ALTO_CAJA"
+        [attr.y2]="layout().alto"
+      />
+      <rect
+        class="participante__caja"
+        [attr.x]="p.x - ANCHO_CAJA / 2"
+        y="0"
+        [attr.width]="ANCHO_CAJA"
+        [attr.height]="ALTO_CAJA"
+        rx="3"
+      />
+      <text class="participante__titulo" [attr.x]="p.x" y="25" text-anchor="middle">
+        {{ p.titulo }}
+      </text>
+    </g>
+  }
+
+  @for (m of layout().mensajes; track m.id; let i = $index) {
+    <g
+      [class]="
+        'mensaje' +
+        (m.cambio ? ' mensaje--' + m.cambio : '') +
+        (m.fantasma ? ' mensaje--fantasma' : '')
+      "
+    >
+      <line
+        class="mensaje__linea"
+        [attr.x1]="m.deX"
+        [attr.x2]="m.aX"
+        [attr.y1]="m.y"
+        [attr.y2]="m.y"
+      />
+      <path class="mensaje__punta" [attr.d]="punta(m.deX, m.aX, m.y)" />
+      <text
+        class="mensaje__etiqueta"
+        [attr.x]="(m.deX + m.aX) / 2"
+        [attr.y]="m.y - 7"
+        text-anchor="middle"
+      >
+        {{ i + 1 }}. {{ m.etiqueta }}
+      </text>
+    </g>
+  }
+</svg>
