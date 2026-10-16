@@ -1,5 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, model, signal } from '@angular/core';
-import { ArchivoEditor, MAX_ARCHIVOS, nombreLibre } from './archivos';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  model,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { ArchivoEditor, MAX_ARCHIVOS, contarLineas, nombreLibre } from './archivos';
 import { Icon } from '../icon/icon';
 
 // Editor de código liviano: una pestaña por archivo y un textarea con la tipografía de código.
@@ -21,6 +29,17 @@ export class Editor {
   protected readonly activo = computed(
     () => this.archivos()[Math.min(this.indiceActivo(), this.archivos().length - 1)],
   );
+
+  protected readonly numeros = computed(() =>
+    Array.from({ length: contarLineas(this.activo().contenido) }, (_, i) => i + 1).join('\n'),
+  );
+
+  private readonly margen = viewChild.required<ElementRef<HTMLElement>>('margen');
+
+  // Los números de línea acompañan el scroll vertical del textarea.
+  protected sincronizarScroll(textarea: HTMLTextAreaElement): void {
+    this.margen().nativeElement.scrollTop = textarea.scrollTop;
+  }
 
   protected seleccionar(indice: number): void {
     this.indiceActivo.set(indice);

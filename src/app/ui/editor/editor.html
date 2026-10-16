@@ -35,8 +35,13 @@
   </button>
 </div>
 
-<textarea
-  class="codigo"
-  [value]="activo().contenido"
-  (input)="alEscribir($any($event.target).value)"
-></textarea>
+<div class="cuerpo">
+  <pre #margen class="margen" aria-hidden="true">{{ numeros() }}</pre>
+  <textarea
+    #area
+    class="codigo"
+    [value]="activo().contenido"
+    (input)="alEscribir(area.value)"
+    (scroll)="sincronizarScroll(area)"
+  ></textarea>
+</div>

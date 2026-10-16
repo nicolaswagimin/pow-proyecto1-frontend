@@ -2,7 +2,8 @@ import { contarLineas, insertarSangria, nombreLibre } from './archivos';
 
 describe('nombreLibre', () => {
   it('usa el nombre base si está libre', () => expect(nombreLibre([])).toBe('archivo.js'));
-  it('numera si ya existe', () => expect(nombreLibre(['archivo.js', 'archivo-2.js'])).toBe('archivo-3.js'));
+  it('numera si ya existe', () =>
+    expect(nombreLibre(['archivo.js', 'archivo-2.js'])).toBe('archivo-3.js'));
 });
 
 describe('insertarSangria', () => {
