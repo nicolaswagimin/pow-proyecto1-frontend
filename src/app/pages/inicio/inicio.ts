@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { APP_NOMBRE } from '../../config';
 import { AuthService } from '../../core/auth.service';
 import { ErrorInterfaz } from '../../core/errores';
@@ -24,14 +24,13 @@ import { layoutSecuencia, vistaDiffSecuencia } from '../../diagrama/secuencia/la
 import { TIPOS_DIAGRAMA, TipoSoportado } from '../../diagrama/tipos';
 import { VistaDiff } from '../../diagrama/vistas';
 import { DiagramType } from '../../gen/codetodiagram/v1/diagram_pb';
+import { BarraApp } from '../../layouts/barra-app/barra-app';
 import { Alert } from '../../ui/alert/alert';
-import { Avatar } from '../../ui/avatar/avatar';
 import { Button } from '../../ui/button/button';
 import { Editor } from '../../ui/editor/editor';
 import { ArchivoEditor } from '../../ui/editor/archivos';
 import { Icon } from '../../ui/icon/icon';
 import { TextField } from '../../ui/text-field/text-field';
-import { ThemeToggle } from '../../ui/theme-toggle/theme-toggle';
 import { EspacioTrabajo } from './espacio-trabajo';
 
 // /app: el espacio de trabajo. Código a la izquierda, diagrama a la derecha. La lógica vive en
@@ -41,27 +40,23 @@ import { EspacioTrabajo } from './espacio-trabajo';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     Alert,
-    Avatar,
+    BarraApp,
     Button,
     Diagrama,
     DiagramaSecuencia,
     Editor,
     Icon,
     TextField,
-    ThemeToggle,
   ],
   providers: [EspacioTrabajo],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
 export class Inicio {
-  private readonly router = inject(Router);
   protected readonly auth = inject(AuthService);
   protected readonly espacio = inject(EspacioTrabajo);
 
-  protected readonly nombreApp = APP_NOMBRE;
   protected readonly usuario = this.auth.usuario;
   protected readonly primerNombre = computed(
     () => (this.usuario()?.nombre ?? '').trim().split(/\s+/)[0] || 'de nuevo',
@@ -196,10 +191,5 @@ export class Inicio {
     } finally {
       this.exportando.set(false);
     }
-  }
-
-  protected salir(): void {
-    this.auth.cerrarSesion();
-    this.router.navigateByUrl('/login');
   }
 }

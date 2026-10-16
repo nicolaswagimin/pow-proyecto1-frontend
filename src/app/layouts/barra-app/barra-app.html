@@ -1,0 +1,25 @@
+<header class="barra">
+  <a class="marca" routerLink="/app">
+    <svg class="marca__logo" viewBox="0 0 28 20" aria-hidden="true" focusable="false">
+      <rect x="1" y="1" width="11" height="8" rx="1" />
+      <rect x="16" y="11" width="11" height="8" rx="1" />
+      <path d="M6.5 9v6H16" />
+    </svg>
+    {{ nombreApp }}
+  </a>
+
+  <div class="barra__acciones">
+    <ui-theme-toggle />
+    <div class="perfil">
+      <ui-avatar class="perfil__avatar" [iniciales]="auth.iniciales()" />
+      <div class="perfil__texto">
+        <span class="perfil__nombre">{{ usuario()?.nombre }}</span>
+        <span class="perfil__correo">{{ usuario()?.email }}</span>
+      </div>
+    </div>
+    <ui-button variante="secundario" tamano="compacto" etiqueta="Cerrar sesión" (click)="salir()">
+      <ui-icon nombre="salir" />
+      <span class="solo-ancho">Cerrar sesión</span>
+    </ui-button>
+  </div>
+</header>
