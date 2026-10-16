@@ -61,6 +61,32 @@ describe('layoutArquitectura', () => {
     }
   });
 
+  it('una capa ancha se reparte en filas de como máximo 4 nodos', () => {
+    const hijos = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const d = diagramaDePrueba({
+      nodos: ['raiz', ...hijos],
+      aristas: hijos.map((h, i) => [`c${i}`, 'raiz', h] as [string, string, string]),
+    });
+    const { nodos } = layoutArquitectura(d);
+    const porFila = new Map<number, number>();
+    for (const n of nodos) porFila.set(n.y, (porFila.get(n.y) ?? 0) + 1);
+    expect(Math.max(...porFila.values())).toBeLessThanOrEqual(4);
+    const xs = nodos.map((n) => n.x);
+    expect(Math.max(...xs) - Math.min(...xs) + ANCHO_NODO).toBeLessThanOrEqual(5 * ANCHO_NODO + 4 * SEPARACION_X);
+    expect(posiciones(layoutArquitectura(d).nodos)).toEqual(posiciones(nodos));
+  });
+
+  it('acorta las etiquetas cuando un nodo tiene varias salidas, para que no se pisen', () => {
+    const d = diagramaDePrueba({
+      nodos: ['api', 'db', 'cache'],
+      aristas: [['c1', 'api', 'db', 'SELECT * FROM usuarios WHERE email'], ['c2', 'api', 'cache', 'GET/SET token']],
+    });
+    const etiquetas = layoutArquitectura(d).aristas.map((a) => a.etiqueta ?? '');
+    expect(etiquetas.every((e) => e.length <= 12)).toBe(true);
+    const sola = diagramaDePrueba({ nodos: ['api', 'db'], aristas: [['c1', 'api', 'db', 'SELECT * FROM usuarios']] });
+    expect(layoutArquitectura(sola).aristas[0].etiqueta).toBe('SELECT * FROM usuarios');
+  });
+
   it('mapea nombre, categoría, tecnología y archivo', () => {
     const d = diagramaDePrueba({ nodos: ['db'], aristas: [] });
     d.nodes[0].name = 'Base de datos';

@@ -14,6 +14,8 @@ export const SEPARACION_X = 48;
 export const SEPARACION_Y = 72;
 const MAX_TITULO = 24;
 const MAX_TIPO = 28;
+// Si un nodo tiene varias salidas, sus etiquetas nacen del mismo tramo y se pisarían: más cortas.
+const MAX_ETIQUETA_COMPARTIDA = 12;
 // Una capa con más nodos se parte en filas, así el dibujo no se encoge hasta ser ilegible.
 export const MAX_POR_FILA = 4;
 
@@ -45,6 +47,8 @@ export function layoutArquitectura(d: Diagram, marcas: MarcasCambio = {}): Layou
   const aristas = [...d.edges].sort(porId);
   const capas = asignarCapas(nodos, aristas);
   const posicion = ubicar(nodos, aristas, capas);
+  const salidas = new Map<string, number>();
+  for (const arista of aristas) salidas.set(arista.from, (salidas.get(arista.from) ?? 0) + 1);
 
   return {
     nodos: nodos.map((nodo) => ({
@@ -53,7 +57,7 @@ export function layoutArquitectura(d: Diagram, marcas: MarcasCambio = {}): Layou
       cambio: marcas.nodos?.get(nodo.id),
     })),
     aristas: aristas.map((arista) => ({
-      ...aArista(arista),
+      ...aArista(arista, (salidas.get(arista.from) ?? 0) > 1),
       cambio: marcas.aristas?.get(arista.id),
     })),
   };
@@ -84,13 +88,14 @@ function aNodo(nodo: Node): Omit<NodoDiagrama, 'x' | 'y'> {
   };
 }
 
-function aArista(arista: Edge): AristaDiagrama {
+function aArista(arista: Edge, compartida = false): AristaDiagrama {
+  const max = compartida ? MAX_ETIQUETA_COMPARTIDA : MAX_TIPO;
   return {
     id: arista.id,
     de: arista.from,
     a: arista.to,
     estado: 'tinta',
-    etiqueta: arista.label ? acortar(arista.label, MAX_TIPO) : undefined,
+    etiqueta: arista.label ? acortar(arista.label, max) : undefined,
   };
 }
 
