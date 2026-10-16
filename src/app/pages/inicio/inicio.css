@@ -156,13 +156,6 @@
   justify-self: stretch;
 }
 
-.respuesta {
-  padding: var(--space-4);
-  border-left: 3px solid var(--color-primario);
-  background: color-mix(in srgb, var(--color-primario) 6%, var(--color-superficie));
-  white-space: pre-wrap;
-}
-
 /* ---------- Móvil ---------- */
 @media (max-width: 720px) {
   .perfil__texto,
