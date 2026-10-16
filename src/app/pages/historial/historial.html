@@ -34,7 +34,7 @@
               {{ etiquetaTipo(d.type) }} · {{ d.nodeCount }}
               {{ d.nodeCount === 1 ? 'nodo' : 'nodos' }}
               @if (fecha(d); as f) {
-                · <time [attr.datetime]="f.toISOString()">{{ f | date: 'short' }}</time>
+                · <time [attr.datetime]="f.toISOString()">{{ f | date: 'dd/MM/yyyy HH:mm' }}</time>
               }
             </p>
           </div>
