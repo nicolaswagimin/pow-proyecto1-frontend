@@ -157,6 +157,40 @@ export class EspacioTrabajo {
     this.error.set(error);
     this.estado.set('error');
   }
+
+  // Abre un diagrama del historial. Ese diagrama es el "Antes" de la primera edición.
+  async cargarGuardado(id: number): Promise<void> {
+    clearTimeout(this.temporizador);
+    this.control?.abort();
+    const numero = ++this.secuencia;
+    this.estado.set('generando');
+    this.error.set(null);
+    this.progreso.set('Abriendo el diagrama guardado…');
+    try {
+      const { diagram: guardado } = await this.servicio.obtener(id);
+      if (numero !== this.secuencia) return;
+      const validacion = validarDiagrama(guardado?.diagram);
+      if (!guardado || !validacion.ok) {
+        this.despues.set(null);
+        this.fallar({ mensaje: 'Este diagrama guardado no es válido y no se puede dibujar.' });
+        return;
+      }
+      this.archivos.set(guardado.files.map((f) => ({ nombre: f.name, contenido: f.content })));
+      this.pregunta.set(guardado.question);
+      this.tipo.set(validacion.diagrama.type as TipoSoportado);
+      this.antes.set(null);
+      this.diff.set(null);
+      this.despues.set(validacion.diagrama);
+      this.vista.set('despues');
+      this.ultimaClave = this.clave();
+      this.guardadoId.set(guardado.id);
+      this.estado.set('listo');
+    } catch (err) {
+      if (numero !== this.secuencia) return;
+      const problema = mapearErrorGrpc(err);
+      if (problema) this.fallar(problema);
+    }
+  }
 }
 
 function esperar(ms: number): Promise<void> {
