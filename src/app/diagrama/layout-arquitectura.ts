@@ -14,6 +14,8 @@ export const SEPARACION_X = 48;
 export const SEPARACION_Y = 72;
 const MAX_TITULO = 24;
 const MAX_TIPO = 28;
+// Una capa con más nodos se parte en filas, así el dibujo no se encoge hasta ser ilegible.
+export const MAX_POR_FILA = 4;
 
 const FORMAS: Record<NodeCategory, FormaNodo> = {
   [NodeCategory.UNSPECIFIED]: 'componente',
@@ -143,11 +145,17 @@ function ubicar(nodos: Node[], aristas: Edge[], capas: Map<string, number>) {
       .map((n) => ({ id: n.id, b: baricentro(n.id) }))
       .sort((p, q) => p.b - q.b || (p.id < q.id ? -1 : 1));
 
-    const ancho = ordenada.length * ANCHO_NODO + (ordenada.length - 1) * SEPARACION_X;
-    ordenada.forEach(({ id }, i) => {
-      posicion.set(id, { x: -ancho / 2 + i * (ANCHO_NODO + SEPARACION_X), y });
-    });
-    y += Math.max(0, ...fila.map((n) => altos.get(n.id)!)) + SEPARACION_Y;
+    // Filas de como máximo MAX_POR_FILA; las filas impares se corren media posición para que las
+    // aristas que bajan a ellas pasen entre los nodos de la fila de arriba.
+    for (let inicio = 0; inicio < ordenada.length; inicio += MAX_POR_FILA) {
+      const tramo = ordenada.slice(inicio, inicio + MAX_POR_FILA);
+      const corrimiento = (inicio / MAX_POR_FILA) % 2 ? (ANCHO_NODO + SEPARACION_X) / 2 : 0;
+      const ancho = tramo.length * ANCHO_NODO + (tramo.length - 1) * SEPARACION_X;
+      tramo.forEach(({ id }, i) => {
+        posicion.set(id, { x: -ancho / 2 + corrimiento + i * (ANCHO_NODO + SEPARACION_X), y });
+      });
+      y += Math.max(0, ...tramo.map(({ id }) => altos.get(id)!)) + SEPARACION_Y;
+    }
   }
   return posicion;
 }
