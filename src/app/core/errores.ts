@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { Code, ConnectError } from '@connectrpc/connect';
 
 export type CampoAuth = 'nombre' | 'email' | 'password';
 export type ContextoError = 'login' | 'registro' | 'general';
@@ -49,4 +50,34 @@ export function mapearError(err: unknown, contexto: ContextoError = 'general'): 
 
 function esCampo(valor: unknown): valor is CampoAuth {
   return valor === 'nombre' || valor === 'email' || valor === 'password';
+}
+
+const MENSAJE_GENERICO = 'Algo falló de nuestro lado. Inténtalo de nuevo en unos segundos.';
+
+// Errores del servicio de diagramas (gRPC-Web). Devuelve null si no hay nada que mostrar (el
+// usuario o la app cancelaron la llamada). `despertando` indica que el servidor no respondió:
+// en Render, el servicio gratuito tarda hasta un minuto en arrancar, así que vale la pena reintentar.
+export function mapearErrorGrpc(err: unknown): (ErrorInterfaz & { despertando?: boolean }) | null {
+  if (!(err instanceof ConnectError)) return { mensaje: MENSAJE_GENERICO };
+
+  const sinRespuesta =
+    (err.code === Code.Unknown && err.cause instanceof TypeError) ||
+    (err.code === Code.Unavailable && /^HTTP 50\d$/.test(err.rawMessage));
+  if (sinRespuesta) return { mensaje: 'El servidor está despertando, reintentando…', despertando: true };
+
+  switch (err.code) {
+    case Code.Canceled:
+      return null;
+    case Code.Unauthenticated:
+      return { mensaje: 'Tu sesión expiró. Inicia sesión de nuevo.' };
+    case Code.Unavailable:
+    case Code.ResourceExhausted:
+    case Code.InvalidArgument:
+    case Code.NotFound:
+    case Code.Internal:
+    case Code.FailedPrecondition:
+      return { mensaje: err.rawMessage };
+    default:
+      return { mensaje: MENSAJE_GENERICO };
+  }
 }
