@@ -1,0 +1,9 @@
+# Genera el cliente TypeScript en src/app/gen. Ejecuta: npm run proto:gen
+version: v2
+inputs:
+  - directory: proto
+plugins:
+  - local: protoc-gen-es
+    out: src/app/gen
+    opt:
+      - target=ts

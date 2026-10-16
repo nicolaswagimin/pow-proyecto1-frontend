@@ -1,0 +1,7 @@
+# Copia del contrato del backend (npm run proto:sync). No edites proto/ aquí: edítalo en el backend.
+version: v2
+modules:
+  - path: proto
+lint:
+  use:
+    - STANDARD
