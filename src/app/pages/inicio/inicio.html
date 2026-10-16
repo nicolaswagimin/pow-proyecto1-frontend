@@ -28,64 +28,7 @@
   <main class="contenido">
     <section class="bienvenida">
       <h1>Hola, {{ primerNombre() }}</h1>
-      <p class="bienvenida__texto">
-        Aquí vas a pegar código y ver su arquitectura. Por ahora, este es el diagrama de la propia
-        app, con el estado real de cada conexión.
-      </p>
-    </section>
-
-    <!-- 1. Arquitectura de esta app (estado de conexión) -->
-    <section class="panel panel--diagrama" aria-labelledby="titulo-estado">
-      <div class="panel__cabecera">
-        <h2 id="titulo-estado">Arquitectura de esta app</h2>
-        <ui-button
-          variante="fantasma"
-          tamano="compacto"
-          [cargando]="cargandoEstado()"
-          textoCargando="Revisando…"
-          (click)="revisarEstado()"
-        >
-          <ui-icon nombre="recargar" />
-          Revisar de nuevo
-        </ui-button>
-      </div>
-
-      <div class="mesa">
-        <ui-diagrama
-          class="mesa__diagrama"
-          dibujar
-          [nodos]="nodos()"
-          [aristas]="aristas()"
-          [descripcion]="descripcion()"
-        />
-        <ui-leyenda />
-      </div>
-
-      <p class="visually-hidden" role="status">{{ cargandoEstado() ? '' : descripcion() }}</p>
-
-      @if (!cargandoEstado()) {
-        @if (!estado()) {
-          <ui-alert tipo="error" titulo="No hay conexión con el backend.">
-            Revisa que el backend esté corriendo (<code>npm run dev</code> en la carpeta
-            <code>backend</code>) y que responda en <code>{{ apiUrl }}</code
-            >. En producción, revisa también que <code>FRONTEND_URL</code> del backend incluya la
-            URL de este sitio (CORS).
-          </ui-alert>
-        } @else {
-          @if (!estado()!.db) {
-            <ui-alert tipo="aviso">
-              La base de datos no responde: revisa <code>DATABASE_URL</code> (y <code>DB_SSL</code>)
-              en el <code>.env</code> del backend.
-            </ui-alert>
-          }
-          @if (!estado()!.ia) {
-            <ui-alert tipo="aviso">
-              La IA no está configurada: agrega <code>GEMINI_API_KEY</code> en el
-              <code>.env</code> del backend.
-            </ui-alert>
-          }
-        }
-      }
+      <p class="bienvenida__texto">Pega tu código y obtén su diagrama.</p>
     </section>
   </main>
 </div>

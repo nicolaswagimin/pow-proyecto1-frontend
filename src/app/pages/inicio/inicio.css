@@ -101,61 +101,6 @@
   color: var(--color-texto-suave);
 }
 
-.panel {
-  display: grid;
-  gap: var(--space-5);
-  padding: clamp(var(--space-4), 3vw, var(--space-8));
-  border-radius: var(--radius-panel);
-  background: var(--color-superficie);
-  box-shadow:
-    inset 0 0 0 1px var(--color-reticula-mayor),
-    var(--shadow-elevacion-1);
-}
-
-.panel h2 {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-xl);
-}
-
-.panel__cabecera {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-/* El diagrama del estado va sobre su propio recorte de tapete. */
-.mesa {
-  display: grid;
-  gap: var(--space-4);
-  justify-items: center;
-  padding: var(--space-5) var(--space-4);
-  border-radius: var(--radius-control);
-  background-color: var(--color-fondo);
-  background-image:
-    linear-gradient(var(--color-reticula) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-reticula) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.mesa__diagrama {
-  width: 100%;
-  max-width: 480px;
-}
-
-.formulario {
-  display: grid;
-  gap: var(--space-4);
-  justify-items: start;
-}
-
-.formulario > ui-text-field {
-  justify-self: stretch;
-}
-
 /* ---------- Móvil ---------- */
 @media (max-width: 720px) {
   .perfil__texto,
