@@ -138,6 +138,7 @@
             } @else {
               <ui-diagrama
                 class="mesa__diagrama"
+                [style.min-width.px]="d.anchoMinimo"
                 dibujar
                 [nodos]="d.nodos"
                 [aristas]="d.aristas"

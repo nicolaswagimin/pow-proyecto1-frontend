@@ -183,7 +183,7 @@
 
 .mesa__diagrama {
   width: 100%;
-  max-width: 760px;
+  max-width: max(760px, 100%);
 }
 
 /* En pantallas angostas el diagrama no se encoge hasta ser ilegible: se desplaza dentro de la mesa. */

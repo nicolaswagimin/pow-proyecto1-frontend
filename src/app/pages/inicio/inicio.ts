@@ -3,6 +3,8 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  Injector,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -18,7 +20,11 @@ import { AuthService } from '../../core/auth.service';
 import { ErrorInterfaz } from '../../core/errores';
 import { Diagrama } from '../../diagrama/diagrama';
 import { descargar, nombreArchivo, serializarSvg, svgAPng } from '../../diagrama/exportar';
-import { layoutArquitectura, vistaDiff } from '../../diagrama/layout-arquitectura';
+import {
+  anchoMinimoDibujo,
+  layoutArquitectura,
+  vistaDiff,
+} from '../../diagrama/layout-arquitectura';
 import { DiagramaSecuencia } from '../../diagrama/secuencia/secuencia';
 import { layoutSecuencia, vistaDiffSecuencia } from '../../diagrama/secuencia/layout-secuencia';
 import { TIPOS_DIAGRAMA, TipoSoportado } from '../../diagrama/tipos';
@@ -94,7 +100,11 @@ export class Inicio {
     }
     const layout =
       antes && diff ? vistaDiff(vista, antes, despues, diff) : layoutArquitectura(despues);
-    return { tipo: 'arquitectura' as const, ...layout };
+    return {
+      tipo: 'arquitectura' as const,
+      ...layout,
+      anchoMinimo: anchoMinimoDibujo(layout.nodos),
+    };
   });
 
   // "2 agregados · 1 modificado · 1 eliminado", contando nodos y conexiones.
@@ -138,6 +148,19 @@ export class Inicio {
     // /app?diagrama=<id> abre un diagrama del historial.
     const id = Number(inject(ActivatedRoute).snapshot.queryParamMap.get('diagrama'));
     if (Number.isInteger(id) && id > 0) void this.espacio.cargarGuardado(id);
+
+    // Un diagrama más ancho que la mesa se muestra centrado: el scroll empieza en el medio.
+    const injector = inject(Injector);
+    effect(() => {
+      if (!this.dibujo()) return;
+      afterNextRender(
+        () => {
+          const mesa = this.mesa()?.nativeElement;
+          if (mesa) mesa.scrollLeft = (mesa.scrollWidth - mesa.clientWidth) / 2;
+        },
+        { injector },
+      );
+    });
 
     // Si la pregunta cambia desde fuera (al abrir un diagrama guardado), el campo la refleja.
     effect(() => {
