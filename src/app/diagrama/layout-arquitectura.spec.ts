@@ -1,7 +1,15 @@
 import { NodeCategory } from '../gen/codetodiagram/v1/diagram_pb';
 import { calcularDiff } from './diff';
 import { diagramaDePrueba } from './fabrica.spec-util';
-import { ANCHO_NODO, SEPARACION_X, layoutArquitectura, vistaDiff } from './layout-arquitectura';
+import {
+  ANCHO_NODO,
+  ESCALA_MINIMA,
+  SEPARACION_X,
+  anchoMinimoDibujo,
+  layoutArquitectura,
+  vistaDiff,
+} from './layout-arquitectura';
+import { marco } from './modelo';
 import { NodoDiagrama } from './modelo';
 
 const posiciones = (nodos: NodoDiagrama[]) =>
@@ -59,6 +67,17 @@ describe('layoutArquitectura', () => {
     for (let i = 1; i < capa.length; i++) {
       expect(capa[i].x - capa[i - 1].x).toBeGreaterThanOrEqual(ANCHO_NODO + SEPARACION_X);
     }
+  });
+
+  it('un diagrama ancho no se encoge por debajo de la escala mínima', () => {
+    const hijos = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const d = diagramaDePrueba({
+      nodos: ['raiz', ...hijos],
+      aristas: hijos.map((h, i) => [`c${i}`, 'raiz', h] as [string, string, string]),
+    });
+    const { nodos } = layoutArquitectura(d);
+    expect(ESCALA_MINIMA).toBeGreaterThanOrEqual(0.75);
+    expect(anchoMinimoDibujo(nodos)).toBe(Math.round(marco(nodos).ancho * ESCALA_MINIMA));
   });
 
   it('acorta las etiquetas cuando un nodo tiene varias salidas, para que no se pisen', () => {

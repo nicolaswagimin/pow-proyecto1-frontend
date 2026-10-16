@@ -1,6 +1,6 @@
 import { Diagram, Edge, Node, NodeCategory } from '../gen/codetodiagram/v1/diagram_pb';
 import { DiffVista } from './diff';
-import { AristaDiagrama, FormaNodo, NodoDiagrama, altoNodo } from './modelo';
+import { AristaDiagrama, FormaNodo, NodoDiagrama, altoNodo, marco } from './modelo';
 import { MarcasCambio, VistaDiff, conFantasmas, diagramaDeVista } from './vistas';
 import { acortar } from './texto';
 
@@ -159,4 +159,12 @@ function ubicar(nodos: Node[], aristas: Edge[], capas: Map<string, number>) {
 
 function porId(a: { id: string }, b: { id: string }): number {
   return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+}
+
+// El dibujo se ajusta al ancho de la mesa, pero nunca a menos de esta escala: con muchos nodos
+// en una capa, la mesa hace scroll horizontal en vez de dejar el texto ilegible.
+export const ESCALA_MINIMA = 0.75;
+
+export function anchoMinimoDibujo(nodos: NodoDiagrama[]): number {
+  return Math.round(marco(nodos).ancho * ESCALA_MINIMA);
 }
