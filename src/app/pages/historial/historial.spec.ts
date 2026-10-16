@@ -56,6 +56,12 @@ describe('Historial', () => {
     expect(html()).toContain('Sin conexión.');
   });
 
+  it('sin conexión muestra un error final, no "reintentando"', async () => {
+    const { html } = await montar({ listar: vi.fn().mockRejectedValue(new ConnectError('HTTP 503', Code.Unavailable)) });
+    expect(html()).toContain('No pudimos conectar');
+    expect(html()).not.toContain('reintentando');
+  });
+
   it('eliminar pide confirmación antes de borrar', async () => {
     const eliminar = vi.fn().mockResolvedValue({});
     const { fixture, html } = await montar({

@@ -4,7 +4,7 @@ import { Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { timestampDate } from '@bufbuild/protobuf/wkt';
 import { APP_NOMBRE } from '../../config';
-import { mapearErrorGrpc } from '../../core/errores';
+import { mapearErrorGrpc, sinReintentos } from '../../core/errores';
 import { TIPOS_DIAGRAMA, TipoSoportado } from '../../diagrama/tipos';
 import { SavedDiagramSummary } from '../../gen/codetodiagram/v1/diagram_pb';
 import { BarraApp } from '../../layouts/barra-app/barra-app';
@@ -45,7 +45,7 @@ export class Historial {
       this.diagramas.set(diagrams);
     } catch (err) {
       const problema = mapearErrorGrpc(err);
-      if (problema) this.error.set(problema.mensaje);
+      if (problema) this.error.set(sinReintentos(problema).mensaje);
     } finally {
       this.cargando.set(false);
     }
@@ -64,7 +64,7 @@ export class Historial {
       this.confirmando.set(null);
     } catch (err) {
       const problema = mapearErrorGrpc(err);
-      if (problema) this.error.set(problema.mensaje);
+      if (problema) this.error.set(sinReintentos(problema).mensaje);
     } finally {
       this.eliminando.set(null);
     }
