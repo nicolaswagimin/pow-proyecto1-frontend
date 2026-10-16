@@ -1,9 +1,10 @@
 import { Diagram, Edge, Node } from '../gen/codetodiagram/v1/diagram_pb';
+import { CambioDiagrama } from './modelo';
 
 // Diff entre dos versiones de un diagrama, con las mismas reglas que el backend
 // (src/diagramas/diff.js). Si cambias una, cambia la otra.
 
-export type Cambio = 'agregado' | 'eliminado' | 'modificado';
+export type Cambio = CambioDiagrama;
 
 export interface DiffVista {
   // Nodos agregados, modificados y eliminados (el id de un nodo es el mismo antes y después).

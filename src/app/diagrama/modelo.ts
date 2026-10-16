@@ -7,6 +7,8 @@ export type EstadoNodo = 'normal' | 'trabajando' | 'ok' | 'error' | 'caido';
 // lapiz: dependencia pendiente · tinta: confirmada · error: cortada.
 export type EstadoArista = 'lapiz' | 'tinta' | 'error';
 export type EstadoFila = 'vacia' | 'llena' | 'ok' | 'error';
+// Qué le pasó a un nodo o arista respecto de la versión anterior del diagrama (diff).
+export type CambioDiagrama = 'agregado' | 'eliminado' | 'modificado';
 
 export interface FilaNodo {
   id: string;
@@ -26,6 +28,8 @@ export interface NodoDiagrama {
   filas?: FilaNodo[]; // compartimentos, como los atributos de una clase UML
   estado?: EstadoNodo;
   marca?: string; // insignia en la esquina: "401", "sin respuesta"…
+  cambio?: CambioDiagrama;
+  fantasma?: boolean; // eliminado, mostrado tenue en la vista Comparar
 }
 
 export interface AristaDiagrama {
@@ -35,6 +39,8 @@ export interface AristaDiagrama {
   deFila?: string; // sale del lado derecho de una fila del nodo de origen
   estado: EstadoArista;
   etiqueta?: string;
+  cambio?: CambioDiagrama;
+  fantasma?: boolean;
 }
 
 export interface Punto {
