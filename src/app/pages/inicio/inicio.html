@@ -28,7 +28,102 @@
   <main class="contenido">
     <section class="bienvenida">
       <h1>Hola, {{ primerNombre() }}</h1>
-      <p class="bienvenida__texto">Pega tu código y obtén su diagrama.</p>
+      <p class="bienvenida__texto">
+        Pega tu código, elige qué quieres ver y genera el diagrama. Después se actualiza solo
+        mientras editas.
+      </p>
     </section>
+
+    <div class="espacio">
+      <!-- Código -->
+      <section class="panel panel--codigo" aria-labelledby="titulo-codigo">
+        <h2 id="titulo-codigo">Tu código</h2>
+
+        <ui-editor
+          class="editor"
+          [archivos]="espacio.archivos()"
+          (archivosChange)="alCambiarArchivos($event)"
+        />
+
+        <fieldset class="tipos">
+          <legend class="tipos__titulo">Tipo de diagrama</legend>
+          @for (tipo of tipos; track tipo.valor) {
+            <label class="tipo">
+              <input
+                type="radio"
+                name="tipo"
+                class="tipo__radio"
+                [checked]="espacio.tipo() === tipo.valor"
+                (change)="alCambiarTipo(tipo.valor)"
+              />
+              <span class="tipo__nombre">{{ tipo.etiqueta }}</span>
+              <span class="tipo__ayuda">{{ tipo.ayuda }}</span>
+            </label>
+          }
+        </fieldset>
+
+        <ui-text-field
+          [formControl]="pregunta"
+          label="¿Qué quieres entender?"
+          ayuda="Enfoca el diagrama en una pregunta. Ej.: ¿cómo se valida el login?"
+          [maxlength]="300"
+          opcional
+        />
+
+        <ui-button [cargando]="generando()" textoCargando="Generando…" (click)="generar()">
+          <ui-icon nombre="chispa" />
+          Generar diagrama
+        </ui-button>
+      </section>
+
+      <!-- Diagrama -->
+      <section class="panel panel--diagrama" aria-labelledby="titulo-diagrama">
+        <div class="panel__cabecera">
+          <div class="panel__titulos">
+            <h2 id="titulo-diagrama">{{ espacio.despues()?.title || 'Diagrama' }}</h2>
+            @if (espacio.despues()?.description; as descripcion) {
+              <p class="panel__descripcion">{{ descripcion }}</p>
+            }
+          </div>
+        </div>
+
+        <p class="progreso" role="status">{{ generando() ? espacio.progreso() : '' }}</p>
+
+        @if (espacio.error(); as error) {
+          <ui-alert tipo="error">
+            {{ error.mensaje }}
+            <ui-button variante="secundario" tamano="compacto" (click)="espacio.reintentar()">
+              <ui-icon nombre="recargar" />
+              Reintentar
+            </ui-button>
+          </ui-alert>
+        }
+
+        @if (dibujo(); as d) {
+          <div class="mesa" [class.mesa--actualizando]="generando()">
+            @if (d.tipo === 'secuencia') {
+              <ui-diagrama-secuencia
+                class="mesa__diagrama"
+                [layout]="d.secuencia"
+                [descripcion]="descripcionDibujo()"
+              />
+            } @else {
+              <ui-diagrama
+                class="mesa__diagrama"
+                dibujar
+                [nodos]="d.nodos"
+                [aristas]="d.aristas"
+                [descripcion]="descripcionDibujo()"
+              />
+            }
+          </div>
+        } @else if (!generando()) {
+          <p class="vacio">
+            Todavía no hay diagrama. Pega tu código, elige el tipo y pulsa
+            <strong>Generar diagrama</strong>.
+          </p>
+        }
+      </section>
+    </div>
   </main>
 </div>
