@@ -36,6 +36,7 @@ export class EspacioTrabajo {
   readonly diff = signal<DiffVista | null>(null);
   readonly vista = signal<VistaDiff>('despues');
   readonly guardadoId = signal<number | null>(null);
+  readonly guardando = signal(false);
 
   private secuencia = 0;
   private control: AbortController | null = null;
@@ -189,6 +190,27 @@ export class EspacioTrabajo {
       if (numero !== this.secuencia) return;
       const problema = mapearErrorGrpc(err);
       if (problema) this.fallar(problema);
+    }
+  }
+
+  // Guarda el diagrama actual con su código en el historial.
+  async guardar(): Promise<ErrorInterfaz | null> {
+    const diagrama = this.despues();
+    if (!diagrama || this.guardando()) return null;
+    this.guardando.set(true);
+    try {
+      const { diagram } = await this.servicio.guardar({
+        title: diagrama.title,
+        question: this.pregunta().trim(),
+        files: this.archivos().map((a) => ({ name: a.nombre, content: a.contenido })),
+        diagram: diagrama,
+      });
+      this.guardadoId.set(diagram?.id ?? null);
+      return null;
+    } catch (err) {
+      return mapearErrorGrpc(err);
+    } finally {
+      this.guardando.set(false);
     }
   }
 }
