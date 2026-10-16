@@ -38,7 +38,24 @@ const revisarCantidad: Regla = (d) => {
   return [];
 };
 
-const REGLAS: Regla[] = [revisarTipoYCategorias, revisarCantidad];
+const FORMATO_ID = /^[a-z0-9-]+$/;
+
+// Ids únicos y estables: el diff los usa para emparejar el antes y el después.
+const revisarIds: Regla = (d) =>
+  [d.nodes, d.edges].flatMap((lista) => {
+    const vistos = new Set<string>();
+    return lista.flatMap(({ id }) => {
+      const errores: string[] = [];
+      if (!FORMATO_ID.test(id)) {
+        errores.push(`El id "${id}" solo puede tener minúsculas, números y guiones.`);
+      }
+      if (vistos.has(id)) errores.push(`El id "${id}" está repetido.`);
+      vistos.add(id);
+      return errores;
+    });
+  });
+
+const REGLAS: Regla[] = [revisarTipoYCategorias, revisarCantidad, revisarIds];
 
 export function validarDiagrama(d: Diagram | undefined): ResultadoValidacion {
   if (!d) return { ok: false, errores: ['No llegó ningún diagrama.'] };
