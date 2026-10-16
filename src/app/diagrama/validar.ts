@@ -55,7 +55,20 @@ const revisarIds: Regla = (d) =>
     });
   });
 
-const REGLAS: Regla[] = [revisarTipoYCategorias, revisarCantidad, revisarIds];
+// Ninguna conexión puede apuntar a un nodo inventado ni unir un nodo consigo mismo.
+const revisarConexiones: Regla = (d) => {
+  const ids = new Set(d.nodes.map((nodo) => nodo.id));
+  return d.edges.flatMap((arista) => [
+    ...[arista.from, arista.to]
+      .filter((extremo) => !ids.has(extremo))
+      .map((extremo) => `La conexión "${arista.id}" apunta a un nodo que no existe: "${extremo}"`),
+    ...(arista.from === arista.to
+      ? [`La conexión "${arista.id}" une el nodo "${arista.from}" consigo mismo.`]
+      : []),
+  ]);
+};
+
+const REGLAS: Regla[] = [revisarTipoYCategorias, revisarCantidad, revisarIds, revisarConexiones];
 
 export function validarDiagrama(d: Diagram | undefined): ResultadoValidacion {
   if (!d) return { ok: false, errores: ['No llegó ningún diagrama.'] };
