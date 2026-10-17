@@ -31,6 +31,7 @@ La funcionalidad propia de CodeToDiagram: pegar código y obtener un diagrama qu
 ### Documentación
 - Nuevos `docs/funcionalidades.md`, `docs/diagramas.md`, `docs/grpc-cliente.md` y decisiones `0005` a `0008`.
 - Actualizados `docs/arquitectura-frontend.md` y `docs/componentes.md`.
+- gRPC-Web verificado en producción contra Render (unario y streaming).
 
 ## 2026-10-12
 
