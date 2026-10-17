@@ -22,8 +22,10 @@ src/
     core/                  sesión, guards, interceptor, errores, tema, fortaleza, movimiento
     services/diagramas.service.ts   cliente gRPC-Web del servicio de diagramas
     diagrama/              el lienzo del producto: modelo, ui-diagrama, ui-leyenda, validación,
-                           diff, layouts, vistas del diff, exportación y secuencia/
-    ui/                    componentes base (botón, campos, medidor, código, editor, alerta, avatar, íconos, tema)
+                           diff, layouts, vistas del diff, exportación, pregunta.ts (tipo
+                           adecuado para la pregunta), secuencia/ y detalle/ (panel Detalle)
+    ui/                    componentes base (botón, campos, medidor, código, editor con detección
+                           de lenguaje, alerta, avatar, íconos, tema)
     layouts/auth-layout/   plantilla de acceso: hoja y tapete
     layouts/barra-app/     barra superior de /app y /historial
     pages/
