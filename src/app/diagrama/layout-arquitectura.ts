@@ -50,6 +50,10 @@ const ETIQUETAS: Record<NodeCategory, string> = {
   [NodeCategory.EXTERNAL]: 'Sistema externo',
 };
 
+export function etiquetaCategoria(categoria: NodeCategory): string {
+  return ETIQUETAS[categoria];
+}
+
 export interface LayoutDiagrama {
   nodos: NodoDiagrama[];
   aristas: AristaDiagrama[];
