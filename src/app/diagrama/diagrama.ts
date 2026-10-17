@@ -8,6 +8,7 @@ import {
   computed,
   inject,
   input,
+  output,
   signal,
   viewChild,
 } from '@angular/core';
@@ -39,7 +40,11 @@ const GLIFOS: Record<EstadoFila, string> = { vacia: '○', llena: '●', ok: '�
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './diagrama.html',
   styleUrl: './diagrama.css',
-  host: { '[class.dibujando]': 'dibujando()', '[class.pausado]': 'pausado()' },
+  host: {
+    '[class.dibujando]': 'dibujando()',
+    '[class.pausado]': 'pausado()',
+    '[class.seleccionable]': 'seleccionable()',
+  },
 })
 export class Diagrama {
   readonly nodos = input.required<NodoDiagrama[]>();
@@ -50,6 +55,9 @@ export class Diagrama {
   readonly filaActiva = input<string | null>(null);
   // Al aparecer, el diagrama se dibuja nodo por nodo y luego sus aristas.
   readonly dibujar = input(false, { transform: booleanAttribute });
+  // Con seleccionable, un clic en un nodo emite su id (por ejemplo, para abrir su detalle).
+  readonly seleccionable = input(false, { transform: booleanAttribute });
+  readonly nodoClic = output<string>();
 
   protected readonly dibujando = signal(false);
   // Con la pestaña oculta se congelan las animaciones en bucle (nodo trabajando).

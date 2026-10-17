@@ -41,6 +41,7 @@
       "
       [style.transform]="'translate(' + nodo.x + 'px, ' + nodo.y + 'px)'"
       [style.--i]="i"
+      (click)="seleccionable() && nodoClic.emit(nodo.id)"
     >
       <!-- Tooltip nativo con el nombre completo (el título visible puede estar recortado). -->
       <title>{{ nodo.tituloCompleto ?? nodo.titulo }}</title>
