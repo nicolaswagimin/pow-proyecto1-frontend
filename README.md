@@ -1,6 +1,6 @@
 # CodeToDiagram · Frontend
 
-**CodeToDiagram** es un visualizador reactivo de arquitectura: pegas código (uno o varios archivos) y la app dibuja su diagrama de arquitectura o de secuencia. Al editar el código, el diagrama se actualiza solo y **muestra qué cambió**: lo agregado, lo modificado y lo eliminado, con vistas Antes / Después / Comparar. Gemini analiza el código y devuelve nodos y conexiones; el backend lo valida y lo envía por gRPC; este frontend lo vuelve a validar y lo dibuja con un layout determinista.
+**CodeToDiagram** es un visualizador reactivo de arquitectura: pegas código (uno o varios archivos) y la app dibuja su diagrama de arquitectura, de secuencia o de clases (UML). Al editar el código, el diagrama se actualiza solo y **muestra qué cambió**: lo agregado, lo modificado y lo eliminado, con vistas Antes / Después / Comparar. Gemini analiza el código y devuelve nodos y conexiones; el backend lo valida y lo envía por gRPC; este frontend lo vuelve a validar y lo dibuja con un layout determinista.
 
 Proyecto 1 de la materia Programación orientada a la web. Angular 22 (standalone, signals, sin SSR, CSS plano, SVG propio) y gRPC-Web con Connect.
 
