@@ -18,10 +18,23 @@ export interface DiffVista {
 
 const CAMPOS_NODO = ['name', 'category', 'technology', 'description'] as const;
 
+// Firma de los atributos y métodos de una clase, para compararlos de una sola vez.
+function miembros(nodo: Node): string {
+  return JSON.stringify([
+    nodo.attributes.map((a) => [a.name, a.type]),
+    nodo.methods.map((m) => [m.name, m.parameters.map((p) => [p.name, p.type]), m.returnType]),
+  ]);
+}
+
 export function calcularDiff(antes: Diagram, despues: Diagram): DiffVista {
   const nodos = diffNodos(antes.nodes, despues.nodes);
   const { aristas, aristasEliminadas } = diffAristas(antes.edges, despues.edges);
-  return { nodos, aristas, aristasEliminadas, total: nodos.size + aristas.size + aristasEliminadas.size };
+  return {
+    nodos,
+    aristas,
+    aristasEliminadas,
+    total: nodos.size + aristas.size + aristasEliminadas.size,
+  };
 }
 
 function diffNodos(antes: Node[], despues: Node[]): Map<string, Cambio> {
@@ -31,7 +44,10 @@ function diffNodos(antes: Node[], despues: Node[]): Map<string, Cambio> {
   for (const nodo of despues) {
     const previo = previos.get(nodo.id);
     if (!previo) cambios.push([nodo.id, 'agregado']);
-    else if (CAMPOS_NODO.some((campo) => previo[campo] !== nodo[campo])) {
+    else if (
+      CAMPOS_NODO.some((campo) => previo[campo] !== nodo[campo]) ||
+      miembros(previo) !== miembros(nodo)
+    ) {
       cambios.push([nodo.id, 'modificado']);
     }
   }
