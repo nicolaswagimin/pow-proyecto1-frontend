@@ -300,3 +300,8 @@
 .arista--fantasma {
   opacity: 0.45;
 }
+
+/* ---------- Nodos seleccionables (abren su detalle) ---------- */
+:host(.seleccionable) .nodo {
+  cursor: pointer;
+}
