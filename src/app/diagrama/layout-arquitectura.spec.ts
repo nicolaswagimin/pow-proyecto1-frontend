@@ -132,6 +132,13 @@ describe('layoutArquitectura', () => {
     ]);
   });
 
+  it('en clases el tipo de cada nodo dice Clase', () => {
+    const d = diagramaDePrueba({ tipo: DiagramType.CLASS, nodos: ['arma'], aristas: [] });
+    d.nodes[0].category = NodeCategory.COMPONENT;
+    d.nodes[0].technology = 'Python';
+    expect(layoutArquitectura(d).nodos[0].tipo).toBe('Clase: Python');
+  });
+
   it('en clases la herencia deja a la clase madre arriba', () => {
     const d = diagramaDePrueba({
       tipo: DiagramType.CLASS,
