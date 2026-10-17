@@ -1,0 +1,50 @@
+<h3 class="titulo">Detalle</h3>
+<ul class="lista">
+  @for (nodo of diagrama().nodes; track nodo.id) {
+    <li>
+      <details class="nodo" [attr.data-id]="nodo.id" [open]="abierto() === nodo.id">
+        <summary class="nodo__resumen">
+          <span class="nodo__nombre">{{ nodo.name }}</span>
+          <span class="nodo__tipo">
+            [{{ etiquetaCategoria(nodo.category)
+            }}{{ nodo.technology ? ': ' + nodo.technology : '' }}]
+          </span>
+          @if (nodo.notInCode) {
+            <span class="nodo__aviso">No está en el código</span>
+          }
+        </summary>
+
+        <div class="nodo__cuerpo">
+          @if (nodo.notInCode) {
+            <p class="nodo__explicacion">
+              No encontramos este elemento en el código que pegaste: probablemente la IA lo inventó.
+              Revisa antes de usar el diagrama.
+            </p>
+          }
+          @if (nodo.description) {
+            <p>{{ nodo.description }}</p>
+          }
+          @if (nodo.file) {
+            <p class="nodo__archivo">{{ nodo.file }}</p>
+          }
+          @if (nodo.attributes.length) {
+            <p class="nodo__subtitulo">Atributos</p>
+            <ul class="nodo__miembros">
+              @for (atributo of nodo.attributes; track $index) {
+                <li>{{ atributo.type ? atributo.name + ': ' + atributo.type : atributo.name }}</li>
+              }
+            </ul>
+          }
+          @if (nodo.methods.length) {
+            <p class="nodo__subtitulo">Métodos</p>
+            <ul class="nodo__miembros">
+              @for (metodo of nodo.methods; track $index) {
+                <li>{{ firma(metodo) }}</li>
+              }
+            </ul>
+          }
+        </div>
+      </details>
+    </li>
+  }
+</ul>
