@@ -1,3 +1,5 @@
+import { ArchivoEditor } from './archivos';
+
 // Detección del lenguaje por el contenido, para avisar cuando no coincide con la extensión de la
 // pestaña (por ejemplo, Python pegado en index.js). Heurística por patrones típicos de cada
 // lenguaje: gana el que más patrones cumple, con al menos 2.
@@ -107,4 +109,28 @@ export function detectarLenguaje(contenido: string): Lenguaje | null {
 export function lenguajePorNombre(nombre: string): Lenguaje | null {
   const punto = nombre.lastIndexOf('.');
   return punto > 0 ? (POR_EXTENSION[nombre.slice(punto + 1).toLowerCase()] ?? null) : null;
+}
+
+// Aviso para el editor, o null si la pestaña ya tiene la extensión correcta (o no se sabe).
+export function revisarLenguaje(
+  archivo: ArchivoEditor,
+  otrosNombres: string[],
+): { mensaje: string; nombreSugerido: string } | null {
+  const detectado = detectarLenguaje(archivo.contenido);
+  if (!detectado) return null;
+  const porNombre = lenguajePorNombre(archivo.nombre);
+  if (porNombre === detectado) return null;
+  if (porNombre === 'typescript' && detectado === 'javascript') return null;
+
+  const punto = archivo.nombre.lastIndexOf('.');
+  const base = punto > 0 ? archivo.nombre.slice(0, punto) : archivo.nombre;
+  const extension = EXTENSIONES[detectado];
+  let nombreSugerido = `${base}.${extension}`;
+  for (let n = 2; otrosNombres.includes(nombreSugerido); n++)
+    nombreSugerido = `${base}-${n}.${extension}`;
+
+  return {
+    mensaje: `Parece ${NOMBRES[detectado]}, pero la pestaña se llama ${archivo.nombre}.`,
+    nombreSugerido,
+  };
 }
