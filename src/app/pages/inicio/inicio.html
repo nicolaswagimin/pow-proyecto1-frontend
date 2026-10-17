@@ -153,6 +153,8 @@
                 class="mesa__diagrama"
                 [style.min-width.px]="d.anchoMinimo"
                 dibujar
+                seleccionable
+                (nodoClic)="nodoAbierto.set($event)"
                 [nodos]="d.nodos"
                 [aristas]="d.aristas"
                 [descripcion]="descripcionDibujo()"
@@ -165,6 +167,9 @@
               <li class="leyenda-diff__item leyenda-diff__item--modificado">Modificado</li>
               <li class="leyenda-diff__item leyenda-diff__item--eliminado">Eliminado</li>
             </ul>
+          }
+          @if (espacio.despues(); as diagrama) {
+            <ui-detalle-nodos [diagrama]="diagrama" [abierto]="nodoAbierto()" />
           }
         } @else if (!generando()) {
           <p class="vacio">

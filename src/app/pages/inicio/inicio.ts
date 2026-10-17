@@ -25,6 +25,7 @@ import {
   layoutArquitectura,
   vistaDiff,
 } from '../../diagrama/layout-arquitectura';
+import { DetalleNodos } from '../../diagrama/detalle/detalle-nodos';
 import { DiagramaSecuencia } from '../../diagrama/secuencia/secuencia';
 import { analizarPregunta } from '../../diagrama/pregunta';
 import { layoutSecuencia, vistaDiffSecuencia } from '../../diagrama/secuencia/layout-secuencia';
@@ -50,6 +51,7 @@ import { EspacioTrabajo } from './espacio-trabajo';
     Alert,
     BarraApp,
     Button,
+    DetalleNodos,
     Diagrama,
     DiagramaSecuencia,
     Editor,
@@ -135,6 +137,8 @@ export class Inicio {
   // Resultado de la última acción (guardar o exportar), mostrado bajo la cabecera del panel.
   protected readonly aviso = signal<{ tipo: 'exito' | 'error'; mensaje: string } | null>(null);
   protected readonly exportando = signal(false);
+  // Nodo cuyo detalle está abierto (clic en el diagrama).
+  protected readonly nodoAbierto = signal<string | null>(null);
   private readonly mesa = viewChild<ElementRef<HTMLElement>>('mesa');
 
   protected readonly descripcionDibujo = computed(() => {
