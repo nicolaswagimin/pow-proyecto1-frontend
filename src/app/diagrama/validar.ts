@@ -4,14 +4,14 @@ import { Diagram, DiagramType, NodeCategory } from '../gen/codetodiagram/v1/diag
 // estas mismas reglas (src/diagramas/validar.js en el backend). Si cambias una, cambia la otra.
 
 export const MAX_NODOS = 12;
+export const MAX_MIEMBROS = 12;
 
 export type ResultadoValidacion =
-  | { ok: true; diagrama: Diagram }
-  | { ok: false; errores: string[] };
+  { ok: true; diagrama: Diagram } | { ok: false; errores: string[] };
 
 type Regla = (d: Diagram) => string[];
 
-const TIPOS = new Set([DiagramType.ARCHITECTURE, DiagramType.SEQUENCE]);
+const TIPOS = new Set([DiagramType.ARCHITECTURE, DiagramType.SEQUENCE, DiagramType.CLASS]);
 const CATEGORIAS = new Set([
   NodeCategory.PERSON,
   NodeCategory.COMPONENT,
@@ -79,12 +79,32 @@ const revisarOrden: Regla = (d) =>
             `En un diagrama de secuencia, la conexión "${arista.id}" necesita un orden (1 o más).`,
         );
 
+// Atributos y métodos solo tienen sentido (y solo se dibujan) en un diagrama de clases.
+const revisarMiembros: Regla = (d) =>
+  d.nodes.flatMap((nodo) => {
+    const tieneMiembros = nodo.attributes.length > 0 || nodo.methods.length > 0;
+    if (tieneMiembros && d.type !== DiagramType.CLASS) {
+      return [
+        `El nodo "${nodo.id}" tiene atributos o métodos, pero solo un diagrama de clases los muestra.`,
+      ];
+    }
+    return [
+      ...(nodo.attributes.length > MAX_MIEMBROS
+        ? [`El nodo "${nodo.id}" tiene más de ${MAX_MIEMBROS} atributos.`]
+        : []),
+      ...(nodo.methods.length > MAX_MIEMBROS
+        ? [`El nodo "${nodo.id}" tiene más de ${MAX_MIEMBROS} métodos.`]
+        : []),
+    ];
+  });
+
 const REGLAS: Regla[] = [
   revisarTipoYCategorias,
   revisarCantidad,
   revisarIds,
   revisarConexiones,
   revisarOrden,
+  revisarMiembros,
 ];
 
 export function validarDiagrama(d: Diagram | undefined): ResultadoValidacion {
