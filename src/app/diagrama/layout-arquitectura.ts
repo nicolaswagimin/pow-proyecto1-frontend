@@ -26,6 +26,7 @@ const LETRA_TITULO = 7.6; // ancho aproximado de una letra del título (B612, 13
 const LETRA_CODIGO = 6.4; // ídem para tipo, detalle y filas (B612 Mono, 10,5 px)
 const MARGEN_TEXTO = 24;
 const MAX_TIPO = 28;
+const MARCA_INVENTADO = 'no está en el código';
 // Conexiones de herencia: en clases, la madre se dibuja arriba (como en UML).
 const HERENCIA = /hereda|extiende|implementa/i;
 // Si un nodo tiene varias salidas, sus etiquetas nacen del mismo tramo y se pisarían: más cortas.
@@ -115,6 +116,7 @@ function aNodo(nodo: Node): Omit<NodoDiagrama, 'x' | 'y'> {
       ? filas.map((f) => ({ ...f, texto: acortar(f.texto, maxCodigo - 2) }))
       : undefined,
     estado: 'normal',
+    marca: nodo.notInCode ? MARCA_INVENTADO : undefined,
   };
 }
 
