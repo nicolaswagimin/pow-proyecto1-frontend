@@ -42,6 +42,8 @@
       [style.transform]="'translate(' + nodo.x + 'px, ' + nodo.y + 'px)'"
       [style.--i]="i"
     >
+      <!-- Tooltip nativo con el nombre completo (el título visible puede estar recortado). -->
+      <title>{{ nodo.tituloCompleto ?? nodo.titulo }}</title>
       @if (nodo.forma === 'persona') {
         <circle class="nodo__fondo nodo__trazo" [attr.cx]="nodo.ancho / 2" cy="10" r="10" />
       }
