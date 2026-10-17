@@ -1,6 +1,13 @@
-import { Diagram, Edge, Node, NodeCategory } from '../gen/codetodiagram/v1/diagram_pb';
+import {
+  Diagram,
+  DiagramType,
+  Edge,
+  Method,
+  Node,
+  NodeCategory,
+} from '../gen/codetodiagram/v1/diagram_pb';
 import { DiffVista } from './diff';
-import { AristaDiagrama, FormaNodo, NodoDiagrama, altoNodo, marco } from './modelo';
+import { AristaDiagrama, FilaNodo, FormaNodo, NodoDiagrama, altoNodo, marco } from './modelo';
 import { MarcasCambio, VistaDiff, conFantasmas, diagramaDeVista } from './vistas';
 import { acortar } from './texto';
 
@@ -19,6 +26,8 @@ const LETRA_TITULO = 7.6; // ancho aproximado de una letra del título (B612, 13
 const LETRA_CODIGO = 6.4; // ídem para tipo, detalle y filas (B612 Mono, 10,5 px)
 const MARGEN_TEXTO = 24;
 const MAX_TIPO = 28;
+// Conexiones de herencia: en clases, la madre se dibuja arriba (como en UML).
+const HERENCIA = /hereda|extiende|implementa/i;
 // Si un nodo tiene varias salidas, sus etiquetas nacen del mismo tramo y se pisarían: más cortas.
 const MAX_ETIQUETA_COMPARTIDA = 12;
 
@@ -49,7 +58,11 @@ export function layoutArquitectura(d: Diagram, marcas: MarcasCambio = {}): Layou
   const nodos = [...d.nodes].sort(porId);
   const aristas = [...d.edges].sort(porId);
   const base = new Map(nodos.map((nodo) => [nodo.id, aNodo(nodo)]));
-  const paraCapas = aristas;
+  // Solo para calcular las capas, la herencia se invierte: la clase madre queda arriba.
+  const paraCapas =
+    d.type === DiagramType.CLASS
+      ? aristas.map((a) => (HERENCIA.test(a.label) ? { ...a, from: a.to, to: a.from } : a))
+      : aristas;
   const capas = asignarCapas(nodos, paraCapas);
   const posicion = ubicar(nodos, paraCapas, capas, base);
   const salidas = new Map<string, number>();
@@ -83,7 +96,12 @@ export function vistaDiff(
 function aNodo(nodo: Node): Omit<NodoDiagrama, 'x' | 'y'> {
   const etiqueta = ETIQUETAS[nodo.category];
   const tipo = nodo.technology ? `${etiqueta}: ${nodo.technology}` : etiqueta;
-  const ancho = anchoPara(nodo.name, [tipo, nodo.file]);
+  const filas = filasDeClase(nodo);
+  const ancho = anchoPara(nodo.name, [
+    tipo,
+    nodo.file,
+    ...filas.map((f) => `${f.glifo} ${f.texto}`),
+  ]);
   const maxCodigo = Math.floor((ancho - MARGEN_TEXTO) / LETRA_CODIGO);
   return {
     id: nodo.id,
@@ -93,6 +111,9 @@ function aNodo(nodo: Node): Omit<NodoDiagrama, 'x' | 'y'> {
     forma: FORMAS[nodo.category],
     ancho,
     detalle: nodo.file ? acortar(nodo.file, maxCodigo) : undefined,
+    filas: filas.length
+      ? filas.map((f) => ({ ...f, texto: acortar(f.texto, maxCodigo - 2) }))
+      : undefined,
     estado: 'normal',
   };
 }
@@ -104,6 +125,32 @@ function anchoPara(titulo: string, otros: string[]): number {
     ...otros.map((texto) => texto.length * LETRA_CODIGO),
   );
   return Math.min(ANCHO_MAXIMO, Math.max(ANCHO_NODO, Math.ceil(necesario + MARGEN_TEXTO)));
+}
+
+// Compartimentos UML: atributos ("nombre: tipo") y métodos ("metodo(param: tipo): retorno"),
+// con la visibilidad como glifo: − si el nombre empieza con _ (privado por convención), + si no.
+function filasDeClase(nodo: Node): FilaNodo[] {
+  const visibilidad = (nombre: string) => (nombre.startsWith('_') ? '−' : '+');
+  const conTipo = (nombre: string, tipo: string) => (tipo ? `${nombre}: ${tipo}` : nombre);
+  return [
+    ...nodo.attributes.map((a, i) => ({
+      id: `a-${i}`,
+      texto: conTipo(a.name, a.type),
+      glifo: visibilidad(a.name),
+    })),
+    ...nodo.methods.map((m, i) => ({
+      id: `m-${i}`,
+      texto: firma(m),
+      glifo: visibilidad(m.name),
+    })),
+  ];
+}
+
+export function firma(metodo: Method): string {
+  const parametros = metodo.parameters
+    .map((p) => (p.type ? `${p.name}: ${p.type}` : p.name))
+    .join(', ');
+  return `${metodo.name}(${parametros})${metodo.returnType ? `: ${metodo.returnType}` : ''}`;
 }
 
 function aArista(arista: Edge, compartida = false): AristaDiagrama {
