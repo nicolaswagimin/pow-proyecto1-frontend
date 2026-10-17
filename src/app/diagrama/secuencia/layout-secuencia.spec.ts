@@ -1,10 +1,17 @@
 import { DiagramType } from '../../gen/codetodiagram/v1/diagram_pb';
 import { calcularDiff } from '../diff';
 import { diagramaDePrueba } from '../fabrica.spec-util';
-import { ALTO_MENSAJE, ANCHO_CARRIL, layoutSecuencia, vistaDiffSecuencia } from './layout-secuencia';
+import {
+  ALTO_MENSAJE,
+  ANCHO_CARRIL,
+  layoutSecuencia,
+  vistaDiffSecuencia,
+} from './layout-secuencia';
 
-const secuencia = (aristas: [string, string, string, string, number][], nodos = ['usuario', 'web', 'api', 'db']) =>
-  diagramaDePrueba({ tipo: DiagramType.SEQUENCE, nodos, aristas });
+const secuencia = (
+  aristas: [string, string, string, string, number][],
+  nodos = ['usuario', 'web', 'api', 'db'],
+) => diagramaDePrueba({ tipo: DiagramType.SEQUENCE, nodos, aristas });
 
 const login = secuencia([
   ['c2', 'web', 'api', 'POST /login', 2],
@@ -14,12 +21,22 @@ const login = secuencia([
 
 describe('layoutSecuencia', () => {
   it('participantes en orden de aparición', () => {
-    expect(layoutSecuencia(login).participantes.map((p) => p.id)).toEqual(['usuario', 'web', 'api', 'db']);
+    expect(layoutSecuencia(login).participantes.map((p) => p.id)).toEqual([
+      'usuario',
+      'web',
+      'api',
+      'db',
+    ]);
   });
 
   it('participantes sin mensajes van al final por id', () => {
     const d = secuencia([['c1', 'web', 'api', 'x', 1]], ['zeta', 'api', 'web', 'alfa']);
-    expect(layoutSecuencia(d).participantes.map((p) => p.id)).toEqual(['web', 'api', 'alfa', 'zeta']);
+    expect(layoutSecuencia(d).participantes.map((p) => p.id)).toEqual([
+      'web',
+      'api',
+      'alfa',
+      'zeta',
+    ]);
   });
 
   it('mensajes ordenados por order con empate por id', () => {
@@ -33,9 +50,15 @@ describe('layoutSecuencia', () => {
 
   it('ubica carriles y mensajes en una grilla fija', () => {
     const { participantes, mensajes } = layoutSecuencia(login);
-    expect(participantes.map((p) => p.x)).toEqual([0, 1, 2, 3].map((i) => i * ANCHO_CARRIL + ANCHO_CARRIL / 2));
+    expect(participantes.map((p) => p.x)).toEqual(
+      [0, 1, 2, 3].map((i) => i * ANCHO_CARRIL + ANCHO_CARRIL / 2),
+    );
     expect(mensajes[1].y - mensajes[0].y).toBe(ALTO_MENSAJE);
-    expect(mensajes[0]).toMatchObject({ deX: participantes[0].x, aX: participantes[1].x, etiqueta: 'envía formulario' });
+    expect(mensajes[0]).toMatchObject({
+      deX: participantes[0].x,
+      aX: participantes[1].x,
+      etiqueta: 'envía formulario',
+    });
   });
 
   it('aplica cambios', () => {
@@ -65,6 +88,17 @@ describe('vistaDiffSecuencia', () => {
       ['POST /login', undefined, false],
       ['SELECT usuario', 'eliminado', true],
     ]);
-    expect(participantes.find((p) => p.id === 'db')).toMatchObject({ cambio: 'eliminado', fantasma: true });
+    expect(participantes.find((p) => p.id === 'db')).toMatchObject({
+      cambio: 'eliminado',
+      fantasma: true,
+    });
+  });
+
+  it('conserva el nombre completo de cada participante para el tooltip', () => {
+    const d = secuencia([['c1', 'web', 'api', 'x', 1]], ['web', 'api']);
+    d.nodes[0].name = 'Aplicación web del panel de administración';
+    const web = layoutSecuencia(d).participantes.find((p) => p.id === 'web')!;
+    expect(web.titulo.endsWith('…')).toBe(true);
+    expect(web.tituloCompleto).toBe('Aplicación web del panel de administración');
   });
 });
