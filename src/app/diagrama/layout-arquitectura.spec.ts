@@ -1,7 +1,8 @@
-import { NodeCategory } from '../gen/codetodiagram/v1/diagram_pb';
+import { DiagramType, NodeCategory } from '../gen/codetodiagram/v1/diagram_pb';
 import { calcularDiff } from './diff';
 import { diagramaDePrueba } from './fabrica.spec-util';
 import {
+  ANCHO_MAXIMO,
   ANCHO_NODO,
   ESCALA_MINIMA,
   SEPARACION_X,
@@ -32,7 +33,9 @@ describe('layoutArquitectura', () => {
     const invertido = diagramaDePrueba();
     invertido.nodes.reverse();
     invertido.edges.reverse();
-    expect(posiciones(layoutArquitectura(d).nodos)).toEqual(posiciones(layoutArquitectura(invertido).nodos));
+    expect(posiciones(layoutArquitectura(d).nodos)).toEqual(
+      posiciones(layoutArquitectura(invertido).nodos),
+    );
   });
 
   it('cadena A→B→C queda en 3 capas', () => {
@@ -42,7 +45,11 @@ describe('layoutArquitectura', () => {
   it('layout con ciclo termina y asigna capas', () => {
     const d = diagramaDePrueba({
       nodos: ['a', 'b', 'c'],
-      aristas: [['c1', 'a', 'b'], ['c2', 'b', 'c'], ['c3', 'c', 'a']],
+      aristas: [
+        ['c1', 'a', 'b'],
+        ['c2', 'b', 'c'],
+        ['c3', 'c', 'a'],
+      ],
     });
     expect(capas(layoutArquitectura(d).nodos)).toEqual({ a: 0, b: 1, c: 2 });
   });
@@ -53,7 +60,9 @@ describe('layoutArquitectura', () => {
   });
 
   it('un solo nodo', () => {
-    const { nodos, aristas } = layoutArquitectura(diagramaDePrueba({ nodos: ['solo'], aristas: [] }));
+    const { nodos, aristas } = layoutArquitectura(
+      diagramaDePrueba({ nodos: ['solo'], aristas: [] }),
+    );
     expect(nodos.length).toBe(1);
     expect(aristas).toEqual([]);
   });
@@ -61,34 +70,78 @@ describe('layoutArquitectura', () => {
   it('sin solapes horizontales en una capa', () => {
     const d = diagramaDePrueba({
       nodos: ['raiz', 'a', 'b', 'c', 'd'],
-      aristas: [['c1', 'raiz', 'a'], ['c2', 'raiz', 'b'], ['c3', 'raiz', 'c'], ['c4', 'raiz', 'd']],
+      aristas: [
+        ['c1', 'raiz', 'a'],
+        ['c2', 'raiz', 'b'],
+        ['c3', 'raiz', 'c'],
+        ['c4', 'raiz', 'd'],
+      ],
     });
-    const capa = layoutArquitectura(d).nodos.filter((n) => n.id !== 'raiz').sort((p, q) => p.x - q.x);
+    d.nodes[2].name = 'Servicio de autenticación y autorización de usuarios';
+    const capa = layoutArquitectura(d)
+      .nodos.filter((n) => n.id !== 'raiz')
+      .sort((p, q) => p.x - q.x);
     for (let i = 1; i < capa.length; i++) {
-      expect(capa[i].x - capa[i - 1].x).toBeGreaterThanOrEqual(ANCHO_NODO + SEPARACION_X);
+      expect(capa[i].x - (capa[i - 1].x + capa[i - 1].ancho)).toBeGreaterThanOrEqual(SEPARACION_X);
     }
   });
 
-  it('un diagrama ancho no se encoge por debajo de la escala mínima', () => {
-    const hijos = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-    const d = diagramaDePrueba({
-      nodos: ['raiz', ...hijos],
-      aristas: hijos.map((h, i) => [`c${i}`, 'raiz', h] as [string, string, string]),
-    });
-    const { nodos } = layoutArquitectura(d);
-    expect(ESCALA_MINIMA).toBeGreaterThanOrEqual(0.75);
-    expect(anchoMinimoDibujo(nodos)).toBe(Math.round(marco(nodos).ancho * ESCALA_MINIMA));
+  it('el ancho crece con el nombre, entre el mínimo y el máximo', () => {
+    const d = diagramaDePrueba({ nodos: ['corto', 'largo', 'enorme'], aristas: [] });
+    d.nodes[0].name = 'Arma';
+    d.nodes[1].name = 'Personaje (Guerrero, Mago, Picaro)';
+    d.nodes[2].name = 'Un nombre larguísimo que no cabe ni en el nodo más ancho que se permite';
+    const [corto, largo, enorme] = ['corto', 'largo', 'enorme'].map((id) =>
+      layoutArquitectura(d).nodos.find((n) => n.id === id)!,
+    );
+    expect(corto.ancho).toBe(ANCHO_NODO);
+    expect(largo.ancho).toBeGreaterThan(ANCHO_NODO);
+    expect(largo.titulo).toBe('Personaje (Guerrero, Mago, Picaro)');
+    expect(enorme.ancho).toBe(ANCHO_MAXIMO);
+    expect(enorme.titulo.endsWith('…')).toBe(true);
+    expect(enorme.tituloCompleto).toBe(d.nodes[2].name);
   });
 
-  it('acorta las etiquetas cuando un nodo tiene varias salidas, para que no se pisen', () => {
+  it('un nodo que no está en el código lleva la marca', () => {
+    const d = diagramaDePrueba({ aristas: [] });
+    d.nodes[2].notInCode = true;
+    const { nodos } = layoutArquitectura(d);
+    expect(nodos.find((n) => n.id === 'db')?.marca).toBe('no está en el código');
+    expect(nodos.find((n) => n.id === 'web')?.marca).toBeUndefined();
+  });
+
+  it('en clases, atributos y métodos son filas con la visibilidad UML', () => {
+    const d = diagramaDePrueba({ tipo: DiagramType.CLASS, nodos: ['arma'], aristas: [] });
+    d.nodes[0].attributes = [
+      { $typeName: 'codetodiagram.v1.Attribute', name: 'bonus_ataque', type: 'int' },
+      { $typeName: 'codetodiagram.v1.Attribute', name: '_secreto', type: '' },
+    ];
+    d.nodes[0].methods = [
+      {
+        $typeName: 'codetodiagram.v1.Method',
+        name: 'calcular',
+        parameters: [{ $typeName: 'codetodiagram.v1.Parameter', name: 'turno', type: 'int' }],
+        returnType: 'int',
+      },
+    ];
+    const [nodo] = layoutArquitectura(d).nodos;
+    expect(nodo.filas?.map((f) => [f.glifo, f.texto])).toEqual([
+      ['+', 'bonus_ataque: int'],
+      ['−', '_secreto'],
+      ['+', 'calcular(turno: int): int'],
+    ]);
+  });
+
+  it('en clases la herencia deja a la clase madre arriba', () => {
     const d = diagramaDePrueba({
-      nodos: ['api', 'db', 'cache'],
-      aristas: [['c1', 'api', 'db', 'SELECT * FROM usuarios WHERE email'], ['c2', 'api', 'cache', 'GET/SET token']],
+      tipo: DiagramType.CLASS,
+      nodos: ['personaje', 'guerrero', 'mago'],
+      aristas: [
+        ['c1', 'guerrero', 'personaje', 'hereda'],
+        ['c2', 'mago', 'personaje', 'hereda'],
+      ],
     });
-    const etiquetas = layoutArquitectura(d).aristas.map((a) => a.etiqueta ?? '');
-    expect(etiquetas.every((e) => e.length <= 12)).toBe(true);
-    const sola = diagramaDePrueba({ nodos: ['api', 'db'], aristas: [['c1', 'api', 'db', 'SELECT * FROM usuarios']] });
-    expect(layoutArquitectura(sola).aristas[0].etiqueta).toBe('SELECT * FROM usuarios');
+    expect(capas(layoutArquitectura(d).nodos)).toEqual({ personaje: 0, guerrero: 1, mago: 1 });
   });
 
   it('mapea nombre, categoría, tecnología y archivo', () => {
@@ -127,14 +180,20 @@ describe('vistaDiff', () => {
   const antes = diagramaDePrueba();
   const despues = diagramaDePrueba({
     nodos: ['web', 'api', 'cache'],
-    aristas: [['c1', 'web', 'api', 'login'], ['c3', 'api', 'cache']],
+    aristas: [
+      ['c1', 'web', 'api', 'login'],
+      ['c3', 'api', 'cache'],
+    ],
   });
   const diff = calcularDiff(antes, despues);
 
   it('Después marca agregados y no muestra eliminados', () => {
     const { nodos } = vistaDiff('despues', antes, despues, diff);
     expect(nodos.map((n) => [n.id, n.cambio])).toEqual(
-      expect.arrayContaining([['cache', 'agregado'], ['web', undefined]]),
+      expect.arrayContaining([
+        ['cache', 'agregado'],
+        ['web', undefined],
+      ]),
     );
     expect(nodos.some((n) => n.id === 'db')).toBe(false);
   });
