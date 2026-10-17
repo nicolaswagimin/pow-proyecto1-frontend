@@ -15,6 +15,13 @@ Diagrama de arquitectura en notación C4, dibujado en SVG sin librerías. Es el 
 | `descripcion` | `string` (requerido) | Texto para lectores de pantalla; el SVG se anuncia como una sola imagen |
 | `filaActiva` | `string \| null` | Id de la fila resaltada (el campo enfocado) |
 | `dibujar` | `boolean` | Al aparecer, el diagrama se dibuja nodo por nodo |
+| `seleccionable` | `boolean` | Un clic en un nodo emite `nodoClic` con su id (cursor de mano) |
+
+| Output | Tipo | Descripción |
+|---|---|---|
+| `nodoClic` | `string` | Id del nodo clicado (solo con `seleccionable`) |
+
+Cada nodo lleva un `<title>` con `tituloCompleto` (o el título): el navegador lo muestra como tooltip. Una fila puede traer su propio `glifo` (en clases, la visibilidad `+` o `−`); sin él, el glifo sale del estado como siempre.
 
 | Método | Qué hace |
 |---|---|
@@ -57,6 +64,15 @@ Diagrama de secuencia en SVG: cajas de participantes arriba, líneas de vida dis
 |---|---|---|
 | `layout` | `LayoutSecuencia` (requerido) | Participantes y mensajes ya ubicados por `layoutSecuencia` o `vistaDiffSecuencia` |
 | `descripcion` | `string` (requerido) | Texto para lectores de pantalla |
+
+### `ui-detalle-nodos`
+
+Panel "Detalle" (`diagrama/detalle/`): un `<details>` por nodo con el nombre completo, `[Categoría: tecnología]`, descripción, archivo, atributos, métodos y, si el nodo no está en el código, el aviso en `--color-error`.
+
+| Input | Tipo | Descripción |
+|---|---|---|
+| `diagrama` | `Diagram` (requerido) | El diagrama actual |
+| `abierto` | `string \| null` | Id del nodo cuyo detalle se abre (y se desplaza a la vista) |
 
 ### `ui-leyenda`
 
@@ -146,6 +162,7 @@ Editor de código liviano: pestañas por archivo y un `textarea` con números de
 
 - `+` agrega un archivo (`archivo.js`, `archivo-2.js`…), hasta 10; doble clic renombra (Enter confirma, Esc cancela); `×` quita, si hay más de uno.
 - Tab inserta dos espacios; Esc y después Tab sale del editor, así el teclado nunca queda atrapado.
+- Si el contenido parece de otro lenguaje que el de la extensión (`lenguaje.ts`: Python, JavaScript, TypeScript, Java, C#, Go, PHP y Ruby), muestra "Parece Python, pero la pestaña se llama index.js." con un botón para renombrarla.
 - Pestañas con `role="tab"` y `aria-selected`; el `textarea` se anuncia como "Código de <archivo>" y está descrito por la línea de ayuda.
 
 ### `ui-alert`
