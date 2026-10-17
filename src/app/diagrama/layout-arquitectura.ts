@@ -62,7 +62,7 @@ export interface LayoutDiagrama {
 export function layoutArquitectura(d: Diagram, marcas: MarcasCambio = {}): LayoutDiagrama {
   const nodos = [...d.nodes].sort(porId);
   const aristas = [...d.edges].sort(porId);
-  const base = new Map(nodos.map((nodo) => [nodo.id, aNodo(nodo)]));
+  const base = new Map(nodos.map((nodo) => [nodo.id, aNodo(nodo, d.type === DiagramType.CLASS)]));
   // Solo para calcular las capas, la herencia se invierte: la clase madre queda arriba.
   const paraCapas =
     d.type === DiagramType.CLASS
@@ -98,8 +98,10 @@ export function vistaDiff(
   return { nodos: conFantasmas(vista, nodos), aristas: conFantasmas(vista, aristas) };
 }
 
-function aNodo(nodo: Node): Omit<NodoDiagrama, 'x' | 'y'> {
-  const etiqueta = ETIQUETAS[nodo.category];
+function aNodo(nodo: Node, esClase = false): Omit<NodoDiagrama, 'x' | 'y'> {
+  // En un diagrama de clases, los componentes son clases (como en UML).
+  const etiqueta =
+    esClase && nodo.category === NodeCategory.COMPONENT ? 'Clase' : ETIQUETAS[nodo.category];
   const tipo = nodo.technology ? `${etiqueta}: ${nodo.technology}` : etiqueta;
   const filas = filasDeClase(nodo);
   const ancho = anchoPara(nodo.name, [
