@@ -13,8 +13,10 @@ Dos columnas en escritorio (código | diagrama) y una debajo de la otra en móvi
 ### Tu código
 
 - **Editor con pestañas**: un archivo por pestaña, hasta 10. `+` agrega uno, doble clic renombra, `×` lo quita. Tab inserta dos espacios; Esc y luego Tab sale del editor (no atrapa el foco).
-- **Tipo de diagrama**: *Arquitectura* (qué piezas hay y cómo se conectan) o *Secuencia* (qué pasa, paso a paso, en un flujo concreto).
+- **Tipo de diagrama**: *Arquitectura* (qué piezas hay y cómo se conectan), *Secuencia* (qué pasa, paso a paso, en un flujo concreto) o *Clases* (cada clase con sus atributos y métodos, como en UML).
+- **Aviso de lenguaje**: si el código no coincide con la extensión de la pestaña (por ejemplo, Python en `index.js`), el editor lo dice y ofrece "Renombrar a index.py".
 - **¿Qué quieres entender?** (opcional, hasta 300 caracteres): enfoca el diagrama en una pregunta, por ejemplo "¿cómo se valida el login?". Así el diagrama tiene como mucho 12 nodos y responde algo concreto en lugar de mapearlo todo.
+- **Aviso de pregunta**: si la pregunta pide algo que el tipo elegido no muestra (atributos o métodos fuera de Clases; el orden de los pasos fuera de Secuencia), aparece un aviso con un botón para cambiar al tipo que sí lo muestra.
 - **Generar diagrama**: pide el primero. Con el editor vacío no se llama a la IA: aparece "Pega algo de código antes de generar."
 
 ### El diagrama
@@ -23,6 +25,8 @@ Dos columnas en escritorio (código | diagrama) y una debajo de la otra en móvi
 - **Se actualiza solo**: una vez que hay un diagrama, cada cambio en el código, el tipo o la pregunta lo regenera tras 2 segundos sin escribir. Si el contenido no cambió, no se pide nada; entre dos regeneraciones automáticas pasan al menos 5 segundos. Mientras llega la nueva versión, la anterior queda visible pero atenuada.
 - **Diff**: al regenerar después de una edición se resaltan los cambios: verde para lo agregado, ámbar con trazo discontinuo para lo modificado y rojo punteado para lo eliminado. El resumen dice, por ejemplo, "2 agregados · 1 modificado".
 - **Antes / Después / Comparar**: *Antes* muestra la versión anterior con lo eliminado marcado; *Después*, la nueva con lo agregado y modificado; *Comparar*, las dos juntas, con lo eliminado tenue.
+- **Nombres completos**: los nodos se ensanchan según su texto (hasta 320 px). Si aún así un nombre se recorta, se ve completo al pasar el mouse (tooltip) y en el panel **Detalle**, debajo del diagrama, que lista cada nodo con su descripción, archivo, atributos y métodos. Un clic en un nodo abre su detalle.
+- **Nodos sin respaldo**: si la IA insiste en un elemento que no está en el código, se dibuja con la insignia "no está en el código" y el detalle lo explica.
 - **Guardar** lo agrega al historial con su código. **Exportar SVG** y **Exportar PNG** descargan el diagrama tal como se ve.
 
 ### Errores
