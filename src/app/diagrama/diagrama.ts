@@ -94,7 +94,7 @@ export class Diagrama {
         filasVista: (nodo.filas ?? []).map((fila, i) => ({
           ...fila,
           y: inicio + 4 + i * ALTO_FILA,
-          glifo: GLIFOS[fila.estado ?? 'vacia'],
+          glifo: fila.glifo ?? GLIFOS[fila.estado ?? 'vacia'],
         })),
       };
     }),
