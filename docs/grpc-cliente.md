@@ -11,6 +11,8 @@ Los navegadores no pueden hablar gRPC puro, así que el cliente usa **gRPC-Web**
 | Desarrollo (`ng serve`) | `http://localhost:3001` |
 | Producción (`ng build`) | `https://pow-proyecto1-backend.onrender.com` |
 
+Verificado en producción el 2026-10-16: contra Render funcionan las llamadas unarias y el streaming de `StreamDiagram` por gRPC-Web.
+
 ## `DiagramasService` (`src/app/services/diagramas.service.ts`)
 
 | Método | RPC |
