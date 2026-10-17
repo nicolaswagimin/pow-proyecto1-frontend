@@ -46,6 +46,19 @@
           opcional
         />
 
+        @if (sugerenciaTipo(); as sugerencia) {
+          <ui-alert tipo="aviso">
+            {{ sugerencia.mensaje }}
+            <ui-button
+              variante="secundario"
+              tamano="compacto"
+              (click)="alCambiarTipo(sugerencia.sugerido)"
+            >
+              Cambiar a {{ TIPOS_DIAGRAMA[sugerencia.sugerido].etiqueta }}
+            </ui-button>
+          </ui-alert>
+        }
+
         <ui-button [cargando]="generando()" textoCargando="Generando…" (click)="generar()">
           <ui-icon nombre="chispa" />
           Generar diagrama

@@ -26,6 +26,7 @@ import {
   vistaDiff,
 } from '../../diagrama/layout-arquitectura';
 import { DiagramaSecuencia } from '../../diagrama/secuencia/secuencia';
+import { analizarPregunta } from '../../diagrama/pregunta';
 import { layoutSecuencia, vistaDiffSecuencia } from '../../diagrama/secuencia/layout-secuencia';
 import { TIPOS_DIAGRAMA, TipoSoportado } from '../../diagrama/tipos';
 import { VistaDiff } from '../../diagrama/vistas';
@@ -68,6 +69,7 @@ export class Inicio {
     () => (this.usuario()?.nombre ?? '').trim().split(/\s+/)[0] || 'de nuevo',
   );
 
+  protected readonly TIPOS_DIAGRAMA = TIPOS_DIAGRAMA;
   protected readonly tipos = (Object.keys(TIPOS_DIAGRAMA) as unknown as TipoSoportado[]).map(
     (valor) => ({ valor: Number(valor) as TipoSoportado, ...TIPOS_DIAGRAMA[valor] }),
   );
@@ -81,6 +83,11 @@ export class Inicio {
     { valor: 'despues', etiqueta: 'Después' },
     { valor: 'comparar', etiqueta: 'Comparar' },
   ];
+
+  // La pregunta pide algo que el tipo elegido no muestra: se sugiere el tipo que sí.
+  protected readonly sugerenciaTipo = computed(() =>
+    analizarPregunta(this.espacio.pregunta(), this.espacio.tipo()),
+  );
 
   protected readonly generando = computed(() => this.espacio.estado() === 'generando');
   // Hay diff cuando el diagrama actual salió de editar uno anterior del mismo tipo.
