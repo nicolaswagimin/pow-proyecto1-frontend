@@ -14,11 +14,13 @@ export interface FilaNodo {
   id: string;
   texto: string;
   estado?: EstadoFila;
+  glifo?: string; // reemplaza el glifo del estado (en clases: la visibilidad UML, + o −)
 }
 
 export interface NodoDiagrama {
   id: string;
   titulo: string;
+  tituloCompleto?: string; // nombre sin recortar, para el tooltip
   tipo: string; // se dibuja entre corchetes, como en C4: [Componente: Angular]
   forma: FormaNodo;
   x: number;
