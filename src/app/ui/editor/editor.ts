@@ -16,6 +16,7 @@ import {
   nombreLibre,
 } from './archivos';
 import { Icon } from '../icon/icon';
+import { revisarLenguaje } from './lenguaje';
 
 // Editor de código liviano: una pestaña por archivo y un textarea con la tipografía de código.
 // Sin CodeMirror ni Monaco a propósito (ver docs/decisiones/0005-editor-textarea-propio.md).
@@ -39,6 +40,18 @@ export class Editor {
 
   // Números de línea y tamaño del área: el textarea crece con su contenido y es el contenedor
   // (.cuerpo) el que hace scroll, así los números y el código no pueden desalinearse.
+  // Python en index.js, por ejemplo: se sugiere renombrar la pestaña.
+  protected readonly avisoLenguaje = computed(() =>
+    revisarLenguaje(
+      this.activo(),
+      this.archivos().map((a) => a.nombre),
+    ),
+  );
+
+  protected renombrarActivo(nombre: string): void {
+    this.renombrar(this.archivos().indexOf(this.activo()), nombre);
+  }
+
   protected readonly lineas = computed(() => contarLineas(this.activo().contenido));
   protected readonly numeros = computed(() =>
     Array.from({ length: this.lineas() }, (_, i) => i + 1).join('\n'),

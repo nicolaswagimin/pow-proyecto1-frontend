@@ -50,6 +50,19 @@
   </button>
 </div>
 
+@if (avisoLenguaje(); as aviso) {
+  <div class="aviso-lenguaje" role="status">
+    <span>{{ aviso.mensaje }}</span>
+    <button
+      type="button"
+      class="aviso-lenguaje__boton"
+      (click)="renombrarActivo(aviso.nombreSugerido)"
+    >
+      Renombrar a {{ aviso.nombreSugerido }}
+    </button>
+  </div>
+}
+
 <div class="cuerpo">
   <pre class="margen" aria-hidden="true">{{ numeros() }}</pre>
   <textarea
