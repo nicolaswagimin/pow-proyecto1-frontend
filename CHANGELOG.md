@@ -2,7 +2,21 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Los commits siguen Conventional Commits.
 
-## [Sin publicar] · 2026-10-15
+## [Sin publicar] · 2026-10-17 (ronda 2)
+
+### Agregado
+- Tipo **Clases** (UML): atributos y métodos como compartimentos, visibilidad `+`/`−`, etiqueta `[Clase: …]` y la clase madre arriba.
+- Aviso cuando la pregunta pide algo que el tipo elegido no muestra, con botón para cambiar de tipo.
+- Detección del lenguaje del código y aviso si no coincide con la extensión de la pestaña, con botón para renombrarla.
+- Nodos sin respaldo en el código marcados "no está en el código".
+- Panel **Detalle** con el nombre completo y todo lo que el dibujo no muestra; clic en un nodo para abrirlo.
+- Tooltip con el nombre completo en `ui-diagrama` y en `ui-diagrama-secuencia`.
+
+### Cambiado
+- El ancho de cada nodo crece con su texto (200 a 320 px) y el layout ubica los nodos según su ancho real.
+- `ui-diagrama`: glifo opcional por fila, `<title>` por nodo y salida `nodoClic` con `seleccionable` (sin cambios visuales para el login ni `/design`).
+
+## 2026-10-15
 
 La funcionalidad propia de CodeToDiagram: pegar código y obtener un diagrama que cambia, con diff, mientras editas.
 
