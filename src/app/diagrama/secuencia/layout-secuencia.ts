@@ -16,6 +16,7 @@ const MAX_ETIQUETA = 26;
 export interface Participante {
   id: string;
   titulo: string;
+  tituloCompleto: string;
   x: number;
   cambio?: CambioDiagrama;
   fantasma?: boolean;
@@ -54,6 +55,7 @@ export function layoutSecuencia(d: Diagram, marcas: MarcasCambio = {}): LayoutSe
     .map((id, i) => ({
       id,
       titulo: acortar(nombres.get(id)!, MAX_TITULO),
+      tituloCompleto: nombres.get(id)!,
       x: i * ANCHO_CARRIL + ANCHO_CARRIL / 2,
       cambio: marcas.nodos?.get(id),
     }));
