@@ -9,10 +9,15 @@ export type { MarcasCambio, VistaDiff } from './vistas';
 // Layout determinista por capas: el mismo diagrama siempre se dibuja igual, sin importar el orden
 // en que la IA devolvió nodos y conexiones. Funciones puras, sin DOM.
 
+// El ancho de cada nodo crece con su texto, entre ANCHO_NODO y ANCHO_MAXIMO. Lo que no quepa se
+// recorta con "…" y se ve completo en el tooltip y en el panel de detalle.
 export const ANCHO_NODO = 200;
+export const ANCHO_MAXIMO = 320;
 export const SEPARACION_X = 48;
 export const SEPARACION_Y = 72;
-const MAX_TITULO = 24;
+const LETRA_TITULO = 7.6; // ancho aproximado de una letra del título (B612, 13 px)
+const LETRA_CODIGO = 6.4; // ídem para tipo, detalle y filas (B612 Mono, 10,5 px)
+const MARGEN_TEXTO = 24;
 const MAX_TIPO = 28;
 // Si un nodo tiene varias salidas, sus etiquetas nacen del mismo tramo y se pisarían: más cortas.
 const MAX_ETIQUETA_COMPARTIDA = 12;
@@ -43,14 +48,16 @@ export interface LayoutDiagrama {
 export function layoutArquitectura(d: Diagram, marcas: MarcasCambio = {}): LayoutDiagrama {
   const nodos = [...d.nodes].sort(porId);
   const aristas = [...d.edges].sort(porId);
-  const capas = asignarCapas(nodos, aristas);
-  const posicion = ubicar(nodos, aristas, capas);
+  const base = new Map(nodos.map((nodo) => [nodo.id, aNodo(nodo)]));
+  const paraCapas = aristas;
+  const capas = asignarCapas(nodos, paraCapas);
+  const posicion = ubicar(nodos, paraCapas, capas, base);
   const salidas = new Map<string, number>();
   for (const arista of aristas) salidas.set(arista.from, (salidas.get(arista.from) ?? 0) + 1);
 
   return {
     nodos: nodos.map((nodo) => ({
-      ...aNodo(nodo),
+      ...base.get(nodo.id)!,
       ...posicion.get(nodo.id)!,
       cambio: marcas.nodos?.get(nodo.id),
     })),
@@ -75,15 +82,28 @@ export function vistaDiff(
 
 function aNodo(nodo: Node): Omit<NodoDiagrama, 'x' | 'y'> {
   const etiqueta = ETIQUETAS[nodo.category];
+  const tipo = nodo.technology ? `${etiqueta}: ${nodo.technology}` : etiqueta;
+  const ancho = anchoPara(nodo.name, [tipo, nodo.file]);
+  const maxCodigo = Math.floor((ancho - MARGEN_TEXTO) / LETRA_CODIGO);
   return {
     id: nodo.id,
-    titulo: acortar(nodo.name, MAX_TITULO),
-    tipo: acortar(nodo.technology ? `${etiqueta}: ${nodo.technology}` : etiqueta, MAX_TIPO),
+    titulo: acortar(nodo.name, Math.floor((ancho - MARGEN_TEXTO) / LETRA_TITULO)),
+    tituloCompleto: nodo.name,
+    tipo: acortar(tipo, maxCodigo),
     forma: FORMAS[nodo.category],
-    ancho: ANCHO_NODO,
-    detalle: nodo.file ? acortar(nodo.file, MAX_TIPO) : undefined,
+    ancho,
+    detalle: nodo.file ? acortar(nodo.file, maxCodigo) : undefined,
     estado: 'normal',
   };
+}
+
+// Ancho justo para el texto más largo del nodo, entre el mínimo y el máximo.
+function anchoPara(titulo: string, otros: string[]): number {
+  const necesario = Math.max(
+    titulo.length * LETRA_TITULO,
+    ...otros.map((texto) => texto.length * LETRA_CODIGO),
+  );
+  return Math.min(ANCHO_MAXIMO, Math.max(ANCHO_NODO, Math.ceil(necesario + MARGEN_TEXTO)));
 }
 
 function aArista(arista: Edge, compartida = false): AristaDiagrama {
@@ -128,12 +148,20 @@ function asignarCapas(nodos: Node[], aristas: Edge[]): Map<string, number> {
   return capas;
 }
 
-// (3) Dentro de cada capa, orden por baricentro de los padres ya ubicados (empate por id).
-// (4) Cada fila se centra en x = 0; la y acumula el nodo más alto de cada fila.
-function ubicar(nodos: Node[], aristas: Edge[], capas: Map<string, number>) {
+// (3) Dentro de cada capa, orden por baricentro de los centros de los padres ya ubicados
+//     (empate por id).
+// (4) Cada fila se centra en x = 0 según el ancho real de sus nodos; la y acumula el nodo más alto
+//     de cada fila.
+function ubicar(
+  nodos: Node[],
+  aristas: Edge[],
+  capas: Map<string, number>,
+  base: Map<string, Omit<NodoDiagrama, 'x' | 'y'>>,
+) {
   const posicion = new Map<string, { x: number; y: number }>();
+  const ancho = (id: string) => base.get(id)!.ancho;
+  const centro = (id: string) => posicion.get(id)!.x + ancho(id) / 2;
   const total = Math.max(0, ...capas.values()) + 1;
-  const altos = new Map(nodos.map((n) => [n.id, altoNodo({ ...aNodo(n), x: 0, y: 0 })]));
   let y = 0;
 
   for (let capa = 0; capa < total; capa++) {
@@ -141,18 +169,22 @@ function ubicar(nodos: Node[], aristas: Edge[], capas: Map<string, number>) {
     const baricentro = (id: string) => {
       const padres = aristas
         .filter((a) => a.to === id && posicion.has(a.from))
-        .map((a) => posicion.get(a.from)!.x);
+        .map((a) => centro(a.from));
       return padres.length ? padres.reduce((s, x) => s + x, 0) / padres.length : 0;
     };
     const ordenada = fila
       .map((n) => ({ id: n.id, b: baricentro(n.id) }))
       .sort((p, q) => p.b - q.b || (p.id < q.id ? -1 : 1));
 
-    const ancho = ordenada.length * ANCHO_NODO + (ordenada.length - 1) * SEPARACION_X;
-    ordenada.forEach(({ id }, i) => {
-      posicion.set(id, { x: -ancho / 2 + i * (ANCHO_NODO + SEPARACION_X), y });
-    });
-    y += Math.max(0, ...fila.map((n) => altos.get(n.id)!)) + SEPARACION_Y;
+    const anchoFila =
+      ordenada.reduce((s, { id }) => s + ancho(id), 0) + (ordenada.length - 1) * SEPARACION_X;
+    let x = -anchoFila / 2;
+    for (const { id } of ordenada) {
+      posicion.set(id, { x, y });
+      x += ancho(id) + SEPARACION_X;
+    }
+    const alto = Math.max(0, ...fila.map((n) => altoNodo({ ...base.get(n.id)!, x: 0, y: 0 })));
+    y += alto + SEPARACION_Y;
   }
   return posicion;
 }
