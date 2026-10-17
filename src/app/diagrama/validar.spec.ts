@@ -16,7 +16,10 @@ describe('validarDiagrama (frontend)', () => {
   it('acepta secuencia con orden', () => {
     const d = diagramaDePrueba({
       tipo: DiagramType.SEQUENCE,
-      aristas: [['c1', 'web', 'api', 'a', 1], ['c2', 'api', 'db', 'b', 2]],
+      aristas: [
+        ['c1', 'web', 'api', 'a', 1],
+        ['c2', 'api', 'db', 'b', 2],
+      ],
     });
     expect(validarDiagrama(d).ok).toBe(true);
   });
@@ -31,7 +34,9 @@ describe('validarDiagrama (frontend)', () => {
   });
 
   it('rechaza un diagrama sin nodos', () => {
-    expect(errores(diagramaDePrueba({ nodos: [], aristas: [] })).join()).toMatch(/al menos un nodo/);
+    expect(errores(diagramaDePrueba({ nodos: [], aristas: [] })).join()).toMatch(
+      /al menos un nodo/,
+    );
   });
 
   it('rechaza tipo sin especificar', () => {
@@ -77,10 +82,49 @@ describe('validarDiagrama (frontend)', () => {
   it('rechaza secuencia sin orden', () => {
     const d = diagramaDePrueba({
       tipo: DiagramType.SEQUENCE,
-      aristas: [['c1', 'web', 'api', 'a', 1], ['c2', 'api', 'db', 'b']],
+      aristas: [
+        ['c1', 'web', 'api', 'a', 1],
+        ['c2', 'api', 'db', 'b'],
+      ],
     });
     expect(errores(d)).toContain(
       'En un diagrama de secuencia, la conexión "c2" necesita un orden (1 o más).',
     );
+  });
+
+  describe('diagrama de clases', () => {
+    const clases = () => {
+      const d = diagramaDePrueba({ tipo: DiagramType.CLASS, aristas: [] });
+      d.nodes[0].attributes = [
+        { $typeName: 'codetodiagram.v1.Attribute', name: 'nombre', type: 'str' },
+      ];
+      d.nodes[0].methods = [
+        { $typeName: 'codetodiagram.v1.Method', name: 'login', parameters: [], returnType: '' },
+      ];
+      return d;
+    };
+
+    it('acepta atributos y métodos', () => {
+      expect(validarDiagrama(clases()).ok).toBe(true);
+    });
+
+    it('rechaza atributos o métodos fuera de un diagrama de clases', () => {
+      const d = clases();
+      d.type = DiagramType.ARCHITECTURE;
+      expect(errores(d)).toContain(
+        'El nodo "web" tiene atributos o métodos, pero solo un diagrama de clases los muestra.',
+      );
+    });
+
+    it('rechaza más de 12 métodos en una clase', () => {
+      const d = clases();
+      d.nodes[0].methods = Array.from({ length: 13 }, (_, i) => ({
+        $typeName: 'codetodiagram.v1.Method' as const,
+        name: `m${i}`,
+        parameters: [],
+        returnType: '',
+      }));
+      expect(errores(d)).toContain('El nodo "web" tiene más de 12 métodos.');
+    });
   });
 });
